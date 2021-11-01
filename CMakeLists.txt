@@ -53,6 +53,7 @@ endif()
 # Dependencies
 ################################################################################
 
+#add_dependencies( fv3jedi ufs-weather-model)
 # jedi-cmake
 find_package( jedicmake QUIET )
 
@@ -131,6 +132,9 @@ list( APPEND FV3JEDI_TPLS atlas atlas_f oops ufo saber )
 
 set( FV3JEDI_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
                           ${CMAKE_CURRENT_BINARY_DIR}/src
+                          ${DEPEND_LIB_ROOT}/include
+                          ${DEPEND_LIB_ROOT}/mod
+                          ${DEPEND_LIB_ROOT}/include/fv3
                           ${CMAKE_Fortran_MODULE_DIRECTORY})
 
 set( FV3JEDI_LIBRARIES fv3jedi )
@@ -163,11 +167,12 @@ if (FV3_FORECAST_MODEL MATCHES UFS)
   find_package(w3nco REQUIRED )
   find_package(nemsio REQUIRED )
   find_package(fms REQUIRED )
-  find_package(stochastic_physics REQUIRED )
-  find_package(ccpp REQUIRED )
-  find_package(ccppphys REQUIRED )
-  find_package(fv3atm REQUIRED )
-  find_package(ufs REQUIRED )
+# find_package(stochastic_physics REQUIRED )
+# find_package(ccpp REQUIRED )
+# find_package(ccppphys REQUIRED )
+# find_package(fv3atm REQUIRED )
+# find_package(ufs REQUIRED )
+# link_libraries(${DEPEND_LIB_ROOT}/libstochastic_physics.a ${DEPEND_LIB_ROOT}/libccppphys.a ${DEPEND_LIB_ROOT}/libfv3atm.a ${DEPEND_LIB_ROOT}/libufs.a ${DEPEND_LIB_ROOT}/libccpp.a)
 endif()
 
 add_subdirectory( src )
