@@ -22,6 +22,7 @@ Data/fv3files/akbk127.nc4
 Data/fv3files/field_table_gmao
 Data/fv3files/field_table_gfdl
 Data/fv3files/field_table_lam_cmaq
+Data/fv3files/field_table_lam_rrfs
 Data/fv3files/fmsmpp.nml
 Data/fv3files/input_gfs_c12.nml
 Data/fv3files/input_gfs_c12_p12.nml
@@ -31,6 +32,7 @@ Data/fv3files/input_geos_c12.nml
 Data/fv3files/input_geos_c12_p12.nml
 Data/fv3files/input_geos_c24.nml
 Data/fv3files/input_lam_cmaq.nml
+Data/fv3files/input_lam_rrfs.nml
 Data/fv3files/inputpert_4dvar.nml
 Data/fv3files/inputpert_fsoi.nml
 )
@@ -109,6 +111,7 @@ list( APPEND fv3jedi_testinput
   testinput/hofx_gnssro_ropp.yaml
   testinput/hofx_nomodel.yaml
   testinput/hofx_nomodel_lam_cmaq.yaml
+  testinput/hofx_nomodel_lam_rrfs.yaml
   testinput/hofx_save_geovals.yaml
   testinput/hyb-3dvar_bc.yaml
   testinput/hyb-3dvar_fsoi_backward.yaml
@@ -212,6 +215,7 @@ list( APPEND fv3jedi_testoutput
   testoutput/hofx_gfs_aero.ref
   testoutput/hofx_gnssro_ropp.ref
   testoutput/hofx_nomodel_lam_cmaq.ref
+  testoutput/hofx_nomodel_lam_rrfs.ref
   testoutput/hofx_nomodel_gfs.ref
   testoutput/hofx_nomodel.ref
   testoutput/hofx_save_geovals.ref
@@ -959,38 +963,38 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_hofx_save_geovals
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_bumpparameters_nicas_geos
                   MPI      6
                   ARGS     testinput/bumpparameters_nicas_geos.yaml
-                  COMMAND  fv3jedi_parameters.x )
+                  COMMAND  fv3jedi_error_covariance_training.x )
 
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_bumpparameters_nicas_gfs
                   MPI      6
                   ARGS     testinput/bumpparameters_nicas_gfs.yaml
-                  COMMAND  fv3jedi_parameters.x )
+                  COMMAND  fv3jedi_error_covariance_training.x )
 
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_bumpparameters_nicas_gfs_aero
                   MPI      6
                   ARGS     testinput/bumpparameters_nicas_gfs_aero.yaml
-                  COMMAND  fv3jedi_parameters.x )
+                  COMMAND  fv3jedi_error_covariance_training.x )
 
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_bumpparameters_nicas_gfs_aero_logp
                   MPI      6
                   ARGS     testinput/bumpparameters_nicas_gfs_aero_logp.yaml
-                  COMMAND  fv3jedi_parameters.x )
+                  COMMAND  fv3jedi_error_covariance_training.x )
 
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_bumpparameters_nicas_lam_cmaq
                   MPI      6
                   ARGS     testinput/bumpparameters_nicas_lam_cmaq.yaml
-                  COMMAND  fv3jedi_parameters.x )
+                  COMMAND  fv3jedi_error_covariance_training.x )
 
 if (BUILD_LARGE_TESTS)
   ecbuild_add_test( TARGET   fv3jedi_test_tier1_bumpparameters_nicas_geos_p12
                     MPI      12
                     ARGS     testinput/bumpparameters_nicas_geos_p12.yaml
-                    COMMAND  fv3jedi_parameters.x )
+                    COMMAND  fv3jedi_error_covariance_training.x )
 
   ecbuild_add_test( TARGET   fv3jedi_test_tier1_bumpparameters_nicas_gfs_p12
                     MPI      12
                     ARGS     testinput/bumpparameters_nicas_gfs_p12.yaml
-                    COMMAND  fv3jedi_parameters.x )
+                    COMMAND  fv3jedi_error_covariance_training.x )
 endif()
 
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_errorcovariance_bump
@@ -1292,21 +1296,21 @@ if (FV3JEDI_TEST_TIER GREATER_EQUAL 2)
     ecbuild_add_test( TARGET       fv3jedi_test_tier2_staticb_vbal_${DATE}_gfs
                       MPI          12
                       ARGS         testinput/staticb_vbal_${DATE}_gfs.yaml
-                      COMMAND      fv3jedi_parameters.x
+                      COMMAND      fv3jedi_error_covariance_training.x
                       TEST_DEPENDS fv3jedi_test_tier2_staticb_ens-to-psichi_${DATE}_gfs )
 
     # Unbalance ensemble members
     ecbuild_add_test( TARGET       fv3jedi_test_tier2_staticb_unbal_${DATE}_gfs
                       MPI          12
                       ARGS         testinput/staticb_unbal_${DATE}_gfs.yaml
-                      COMMAND      fv3jedi_parameters.x
+                      COMMAND      fv3jedi_error_covariance_training.x
                       TEST_DEPENDS fv3jedi_test_tier2_staticb_vbal_${DATE}_gfs )
 
     # Compute variance and moments using unbalanced ensemble members
     ecbuild_add_test( TARGET       fv3jedi_test_tier2_staticb_var-mom_${DATE}_gfs
                       MPI          12
                       ARGS         testinput/staticb_var-mom_${DATE}_gfs.yaml
-                      COMMAND      fv3jedi_parameters.x
+                      COMMAND      fv3jedi_error_covariance_training.x
                       TEST_DEPENDS fv3jedi_test_tier2_staticb_unbal_${DATE}_gfs )
   endforeach()
 
@@ -1314,7 +1318,7 @@ if (FV3JEDI_TEST_TIER GREATER_EQUAL 2)
   ecbuild_add_test( TARGET       fv3jedi_test_tier2_staticb_vbal_gfs
                     MPI          12
                     ARGS         testinput/staticb_vbal_gfs.yaml
-                    COMMAND      fv3jedi_parameters.x
+                    COMMAND      fv3jedi_error_covariance_training.x
                     TEST_DEPENDS fv3jedi_test_tier2_staticb_vbal_2018041421_gfs
                                  fv3jedi_test_tier2_staticb_vbal_2018041500_gfs
                                  fv3jedi_test_tier2_staticb_vbal_2018041503_gfs )
@@ -1323,7 +1327,7 @@ if (FV3JEDI_TEST_TIER GREATER_EQUAL 2)
   ecbuild_add_test( TARGET       fv3jedi_test_tier2_staticb_var_gfs
                     MPI          12
                     ARGS         testinput/staticb_var_gfs.yaml
-                    COMMAND      fv3jedi_parameters.x
+                    COMMAND      fv3jedi_error_covariance_training.x
                     TEST_DEPENDS fv3jedi_test_tier2_staticb_var-mom_2018041421_gfs
                                  fv3jedi_test_tier2_staticb_var-mom_2018041500_gfs
                                  fv3jedi_test_tier2_staticb_var-mom_2018041503_gfs )
@@ -1332,7 +1336,7 @@ if (FV3JEDI_TEST_TIER GREATER_EQUAL 2)
   ecbuild_add_test( TARGET       fv3jedi_test_tier2_staticb_cor_gfs
                     MPI          12
                     ARGS         testinput/staticb_cor_gfs.yaml
-                    COMMAND      fv3jedi_parameters.x
+                    COMMAND      fv3jedi_error_covariance_training.x
                     TEST_DEPENDS fv3jedi_test_tier2_staticb_var-mom_2018041421_gfs
                                  fv3jedi_test_tier2_staticb_var-mom_2018041500_gfs
                                  fv3jedi_test_tier2_staticb_var-mom_2018041503_gfs )
@@ -1341,34 +1345,34 @@ if (FV3JEDI_TEST_TIER GREATER_EQUAL 2)
   ecbuild_add_test( TARGET       fv3jedi_test_tier2_staticb_nicas_gfs
                     MPI          12
                     ARGS         testinput/staticb_nicas_gfs.yaml
-                    COMMAND      fv3jedi_parameters.x
+                    COMMAND      fv3jedi_error_covariance_training.x
                     TEST_DEPENDS fv3jedi_test_tier2_staticb_cor_gfs )
 
   # Compute psi/chi to u/v operator
   ecbuild_add_test( TARGET       fv3jedi_test_tier2_staticb_psichitouv_gfs
                     MPI          12
                     ARGS         testinput/staticb_psichitouv_gfs.yaml
-                    COMMAND      fv3jedi_parameters.x )
+                    COMMAND      fv3jedi_error_covariance_training.x )
 
   # Split VBAL operator to get local files on 6 PEs
   ecbuild_add_test( TARGET       fv3jedi_test_tier2_staticb_split_vbal_gfs
                     MPI          6
                     ARGS         testinput/staticb_split_vbal_gfs.yaml
-                    COMMAND      fv3jedi_parameters.x
+                    COMMAND      fv3jedi_error_covariance_training.x
                     TEST_DEPENDS fv3jedi_test_tier2_staticb_vbal_gfs )
 
   # Split PSICHITOUV operator to get local files on 6 PEs
   ecbuild_add_test( TARGET       fv3jedi_test_tier2_staticb_split_psichitouv_gfs
                     MPI          6
                     ARGS         testinput/staticb_split_psichitouv_gfs.yaml
-                    COMMAND      fv3jedi_parameters.x
+                    COMMAND      fv3jedi_error_covariance_training.x
                     TEST_DEPENDS fv3jedi_test_tier2_staticb_psichitouv_gfs )
 
   # Split NICAS operator to get local files on 6 PEs
   ecbuild_add_test( TARGET       fv3jedi_test_tier2_staticb_split_nicas_gfs
                     MPI          6
                     ARGS         testinput/staticb_split_nicas_gfs.yaml
-                    COMMAND      fv3jedi_parameters.x
+                    COMMAND      fv3jedi_error_covariance_training.x
                     TEST_DEPENDS fv3jedi_test_tier2_staticb_nicas_gfs )
 
   # Dirac test using the full BUMP static covariance, local files, 6 PEs
@@ -1421,6 +1425,11 @@ if (FV3JEDI_TEST_TIER GREATER_EQUAL 2)
                     MPI      6
                     ARGS     testinput/hofx_fv3-geos.yaml
                     COMMAND  fv3jedi_hofx.x )
+
+  ecbuild_add_test( TARGET   fv3jedi_test_tier2_hofx_nomodel_lam_rrfs
+                    MPI      12
+                    ARGS     testinput/hofx_nomodel_lam_rrfs.yaml
+                    COMMAND  fv3jedi_hofx_nomodel.x )
 
 
   # Full observation hyb-3DVar for each model
