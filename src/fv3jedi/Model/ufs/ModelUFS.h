@@ -44,7 +44,7 @@ namespace fv3jedi {
     OOPS_CONCRETE_PARAMETERS(ModelUFSParameters, ModelParametersBase)
 
    public:
-    oops::RequiredParameter<eckit::LocalConfiguration> modelVariables{ "model variables", this};
+    oops::RequiredParameter<oops::Variables> modelVariables{ "model variables", this};
     oops::RequiredParameter<util::Duration> tstep{ "tstep", this};
     oops::RequiredParameter<std::string> ufsRunDirectory{ "ufs_run_directory", this};
   };
