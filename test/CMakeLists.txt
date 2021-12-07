@@ -390,6 +390,7 @@ if( ${geos-aero_FOUND} )
 
   list( APPEND geos-aero_testinput
   testinput/geosaod.rc
+  testinput/geosaod_aeronet.rc
   testinput/Chem_MieRegistry.rc)
 
   CREATE_SYMLINK_FILENAME( ${geos-aero_SOURCE_DIR}/test/
@@ -814,6 +815,10 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_convertstate_geos_crtm_surface
                   ARGS     testinput/convertstate_geos_crtm_surface.yaml
                   COMMAND  fv3jedi_convertstate.x )
 
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_convertstate_gfs_c2ll
+                  MPI      6
+                  ARGS     testinput/convertstate_gfs_c2ll.yaml
+                  COMMAND  fv3jedi_convertstate.x )
 
 if( FV3_FORECAST_MODEL MATCHES "FV3CORE" )
   ecbuild_add_test( TARGET   fv3jedi_test_tier1_convertstate_gfs_cold2fv3
@@ -941,10 +946,12 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_hofx_nomodel
                   ARGS     testinput/hofx_nomodel.yaml
                   COMMAND  fv3jedi_hofx_nomodel.x )
 
-ecbuild_add_test( TARGET   fv3jedi_test_tier1_hofx_gfs_aero
-                  MPI      6
-                  ARGS     testinput/hofx_gfs_aero.yaml
-                  COMMAND  fv3jedi_hofx.x )
+if( ${geos-aero_FOUND} )
+  ecbuild_add_test( TARGET   fv3jedi_test_tier1_hofx_gfs_aero
+                    MPI      6
+                    ARGS     testinput/hofx_gfs_aero.yaml
+                    COMMAND  fv3jedi_hofx.x )
+endif()
 
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_hofx_nomodel_lam_cmaq
                   MPI      6
