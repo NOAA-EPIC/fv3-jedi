@@ -29,8 +29,8 @@ include( jedicmake/cmake/Functions/git_functions.cmake  )
 # ECMWF libs
 # ----------
 option("BUNDLE_SKIP_ECKIT" "Don't build eckit" "ON" ) # Skip eckit build unless user passes -DBUNDLE_SKIP_ECKIT=OFF
-option("BUNDLE_SKIP_FCKIT" "Don't build fckit" "ON") # Skip eckit build unless user passes -DBUNDLE_SKIP_FCKIT=OFF
-option("BUNDLE_SKIP_ATLAS" "Don't build atlas" "ON") #Skip eckit build unless user passes -DBUNDLE_SKIP_ATLAS=OFF
+option("BUNDLE_SKIP_FCKIT" "Don't build fckit" "ON") # Skip fckit build unless user passes -DBUNDLE_SKIP_FCKIT=OFF
+option("BUNDLE_SKIP_ATLAS" "Don't build atlas" "ON") #Skip atlas build unless user passes -DBUNDLE_SKIP_ATLAS=OFF
 
 ecbuild_bundle( PROJECT eckit GIT "https://github.com/jcsda-internal/eckit.git" )
 ecbuild_bundle( PROJECT fckit GIT "https://github.com/jcsda-internal/fckit.git" )
@@ -48,7 +48,7 @@ ecbuild_bundle( PROJECT ropp-ufo GIT "https://github.com/jcsda-internal/ropp-tes
 
 # External (required) observation operators
 # ------------------------------
-option("BUNDLE_SKIP_CRTM" "Don't build CRTM" "OFF") # Skip crtm build unless user passes -DBUNDLE_SKIP_CRTM=ON
+option("BUNDLE_SKIP_CRTM" "Don't build CRTM" "OFF") # Build crtm unless user passes -DBUNDLE_SKIP_CRTM=ON
 ecbuild_bundle( PROJECT crtm GIT "https://github.com/jcsda-internal/crtm.git" )
 
 # Core JEDI repositories

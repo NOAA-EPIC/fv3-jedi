@@ -114,11 +114,6 @@ bump:
     filename_sfcw: stddev.fv_srf_wnd.res.nc
     filename_cplr: stddev.coupler.res
     date: 2018-04-15T00:00:00Z
-  - parameter: stddev
-    filetype: geos
-    datapath: Data/staticb/
-    filename_bkgd: stddev.nc4
-    date: 2018-04-15T00:00:00Z
 
 test:
   reference filename: testoutput/staticb_var_gfs.ref
