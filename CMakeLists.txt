@@ -166,7 +166,6 @@ if (FV3_FORECAST_MODEL MATCHES UFS)
   find_package(w3emc REQUIRED )
   find_package(w3nco REQUIRED )
   find_package(nemsio REQUIRED )
-  find_package(fms REQUIRED )
 endif()
 
 add_subdirectory( src )
