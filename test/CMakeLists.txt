@@ -145,7 +145,7 @@ list( APPEND fv3jedi_testinput
   testinput/localization_bump.yaml
   testinput/model_fv3lm.yaml
   testinput/model_geos.yaml
-  testinput/model_ufs.yaml
+  testinput/model_ufs_c48.yaml
   testinput/model_pseudo-geos.yaml
   testinput/model_pseudo-gfs.yaml
   testinput/obslocalization.yaml
@@ -904,12 +904,12 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_model_fv3lm
                   COMMAND  test_fv3jedi_model.x )
 
 
-#if( FV3_FORECAST_MODEL MATCHES "UFS" AND BUILD_LARGE_TESTS)
-#ecbuild_add_test( TARGET   fv3jedi_test_tier1_model_ufs
-#                  MPI      6
-#                  ARGS     testinput/model_ufs.yaml
-#                  COMMAND  test_fv3jedi_model.x )
-#endif()
+if( FV3_FORECAST_MODEL MATCHES "UFS" AND BUILD_LARGE_TESTS )
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_model_ufs
+                  MPI      6
+                  ARGS     testinput/model_ufs_c48.yaml
+                  COMMAND  test_fv3jedi_model.x )
+endif()
 
 if( FV3_FORECAST_MODEL MATCHES "GEOS" AND BUILD_LARGE_TESTS)
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_model_geos
@@ -936,10 +936,10 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_forecast_fv3lm
                   ARGS     testinput/forecast_fv3lm.yaml
                   COMMAND  fv3jedi_forecast.x )
 
-if( FV3_FORECAST_MODEL MATCHES "UFS" AND BUILD_LARGE_TESTS)
+if( FV3_FORECAST_MODEL MATCHES "UFS" AND BIULD_LARGE_TESTS )
   ecbuild_add_test( TARGET   fv3jedi_test_tier1_forecast_ufs
                     MPI      6
-                    ARGS     testinput/forecast_ufs.yaml
+                    ARGS     testinput/forecast_ufs_c48.yaml
                     COMMAND  fv3jedi_forecast.x )
 endif()
 
