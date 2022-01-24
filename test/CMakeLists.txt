@@ -16,6 +16,7 @@ file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data)
 # FV3 config files
 # ----------------
 list( APPEND fv3jedi_test_fv3files
+Data/fv3files/akbk27.nc4
 Data/fv3files/akbk64.nc4
 Data/fv3files/akbk72.nc4
 Data/fv3files/akbk127.nc4
@@ -690,6 +691,7 @@ endforeach()
 
 # Stage directory with directories for running the models
 # -------------------------------------------------------
+set(FV3_FORECAST_MODEL_RUNDIR ${CMAKE_SOURCE_DIR}/fv3-jedi-data/testinput_tier_1/inputs/ufs_c48)
 if(FV3_FORECAST_MODEL MATCHES "GEOS" OR FV3_FORECAST_MODEL MATCHES "UFS")
   file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/ModelRunDirs/${FV3_FORECAST_MODEL})
   file(GLOB model_files "${FV3_FORECAST_MODEL_RUNDIR}/*")
@@ -943,7 +945,7 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_forecast_fv3lm
                   ARGS     testinput/forecast_fv3lm.yaml
                   COMMAND  fv3jedi_forecast.x )
 
-if( FV3_FORECAST_MODEL MATCHES "UFS" AND BIULD_LARGE_TESTS )
+if( FV3_FORECAST_MODEL MATCHES "UFS" AND BUILD_LARGE_TESTS )
   ecbuild_add_test( TARGET   fv3jedi_test_tier1_forecast_ufs
                     MPI      6
                     ARGS     testinput/forecast_ufs_c48.yaml
