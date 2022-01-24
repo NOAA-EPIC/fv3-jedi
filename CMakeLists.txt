@@ -154,12 +154,10 @@ endforeach()
 
 # ufs
 if (FV3_FORECAST_MODEL MATCHES UFS)
-  # TODO: fms will be seperated from UFS at some point
-  # Requires an installion of ufs-weather-model built with -DJEDI_CONTROL=ON and setting
-  # environment variable CMAKE_Platform to linux.custom to ensure INLINE_POST=OFF
-  # set CMAKE_PREFIX_PATH to include location of hpc-stack install and ufs install using
-  # semi-colon separated lists in quotes e.g.--
-  # ecbuild -DCMAKE_PREFIX_PATH="path-to/ufs-weather-model/build/install;path-to/hpc-stack/install" ...
+  # Building with the UFS is now accomplished only via the ufs-jedi-bundle
+  # which will also build the UFS as an external library with a prescribed configuration 
+  # Because the linkage to UFS requires a newer version of FMS, the FMS library is
+  # also built as an external project, so neither need to be "found" here.
   find_package(bacio REQUIRED )
   find_package(sigio REQUIRED )
   find_package(sp REQUIRED )
