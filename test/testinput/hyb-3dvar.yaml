@@ -15,6 +15,7 @@ cost function:
     - fieldset: Data/fieldsets/dynamics.yaml
     - fieldset: Data/fieldsets/ufo.yaml
   background:
+    datetime: 2018-04-15T00:00:00Z
     filetype: gfs
     datapath: Data/
     prefix: 20180415.000000.c24
@@ -43,50 +44,19 @@ cost function:
         value: 0.1
     - covariance:
         covariance model: ensemble
-        members:
-        - filetype: gfs
-          state variables: *3dvars
-          datapath: Data/inputs/gfs_c12/mem001/
-          prefix: '20180415.000000'
-        - filetype: gfs
-          state variables: *3dvars
-          datapath: Data/inputs/gfs_c12/mem002/
-          prefix: '20180415.000000'
-        - filetype: gfs
-          state variables: *3dvars
-          datapath: Data/inputs/gfs_c12/mem003/
-          prefix: '20180415.000000'
-        - filetype: gfs
-          state variables: *3dvars
-          datapath: Data/inputs/gfs_c12/mem004/
-          prefix: '20180415.000000'
-        - filetype: gfs
-          state variables: *3dvars
-          datapath: Data/inputs/gfs_c12/mem005/
-          prefix: '20180415.000000'
-        - filetype: gfs
-          state variables: *3dvars
-          datapath: Data/inputs/gfs_c12/mem006/
-          prefix: '20180415.000000'
-        - filetype: gfs
-          state variables: *3dvars
-          datapath: Data/inputs/gfs_c12/mem007/
-          prefix: '20180415.000000'
-        - filetype: gfs
-          state variables: *3dvars
-          datapath: Data/inputs/gfs_c12/mem008/
-          prefix: '20180415.000000'
-        - filetype: gfs
-          state variables: *3dvars
-          datapath: Data/inputs/gfs_c12/mem009/
-          prefix: '20180415.000000'
-        - filetype: gfs
-          state variables: *3dvars
-          datapath: Data/inputs/gfs_c12/mem010/
-          prefix: '20180415.000000'
+        members from template:
+          template:
+            datetime: 2018-04-15T00:00:00Z
+            filetype: gfs
+            state variables: *3dvars
+            datapath: Data/inputs/gfs_c12/mem%mem%/
+            prefix: '20180415.000000'
+          pattern: %mem%
+          nmembers: 10
+          zero padding: 3
         localization:
           localization method: SABER
-          saber block:          
+          saber block:
             saber block name: BUMP_NICAS
             input variables: *3dvars
             output variables: *3dvars

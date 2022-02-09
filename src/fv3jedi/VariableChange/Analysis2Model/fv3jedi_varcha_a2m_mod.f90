@@ -15,22 +15,22 @@ use fckit_configuration_module, only: fckit_configuration
 use datetime_mod
 
 ! fv3-jedi
-use fv3jedi_kinds_mod,   only: kind_real
-use fv3jedi_geom_mod,    only: fv3jedi_geom
-use fv3jedi_state_mod,   only: fv3jedi_state
-use fv3jedi_io_gfs_mod,  only: fv3jedi_io_gfs
-use fv3jedi_io_geos_mod, only: fv3jedi_io_geos
-use fv3jedi_field_mod,   only: copy_subset
-use wind_vt_mod,         only: a_to_d, d_to_a
+use fv3jedi_kinds_mod,                  only: kind_real
+use fv3jedi_geom_mod,                   only: fv3jedi_geom
+use fv3jedi_state_mod,                  only: fv3jedi_state
+use fv3jedi_io_gfs_mod,                 only: fv3jedi_io_gfs
+use fv3jedi_io_cube_sphere_history_mod, only: fv3jedi_io_cube_sphere_history
+use fv3jedi_field_mod,                  only: copy_subset
+use wind_vt_mod,                        only: a_to_d, d_to_a
 
 implicit none
 private
 public :: fv3jedi_varcha_a2m
 
 type :: fv3jedi_varcha_a2m
-  character(len=10)     :: filetype !IO type
+  character(len=96)     :: filetype !IO type
   type(fv3jedi_io_gfs)  :: gfs
-  type(fv3jedi_io_geos) :: geos
+  type(fv3jedi_io_cube_sphere_history) :: csh
   contains
     procedure :: create
     procedure :: delete
@@ -60,10 +60,11 @@ self%filetype = str
 ! Setup IO from config
 if (trim(self%filetype) == 'gfs') then
   call self%gfs%create(conf, geom%domain, geom%npz)
-elseif (trim(self%filetype) == 'geos') then
-  call self%geos%create(geom, conf)
+elseif (trim(self%filetype) == 'cube sphere history') then
+  call self%csh%create(geom, conf)
 else
-  call abor1_ftn("fv3jedi_varcha_a2m_mod: filetype must be geos or gfs")
+  call abor1_ftn("fv3jedi_varcha_a2m_mod: filetype must be cube sphere history or gfs, is "// &
+                 trim(self%filetype)//".")
 endif
 
 end subroutine create
@@ -76,20 +77,19 @@ implicit none
 class(fv3jedi_varcha_a2m), intent(inout) :: self
 
 if (trim(self%filetype) == 'gfs') call self%gfs%delete()
-if (trim(self%filetype) == 'geos') call self%geos%delete()
+if (trim(self%filetype) == 'cube sphere history') call self%csh%delete()
 
 end subroutine delete
 
 ! --------------------------------------------------------------------------------------------------
 
-subroutine changevar(self,geom,xana,xmod,vdt)
+subroutine changevar(self,geom,xana,xmod)
 
 implicit none
 class(fv3jedi_varcha_a2m), intent(inout) :: self
 type(fv3jedi_geom),        intent(inout) :: geom
 type(fv3jedi_state),       intent(in)    :: xana
 type(fv3jedi_state),       intent(inout) :: xmod
-type(datetime),            intent(inout) :: vdt
 
 integer :: index_ana, index_mod, index_ana_found
 integer :: k
@@ -174,31 +174,26 @@ do index_mod = 1, xmod%nf
         "Attempting to read from file"
 
     if (trim(self%filetype) == 'gfs') then
-      call self%gfs%read(vdt, xmod%calendar_type, xmod%date_init, xmod%fields(index_mod:index_mod))
-    elseif (trim(self%filetype) == 'geos') then
-      call self%geos%read(vdt, xmod%calendar_type, xmod%date_init, xmod%fields(index_mod:index_mod))
+      call self%gfs%read(xmod%time, xmod%fields(index_mod:index_mod))
+    elseif (trim(self%filetype) == 'cube sphere history') then
+      call self%csh%read(xmod%time, xmod%fields(index_mod:index_mod))
     endif
 
   endif
 
 enddo
 
-! Copy calendar infomation
-xmod%calendar_type = xana%calendar_type
-xmod%date_init = xana%date_init
-
 end subroutine changevar
 
 ! --------------------------------------------------------------------------------------------------
 
-subroutine changevarinverse(self,geom,xmod,xana,vdt)
+subroutine changevarinverse(self,geom,xmod,xana)
 
 implicit none
 class(fv3jedi_varcha_a2m), intent(inout) :: self
 type(fv3jedi_geom),        intent(inout) :: geom
 type(fv3jedi_state),       intent(in)    :: xmod
 type(fv3jedi_state),       intent(inout) :: xana
-type(datetime),            intent(inout) :: vdt
 
 integer :: index_ana, index_mod, index_mod_found
 logical :: failed
@@ -277,10 +272,6 @@ do index_ana = 1, xana%nf
                              trim(xana%fields(index_ana)%fv3jedi_name)//" from the model state" )
 
 enddo
-
-! Copy calendar infomation
-xana%calendar_type = xmod%calendar_type
-xana%date_init = xmod%date_init
 
 end subroutine changevarinverse
 

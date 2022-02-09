@@ -11,6 +11,7 @@ geometry:
     - fieldset: Data/fieldsets/dynamics.yaml
 input variables: &inputVars [psi,chi,t,ps,rh,liq_wat,o3mr]
 background:
+  datetime: 2018-04-15T00:00:00Z
   filetype: gfs
   state variables: *inputVars
   psinfile: true
@@ -29,6 +30,7 @@ bump:
   load_mom: true
   new_hdiag: true
   write_hdiag: true
+  ens1_ne: 30
   ens1_nsub: 3
   load_samp_local: true
   nc3: 10

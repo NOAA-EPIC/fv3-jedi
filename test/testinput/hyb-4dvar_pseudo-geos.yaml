@@ -1,8 +1,10 @@
 cost function:
   background:
-    filetype: geos
+    datetime: 2018-04-14T21:00:00Z
+    filetype: cube sphere history
+    provider: geos
     datapath: Data/inputs/geos_c12
-    filename_bkgd: geos.bkg.20180414_210000z.nc4
+    filename: geos.bkg.20180414_210000z.nc4
     state variables: [u,v,ua,va,t,delp,q,qi,ql,o3ppmv]
   background error:
     covariance model: hybrid
@@ -33,47 +35,17 @@ cost function:
         value: 0.1
     - covariance:
         covariance model: ensemble
-        members:
-          - filetype: geos
+        members from template:
+          template:
+            datetime: 2018-04-14T21:00:00Z
+            filetype: cube sphere history
+            provider: geos
             state variables: *incvars
             datapath: Data/inputs/geos_c12
-            filename_bkgd: geos.mem001.20180414_210000z.nc4
-          - filetype: geos
-            state variables: *incvars
-            datapath: Data/inputs/geos_c12
-            filename_bkgd: geos.mem002.20180414_210000z.nc4
-          - filetype: geos
-            state variables: *incvars
-            datapath: Data/inputs/geos_c12
-            filename_bkgd: geos.mem003.20180414_210000z.nc4
-          - filetype: geos
-            state variables: *incvars
-            datapath: Data/inputs/geos_c12
-            filename_bkgd: geos.mem004.20180414_210000z.nc4
-          - filetype: geos
-            state variables: *incvars
-            datapath: Data/inputs/geos_c12
-            filename_bkgd: geos.mem005.20180414_210000z.nc4
-          - filetype: geos
-            state variables: *incvars
-            datapath: Data/inputs/geos_c12
-            filename_bkgd: geos.mem006.20180414_210000z.nc4
-          - filetype: geos
-            state variables: *incvars
-            datapath: Data/inputs/geos_c12
-            filename_bkgd: geos.mem007.20180414_210000z.nc4
-          - filetype: geos
-            state variables: *incvars
-            datapath: Data/inputs/geos_c12
-            filename_bkgd: geos.mem008.20180414_210000z.nc4
-          - filetype: geos
-            state variables: *incvars
-            datapath: Data/inputs/geos_c12
-            filename_bkgd: geos.mem009.20180414_210000z.nc4
-          - filetype: geos
-            state variables: *incvars
-            datapath: Data/inputs/geos_c12
-            filename_bkgd: geos.mem010.20180414_210000z.nc4
+            filename: geos.mem%mem%.20180414_210000z.nc4
+          pattern: %mem%
+          nmembers: 10
+          zero padding: 3
         localization:
           localization method: SABER
           saber block:
@@ -203,18 +175,16 @@ cost function:
   window length: PT6H
   variable change:
     variable change name: Analysis2Model
-    filetype: geos
-    filename is datetime templated: true
+    filetype: cube sphere history
+    provider: geos
     datapath: Data/inputs/geos_c12
-    filename_bkgd: geos.bkg.%yyyy%mm%dd_%hh%MM%ssz.nc4
-    filename_crtm: geos.bkg.crtmsrf.%yyyy%mm%dd_%hh%MM%ssz.nc4
+    filenames: [geos.bkg.%yyyy%mm%dd_%hh%MM%ssz.nc4, geos.bkg.crtmsrf.%yyyy%mm%dd_%hh%MM%ssz.nc4]
   model:
     name: PSEUDO
-    filetype: geos
-    filename is datetime templated: true
+    filetype: cube sphere history
+    provider: geos
     datapath: Data/inputs/geos_c12
-    filename_bkgd: geos.bkg.%yyyy%mm%dd_%hh%MM%ssz.nc4
-    filename_crtm: geos.bkg.crtmsrf.%yyyy%mm%dd_%hh%MM%ssz.nc4
+    filenames: [geos.bkg.%yyyy%mm%dd_%hh%MM%ssz.nc4, geos.bkg.crtmsrf.%yyyy%mm%dd_%hh%MM%ssz.nc4]
     run stage check: true
     tstep: PT1H
     model variables: [u,v,ua,va,t,delp,q,qi,ql,o3ppmv,phis,
@@ -236,9 +206,10 @@ final:
   diagnostics:
     departures: oman
 output:
-  filetype: geos
+  filetype: cube sphere history
+  provider: geos
   datapath: Data/analysis
-  filename_bkgd: hyb-4dvar-geos.ana.%yyyy%mm%dd_%hh%MM%ssz.nc4
+  filename: hyb-4dvar-geos.ana.%yyyy%mm%dd_%hh%MM%ssz.nc4
   first: PT0H
   frequency: PT1H
 variational:
