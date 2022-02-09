@@ -8,6 +8,7 @@ geometry:
   npz: 72
   fieldsets:
     - fieldset: Data/fieldsets/dynamics.yaml
-inc variables: [ua,va,t,delp,q,qi,ql,o3ppmv]
+  iterator dimension: 3
+inc variables: [ua,va,t,delp,ps,q,qi,ql,o3ppmv]
 increment test:
   date: 2018-04-14T21:00:00Z
