@@ -26,7 +26,8 @@ model test:
   tolerance: 1.0e-4
   test reforecast: false
 initial condition:
-  filetype: gfs
+  filetype: fms restart
+  datetime: 2021-07-28T00:00:00Z
   datapath: Data/ModelRunDirs/UFS/INPUT
   filename_core: fv_core.res.nc
   filename_trcr: fv_tracer.res.nc
