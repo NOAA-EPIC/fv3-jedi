@@ -1,4 +1,4 @@
-# (C) Copyright 2017-2022 UCAR
+# (C) Copyright 2017-2020 UCAR
 #
 # This software is licensed under the terms of the Apache Licence Version 2.0
 # which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -140,7 +140,6 @@ list( APPEND fv3jedi_testinput
   testinput/letkf.yaml
   testinput/lgetkf.yaml
   testinput/letkf_snow.yaml
-  testinput/adjointforecast.yaml
   testinput/lineargetvalues_geos.yaml
   testinput/lineargetvalues_gfs.yaml
   testinput/linearmodel_physics.yaml
@@ -257,7 +256,6 @@ list( APPEND fv3jedi_testoutput
   testoutput/lgetkf_geos.ref
   testoutput/lgetkf_gfs.ref
   testoutput/lgetkf.ref
-  testoutput/adjointforecast.ref
   testoutput/staticb_dirac_global_gfs_6pe.ref
   testoutput/staticb_dirac_global_gfs_12pe.ref
   testoutput/staticb_dirac_local_gfs_6pe.ref
@@ -652,7 +650,6 @@ file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/hofx/eda)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/hofx/eda/geos)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/hofx/eda/gfs)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/forecast)
-file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/adjointforecast)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/analysis)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/analysis/eda/)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/analysis/eda/geos)
@@ -704,6 +701,55 @@ if(FV3_FORECAST_MODEL MATCHES "GEOS" OR FV3_FORECAST_MODEL MATCHES "UFS")
     execute_process( COMMAND chmod 755 ${CMAKE_CURRENT_BINARY_DIR}/Data/ModelRunDirs/${FV3_FORECAST_MODEL}/cap_restart )
   endif()
   if (FV3_FORECAST_MODEL MATCHES "UFS")
+    set(input_files 
+        fv_core.res.nc
+        fv_core.res.tile1.nc
+        fv_core.res.tile2.nc
+        fv_core.res.tile3.nc
+        fv_core.res.tile4.nc
+        fv_core.res.tile5.nc
+        fv_core.res.tile6.nc
+        fv_srf_wnd.res.tile1.nc
+        fv_srf_wnd.res.tile2.nc
+        fv_srf_wnd.res.tile3.nc
+        fv_srf_wnd.res.tile4.nc
+        fv_srf_wnd.res.tile5.nc
+        fv_srf_wnd.res.tile6.nc
+        fv_tracer.res.tile1.nc
+        fv_tracer.res.tile2.nc
+        fv_tracer.res.tile3.nc
+        fv_tracer.res.tile4.nc
+        fv_tracer.res.tile5.nc
+        fv_tracer.res.tile6.nc
+        gfs_data.tile1.nc
+        gfs_data.tile2.nc
+        gfs_data.tile3.nc
+        gfs_data.tile4.nc
+        gfs_data.tile5.nc
+        gfs_data.tile6.nc
+        grid_spec.nc
+        oro_data.tile1.nc
+        oro_data.tile2.nc
+        oro_data.tile3.nc
+        oro_data.tile4.nc
+        oro_data.tile5.nc
+        oro_data.tile6.nc
+        phy_data.tile1.nc
+        phy_data.tile2.nc
+        phy_data.tile3.nc
+        phy_data.tile4.nc
+        phy_data.tile5.nc
+        phy_data.tile6.nc
+        sfc_data.tile1.nc
+        sfc_data.tile2.nc
+        sfc_data.tile3.nc
+        sfc_data.tile4.nc
+        sfc_data.tile5.nc
+        sfc_data.tile6.nc
+        )
+    foreach( input_file ${input_files})
+      execute_process( COMMAND mv ${FV3_FORECAST_MODEL_RUNDIR}/INPUT/C48_${input_file} ${FV3_FORECAST_MODEL_RUNDIR}/INPUT/${input_file}  )
+    endforeach()
     file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/ModelRunDirs/${FV3_FORECAST_MODEL}/RESTART)
   endif()
 endif()
@@ -1218,14 +1264,6 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_hyb-3dvar_fsoi_backward
                   ARGS     testinput/hyb-3dvar_fsoi_backward.yaml
                   COMMAND  fv3jedi_var.x
                   TEST_DEPENDS fv3jedi_test_tier1_hyb-3dvar_fsoi_forward )
-
-# Adjoint Forecast
-# ----------------
-
-ecbuild_add_test( TARGET   fv3jedi_test_tier1_adjointforecast
-                  MPI      6
-                  ARGS     testinput/adjointforecast.yaml
-                  COMMAND  fv3jedi_adjointforecast.x )
 
 # Diff states
 # -----------
