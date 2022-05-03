@@ -24,16 +24,6 @@ list( APPEND fv3jedi_src_files
   GeometryIterator/GeometryIterator.interface.h
   GeometryIterator/fv3jedi_geom_iter_interface.F90
   GeometryIterator/fv3jedi_geom_iter_mod.F90
-  GetValues/fv3jedi_getvalues_mod.f90
-  GetValues/fv3jedi_lineargetvalues_mod.f90
-  GetValues/GetValues.cc
-  GetValues/GetValues.h
-  GetValues/GetValues.interface.F90
-  GetValues/GetValues.interface.h
-  GetValues/LinearGetValues.cc
-  GetValues/LinearGetValues.h
-  GetValues/LinearGetValues.interface.F90
-  GetValues/LinearGetValues.interface.h
   Increment/Increment.cc
   Increment/Increment.h
   Increment/Increment.interface.h
@@ -76,11 +66,6 @@ list( APPEND fv3jedi_src_files
   LinearVariableChange/Model2GeoVaLs/LinVarChaModel2GeoVaLs.cc
   LinearVariableChange/Model2GeoVaLs/LinVarChaModel2GeoVaLs.h
   LinearVariableChange/Model2GeoVaLs/LinVarChaModel2GeoVaLs.interface.h
-  LinearVariableChange/NMCBalance/fv3jedi_linvarcha_nmcbal.interface.F90
-  LinearVariableChange/NMCBalance/fv3jedi_linvarcha_nmcbal_mod.f90
-  LinearVariableChange/NMCBalance/LinVarChaNMCBal.cc
-  LinearVariableChange/NMCBalance/LinVarChaNMCBal.h
-  LinearVariableChange/NMCBalance/LinVarChaNMCBal.interface.h
   Model/fv3lm/fv3jedi_fv3lm_interface_mod.F90
   Model/fv3lm/fv3jedi_fv3lm_mod.f90
   Model/fv3lm/ModelFV3LM.cc
@@ -107,6 +92,7 @@ list( APPEND fv3jedi_src_files
   Utilities/fv3jedi_interpolation_mod.f90
   Utilities/fv3jedi_kinds_mod.f90
   Utilities/fv3jedi_netcdf_utils_mod.F90
+  Utilities/slow_unstructured_interpolation_mod.F90
   VariableChange/VariableChange.cc
   VariableChange/VariableChange.h
   VariableChange/Analysis2Model/fv3jedi_varcha_a2m.interface.F90

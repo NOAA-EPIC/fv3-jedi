@@ -78,6 +78,9 @@ find_package( ropp-ufo QUIET )
 # geos-aero
 find_package( geos-aero QUIET )
 
+# gsibclim
+find_package( gsibclim QUIET )
+
 # ufo
 find_package( ufo 1.0.0 REQUIRED )
 
