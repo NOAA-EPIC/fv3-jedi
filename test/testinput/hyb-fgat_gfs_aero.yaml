@@ -73,13 +73,6 @@ cost function:
   analysis variables: *aerovars
   window begin: 2018-04-14T21:00:00Z
   window length: PT6H
-#  variable change:
-#    variable change name: Analysis2Model
-#    filetype: fms restart
-#    datapath: Data/inputs/gfs_aero_c12/bkg/
-#    filename_core: 20180414.210000.fv_core.res.nc
-#    filename_trcr: 20180414.210000.fv_tracer.res.nc
-#    filename_cplr: 20180414.210000.coupler.res
   model:
     name: PSEUDO
     filetype: fms restart
@@ -139,4 +132,3 @@ variational:
 test:
   reference filename: testoutput/hyb-fgat_gfs_aero.ref
   test output filename: testoutput/hyb-fgat_gfs_aero.test.out
-  float relative tolerance: 2.0e-3
