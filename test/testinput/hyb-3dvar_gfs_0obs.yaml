@@ -77,25 +77,26 @@ cost function:
       weight:
         value: 0.9
   observations:
-  - obs space:
-      name: Radiosonde
-      obsdatain:
-        obsfile: Data/obs/testinput_tier_1/sondes_obs_2020121500_m.nc4
-      simulated variables: [eastward_wind, northward_wind, air_temperature]
-    obs operator:
-      name: VertInterp
-    obs error:
-      covariance model: diagonal
-    obs filters:
-    - filter: Bounds Check
-      filter variables:
-      - name: air_temperature
-      minvalue: 500.0  # filter out all temperature obs on earth.
-    - filter: Bounds Check
-      filter variables:
-      - name: eastward_wind
-      - name: northward_wind
-      minvalue: 250.0 # filter out the winds too -- zero obs will be assimilated.
+    observers:
+    - obs space:
+        name: Radiosonde
+        obsdatain:
+          obsfile: Data/obs/testinput_tier_1/sondes_obs_2020121500_m.nc4
+        simulated variables: [eastward_wind, northward_wind, air_temperature]
+      obs operator:
+        name: VertInterp
+      obs error:
+        covariance model: diagonal
+      obs filters:
+      - filter: Bounds Check
+        filter variables:
+        - name: air_temperature
+        minvalue: 500.0  # filter out all temperature obs on earth.
+      - filter: Bounds Check
+        filter variables:
+        - name: eastward_wind
+        - name: northward_wind
+        minvalue: 250.0 # filter out the winds too -- zero obs will be assimilated.
 output:
   filetype: fms restart
   datapath: Data/analysis/
@@ -138,5 +139,5 @@ variational:
 test:
   reference filename: testoutput/hyb-3dvar_gfs_0obs.ref
   test output filename: testoutput/hyb-3dvar_gfs_0obs.test.out
-  float relative tolerance: 1.0e-5
-  float absolute tolerance: 1.0e-6
+  float relative tolerance: 1.0e-4
+  float absolute tolerance: 1.0e-4
