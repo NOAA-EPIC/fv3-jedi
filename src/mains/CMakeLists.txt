@@ -1,6 +1,8 @@
 ecbuild_add_executable( TARGET  fv3jedi_addincrement.x
                         SOURCES fv3jediAddIncrement.cc
                         LIBS	fv3jedi
+                                esmf 
+                                ccpp_physics
                       )
 oops_output_json_schema(fv3jedi_addincrement.x)
 

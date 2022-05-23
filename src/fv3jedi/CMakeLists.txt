@@ -237,7 +237,7 @@ if( FV3_FORECAST_MODEL MATCHES "UFS" )
   # Link all the libraries
   target_link_libraries( fv3jedi PUBLIC fv3atm)
   target_link_libraries( fv3jedi PUBLIC fv3)
-  target_link_libraries( fv3jedi PUBLIC ccppphys)
+  target_link_libraries( fv3jedi PUBLIC ccpp_physics)
   target_link_libraries( fv3jedi PUBLIC fv3ccpp)
   target_link_libraries( fv3jedi PUBLIC stochastic_physics)
   target_link_libraries( fv3jedi PUBLIC ccpp)
