@@ -597,63 +597,63 @@ create_symlink_filename( ${CRTM_FV3JEDI_TESTFILES_PATH}
 # Executables
 ecbuild_add_executable( TARGET  test_fv3jedi_errorcovariance.x
                         SOURCES mains/TestErrorCovariance.cc
-                        LIBS    fv3jedi )
+                        LIBS    fv3jedi ccpp_framework ccpp_physics)
 
 ecbuild_add_executable( TARGET  test_fv3jedi_geometry.x
                         SOURCES mains/TestGeometry.cc
-                        LIBS    fv3jedi )
+                        LIBS    fv3jedi ccpp_framework ccpp_physics)
 
 ecbuild_add_executable( TARGET  test_fv3jedi_geometryiterator.x
                         SOURCES mains/TestGeometryIterator.cc
-                        LIBS    fv3jedi )
+                        LIBS    fv3jedi ccpp_framework ccpp_physics)
 
 ecbuild_add_executable( TARGET  test_fv3jedi_getvalues.x
                         SOURCES mains/TestGetValues.cc
-                        LIBS    fv3jedi )
+                        LIBS    fv3jedi ccpp_framework ccpp_physics)
 
 ecbuild_add_executable( TARGET  test_fv3jedi_increment.x
                         SOURCES mains/TestIncrement.cc
-                        LIBS    fv3jedi )
+                        LIBS    fv3jedi ccpp_framework ccpp_physics)
 
 ecbuild_add_executable( TARGET  test_fv3jedi_linearmodel.x
                         SOURCES mains/TestLinearModel.cc
-                        LIBS    fv3jedi )
+                        LIBS    fv3jedi ccpp_framework ccpp_physics)
 
 ecbuild_add_executable( TARGET  test_fv3jedi_linearvariablechange.x
                         SOURCES mains/TestLinVarCha.cc
-                        LIBS    fv3jedi )
+                        LIBS    fv3jedi ccpp_framework ccpp_physics)
 
 ecbuild_add_executable( TARGET  test_fv3jedi_localization.x
                         SOURCES mains/TestLocalization.cc
-                        LIBS    fv3jedi )
+                        LIBS    fv3jedi ccpp_framework ccpp_physics)
 
 #ecbuild_add_executable( TARGET  test_fv3jedi_modelauxcontrol.x
 #                        SOURCES mains/TestModelAuxControl.cc
-#                        LIBS    fv3jedi )
+#                        LIBS    fv3jedi ccpp_framework ccpp_physics)
 #
 #ecbuild_add_executable( TARGET  test_fv3jedi_modelauxcovariance.x
 #                        SOURCES mains/TestModelAuxCovariance.cc
-#                        LIBS    fv3jedi )
+#                        LIBS    fv3jedi ccpp_framework ccpp_physics)
 
 ecbuild_add_executable( TARGET  test_fv3jedi_model.x
                         SOURCES mains/TestModel.cc
-                        LIBS    fv3jedi )
+                        LIBS    fv3jedi ccpp_framework ccpp_physics)
 
 ecbuild_add_executable( TARGET  test_fv3jedi_obslocalization.x
                         SOURCES mains/TestObsLocalization.cc
-                        LIBS    fv3jedi )
+                        LIBS    fv3jedi ccpp_framework ccpp_physics)
 
 ecbuild_add_executable( TARGET  test_fv3jedi_obslocalizations.x
                         SOURCES mains/TestObsLocalizations.cc
-                        LIBS    fv3jedi )
+                        LIBS    fv3jedi ccpp_framework ccpp_physics)
 
 ecbuild_add_executable( TARGET  test_fv3jedi_state.x
                         SOURCES mains/TestState.cc
-                        LIBS    fv3jedi )
+                        LIBS    fv3jedi ccpp_framework ccpp_physics)
 
 ecbuild_add_executable( TARGET  test_fv3jedi_variablechange.x
                         SOURCES mains/TestVarCha.cc
-                        LIBS    fv3jedi )
+                        LIBS    fv3jedi ccpp_framework ccpp_physics)
 
 #Make some output directories for test data
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/bump)
