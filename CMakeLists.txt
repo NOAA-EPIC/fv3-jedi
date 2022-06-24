@@ -146,8 +146,13 @@ set( FV3JEDI_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
                           ${DEPEND_LIB_ROOT}/mod
                           ${DEPEND_LIB_ROOT}/include/fv3
                           ${CMAKE_Fortran_MODULE_DIRECTORY})
-
-set( FV3JEDI_LIBRARIES fv3jedi )
+if( UFS_APP MATCHES ATM )
+  set( FV3JEDI_LIBRARIES fv3jedi ccpp_framework ccpp_physics )
+elseif( UFS_APP MATCHES S2S )
+  set( FV3JEDI_LIBRARIES fv3jedi gsw mom6 cice cmeps piof pioc ccpp_framework ccpp_physics)
+else()
+  set( FV3JEDI_LIBRARIES fv3jedi )
+endif()
 
 get_directory_property( FV3JEDI_DEFINITIONS COMPILE_DEFINITIONS )
 
