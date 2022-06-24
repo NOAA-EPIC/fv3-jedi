@@ -38,6 +38,7 @@ type fv3jedi_io_latlon
  integer :: nx, ny, nxg, nyg
  integer :: npes
  integer :: isc, iec, jsc, jec, npx, npy, npz
+ integer :: isd, ied, jsd, jed
  real(kind=kind_real), allocatable :: lons(:)
  real(kind=kind_real), allocatable :: lats(:)
  character(len=1024) :: filename
@@ -70,6 +71,10 @@ self%isc  = geom%isc
 self%iec  = geom%iec
 self%jsc  = geom%jsc
 self%jec  = geom%jec
+self%isd  = geom%isd
+self%ied  = geom%ied
+self%jsd  = geom%jsd
+self%jed  = geom%jed
 self%npx  = geom%npx
 self%npy  = geom%npy
 self%npz  = geom%npz
@@ -316,13 +321,14 @@ subroutine write_latlon_fields(self, fields)
 type(fv3jedi_io_latlon), target, intent(inout)   :: self
 type(fv3jedi_field),             intent(in)      :: fields(:)
 
-integer :: var, ji, jj, jk, csngrid, llngrid, ii, i, j, k, n
+integer :: var, ji, jj, jk, llngrid, ii, i, j, k, n
 real(kind=kind_real), allocatable :: llfield(:,:,:)
 
 integer :: ncid, varid
 integer :: x_dimid, y_dimid, z_dimid, e_dimid, t_dimid
 integer, target  :: dimids3(4), dimids2(3), dimidse(4)
 integer, pointer :: dimids(:), istart(:), icount(:)
+real(kind_real),allocatable :: array_with_halo(:,:,:)
 
 ! Loop over fields
 ! ----------------
@@ -331,20 +337,23 @@ do var = 1, size(fields)
   ! Only certain fields can be written for now
   ! ------------------------------------------
   if ( trim(fields(var)%space) == 'magnitude' .and. &
-       trim(fields(var)%staggerloc) == 'center' .and. &
-       .not. fields(var)%integerfield ) then
+       trim(fields(var)%horizontal_stagger_location) == 'center' .and. &
+       .not. fields(var)%kind == 'integer' ) then
 
     ! Interpolate the field to the lat-lon grid
     ! -----------------------------------------
     allocate(llfield(1:self%nx,1:self%ny,1:self%npz))
     llfield = 0.0_kind_real
-
-    csngrid = (self%iec-self%isc+1)*(self%jec-self%jsc+1)
     llngrid = self%nx*self%ny
 
+    ! Copy field in array with halo points
+    allocate(array_with_halo(self%isd:self%ied,self%jsd:self%jed,1:fields(var)%npz))
+    array_with_halo = 0.0_kind_real
+    array_with_halo(self%isc:self%iec,self%jsc:self%jec,1:fields(var)%npz) = &
+       fields(var)%array(self%isc:self%iec,self%jsc:self%jec,1:fields(var)%npz)
+
     ! Interpolate
-    call self%bumpinterp%apply(fields(var)%array(self%isc:self%iec,self%jsc:self%jec,1:fields(var)%npz), &
-                                 llfield(:,:,1:fields(var)%npz))
+    call self%bumpinterp%apply(array_with_halo,llfield(:,:,1:fields(var)%npz))
 
     !Open file
     call nccheck( nf90_open( self%filename, ior(NF90_WRITE, NF90_MPIIO), ncid, &
@@ -382,15 +391,15 @@ do var = 1, size(fields)
     if (associated(dimids)) then
 
       ! Write field to the file
-      call nccheck( nf90_def_var( ncid, trim(fields(var)%short_name), NF90_DOUBLE, dimids, varid), &
-                    "nf90_def_var"//trim(fields(var)%short_name) )
+      call nccheck( nf90_def_var( ncid, trim(fields(var)%io_name), NF90_DOUBLE, dimids, varid), &
+                    "nf90_def_var"//trim(fields(var)%io_name) )
       call nccheck( nf90_put_att(ncid, varid, "long_name", trim(fields(var)%long_name) ), "nf90_put_att" )
       call nccheck( nf90_put_att(ncid, varid, "units"    , trim(fields(var)%units)     ), "nf90_put_att" )
       call nccheck( nf90_enddef(ncid), "nf90_enddef" )
 
       if (self%thispe) then
        call nccheck( nf90_put_var( ncid, varid, llfield, start = istart, count = icount), &
-                     "nf90_put_var"//trim(fields(var)%short_name) )
+                     "nf90_put_var"//trim(fields(var)%io_name) )
       endif
 
     endif
@@ -402,7 +411,7 @@ do var = 1, size(fields)
     call self%comm%barrier()
 
     deallocate(llfield)
-
+    deallocate(array_with_halo)
   endif
 
 enddo

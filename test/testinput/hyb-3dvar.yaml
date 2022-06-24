@@ -11,9 +11,7 @@ cost function:
     npx: 25
     npy: 25
     npz: 127
-    fieldsets:
-    - fieldset: Data/fieldsets/dynamics.yaml
-    - fieldset: Data/fieldsets/ufo.yaml
+    field metadata override: Data/fieldmetadata/gfs-restart.yaml
   background:
     datetime: 2020-12-15T00:00:00Z
     filetype: fms restart
@@ -162,6 +160,36 @@ cost function:
           Sensor_ID: amsua_n19
           EndianType: little_endian
           CoefficientPath: Data/crtm/
+      obs bias:
+        input file: Data/obs/testinput_tier_1/satbias_amsua_n19.nc4
+        output file: Data/analysis/satbias_amsua_n19_out.nc4
+        variational bc:
+          predictors:
+          - name: constant
+          - name: lapse_rate
+            order: 2
+            tlapse: &amsua19tlap Data/obs/testinput_tier_1/amsua_n19_tlapmean.txt
+          - name: lapse_rate
+            tlapse: *amsua19tlap
+          - name: emissivity
+          - name: scan_angle
+            order: 4
+          - name: scan_angle
+            order: 3
+          - name: scan_angle
+            order: 2
+          - name: scan_angle
+        covariance:
+          minimal required obs number: 20
+          variance range: [1.0e-6, 10.0]
+          step size: 1.0e-4
+          largest analysis variance: 10000.0
+          prior:
+            input file: Data/obs/testinput_tier_1/satbias_amsua_n19.nc4
+            inflation:
+              ratio: 1.1
+              ratio for small dataset: 2.0
+          output file: Data/analysis/satbias_cov_amsua_n19_out.nc4
       obs error:
         covariance model: diagonal
       obs filters:
@@ -222,9 +250,7 @@ variational:
       npx: 13
       npy: 13
       npz: 127
-      fieldsets:
-      - fieldset: Data/fieldsets/dynamics.yaml
-      - fieldset: Data/fieldsets/ufo.yaml
+      field metadata override: Data/fieldmetadata/gfs-restart.yaml
     diagnostics:
       departures: ombg
     online diagnostics:
@@ -241,9 +267,7 @@ variational:
       npx: 13
       npy: 13
       npz: 127
-      fieldsets:
-      - fieldset: Data/fieldsets/dynamics.yaml
-      - fieldset: Data/fieldsets/ufo.yaml
+      field metadata override: Data/fieldmetadata/gfs-restart.yaml
     diagnostics:
       departures: ombg
     online diagnostics:

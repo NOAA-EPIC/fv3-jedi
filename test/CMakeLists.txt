@@ -3,7 +3,12 @@
 # This software is licensed under the terms of the Apache Licence Version 2.0
 # which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
 
-include( ${CMAKE_SOURCE_DIR}/jedicmake/cmake/Functions/git_functions.cmake )
+# Use external jedi-cmake or bundle build
+if(DEFINED ENV{jedi_cmake_ROOT})
+  include( $ENV{jedi_cmake_ROOT}/share/jedicmake/Functions/git_functions.cmake )
+else()
+  include( ${CMAKE_SOURCE_DIR}/jedicmake/cmake/Functions/git_functions.cmake )
+endif()
 
 # Option not to run with large tests
 # ----------------------------------
@@ -51,6 +56,7 @@ set(staticb_dates_aero 2018041421;2018041500;2018041503)
 list( APPEND fv3jedi_testinput
   testinput/3denvar_geos_aero.yaml
   testinput/3dvar_geos-cf.yaml
+  testinput/3dvar_gfs_0obs.yaml
   testinput/3dvar_gfs_aero.yaml
   testinput/3dvar_lam_cmaq.yaml
   testinput/4denvar.yaml
@@ -68,6 +74,7 @@ list( APPEND fv3jedi_testinput
   testinput/convertincrement_geos_model2geovals.yaml
   testinput/convertstate_geos_crtm_surface.yaml
   testinput/convertstate_geos_model2geovals.yaml
+  testinput/convertstate_geos_vader_and_model2geovals.yaml
   testinput/convertstate_geos.yaml
   testinput/convertstate_geos_cf.yaml
   testinput/convertstate_gfs_ana2bvars.yaml
@@ -113,6 +120,7 @@ list( APPEND fv3jedi_testinput
   testinput/geometry_iterator_lam_cmaq.yaml
   testinput/geometry_lam_cmaq.yaml
   testinput/geometry_nested.yaml
+  testinput/getvalues.yaml
   testinput/hofx_fv3-geos.yaml
   testinput/hofx_fv3-geos-cf.yaml
   testinput/hofx_fv3-gfs.yaml
@@ -123,13 +131,10 @@ list( APPEND fv3jedi_testinput
   testinput/hofx_nomodel_lam_cmaq.yaml
   testinput/hofx_nomodel_lam_rrfs.yaml
   testinput/hofx_save_geovals.yaml
-  testinput/hyb-3dvar_bc.yaml
   testinput/hyb-3dvar_fsoi_backward.yaml
   testinput/hyb-3dvar_fsoi_forward.yaml
   testinput/hyb-3dvar_geos.yaml
-  testinput/hyb-3dvar_gfs_0obs.yaml
   testinput/hyb-3dvar_gfs_0obs_inoneobsspace.yaml
-  testinput/hyb-3dvar_gfs_1obs.yaml
   testinput/hyb-3dvar_gfs_aero.yaml
   testinput/hyb-3dvar_gfs_aero_bump.yaml
   testinput/hyb-3dvar_gfs_aero_bump_bc.yaml
@@ -197,6 +202,7 @@ LINK_FILES( "${fv3jedi_testinput}" ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_B
 list( APPEND fv3jedi_testoutput
   testoutput/3dvar_geos-cf.ref
   testoutput/3dvar_lam_cmaq.ref
+  testoutput/3dvar_gfs_0obs.ref
   testoutput/3dvar_gfs_aero.ref
   testoutput/3denvar_geos_aero.ref
   testoutput/4denvar.ref
@@ -211,6 +217,7 @@ list( APPEND fv3jedi_testoutput
   testoutput/convertincrement_geos_model2geovals.ref
   testoutput/convertstate_geos_crtm_surface.ref
   testoutput/convertstate_geos_model2geovals.ref
+  testoutput/convertstate_geos_vader_and_model2geovals.ref
   testoutput/convertstate_geos.ref
   testoutput/convertstate_geos_cf.ref
   testoutput/convertstate_gfs_ana2bvars.ref
@@ -242,34 +249,23 @@ list( APPEND fv3jedi_testoutput
   testoutput/hofx_gnssro_ropp.ref
   testoutput/hofx_nomodel_lam_cmaq.ref
   testoutput/hofx_nomodel_lam_rrfs.ref
-  testoutput/hofx_nomodel_gfs.ref
   testoutput/hofx_nomodel.ref
   testoutput/hofx_save_geovals.ref
-  testoutput/hyb-3dvar_bc.ref
   testoutput/hyb-3dvar_fsoi_backward.ref
   testoutput/hyb-3dvar_fsoi_forward.ref
   testoutput/hyb-3dvar_geos.ref
-  testoutput/hyb-3dvar_gfs_0obs.ref
   testoutput/hyb-3dvar_gfs_0obs_inoneobsspace.ref
-  testoutput/hyb-3dvar_gfs_1obs.ref
   testoutput/hyb-3dvar_gfs_aero.ref
   testoutput/hyb-3dvar_gfs_aero_bump.ref
   testoutput/hyb-3dvar_gfs_aero_bump_bc.ref
   testoutput/hyb-3dvar_gfs_gnssro_ropp.ref
   testoutput/hyb-3dvar_gfs.ref
   testoutput/hyb-3dvar.ref
-  testoutput/hyb-4dvar_fv3-gfs.ref
   testoutput/hyb-4dvar_pseudo-geos.ref
-  testoutput/hyb-fgat_fv3-geos.ref
-  testoutput/hyb-fgat_fv3-gfs.ref
   testoutput/hyb-fgat_fv3lm.ref
   testoutput/hyb-fgat_gfs_aero.ref
-  testoutput/letkf_geos.ref
-  testoutput/letkf_gfs.ref
   testoutput/letkf.ref
   testoutput/letkf_snow.ref
-  testoutput/lgetkf_geos.ref
-  testoutput/lgetkf_gfs.ref
   testoutput/lgetkf.ref
   testoutput/adjointforecast.ref
   testoutput/staticb_cor_gfs.ref
@@ -328,22 +324,17 @@ LINK_FILES( "${fv3jedi_femps_grid}" ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_
 
 # Field sets
 # ----------
-list( APPEND fv3jedi_field_sets
-Data/fieldsets/aerosols_geos.yaml
-Data/fieldsets/aerosols_gfs.yaml
-Data/fieldsets/chemistry_geos.yaml
-Data/fieldsets/cold_start_64.yaml
-Data/fieldsets/cold_start_127.yaml
-Data/fieldsets/dynamics_lam_cmaq.yaml
-Data/fieldsets/dynamics.yaml
-Data/fieldsets/lam_cmaq.yaml
-Data/fieldsets/oro_data.yaml
-Data/fieldsets/ufo.yaml
-Data/fieldsets/land.yaml
+list( APPEND fv3jedi_field_metadata
+Data/fieldmetadata/geos.yaml
+Data/fieldmetadata/geos-cf.yaml
+Data/fieldmetadata/gfs-aerosol.yaml
+Data/fieldmetadata/gfs-history.yaml
+Data/fieldmetadata/gfs-land.yaml
+Data/fieldmetadata/gfs-restart.yaml
 )
 
-file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/fieldsets)
-LINK_FILES( "${fv3jedi_field_sets}" ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/fieldmetadata)
+LINK_FILES( "${fv3jedi_field_metadata}" ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 
 # Resources from other respositores
 # ---------------------------------
@@ -616,6 +607,10 @@ ecbuild_add_executable( TARGET  test_fv3jedi_geometryiterator.x
                         SOURCES mains/TestGeometryIterator.cc
                         LIBS    fv3jedi )
 
+ecbuild_add_executable( TARGET  test_fv3jedi_getvalues.x
+                        SOURCES mains/TestGetValues.cc
+                        LIBS    fv3jedi )
+
 ecbuild_add_executable( TARGET  test_fv3jedi_increment.x
                         SOURCES mains/TestIncrement.cc
                         LIBS    fv3jedi )
@@ -838,6 +833,11 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_geometry_iterator_lam_cmaq
                   ARGS     testinput/geometry_iterator_lam_cmaq.yaml
                   COMMAND  test_fv3jedi_geometryiterator.x )
 
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_getvalues
+                  MPI      6
+                  ARGS     testinput/getvalues.yaml
+                  COMMAND  test_fv3jedi_getvalues.x )
+
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_state_gfs
                   MPI      6
                   ARGS     testinput/state_gfs.yaml
@@ -948,6 +948,11 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_convertstate_geos_model2geovals
                   ARGS     testinput/convertstate_geos_model2geovals.yaml
                   COMMAND  fv3jedi_convertstate.x )
 
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_convertstate_geos_vader_and_model2geovals
+                  MPI      6
+                  ARGS     testinput/convertstate_geos_vader_and_model2geovals.yaml
+                  COMMAND  fv3jedi_convertstate.x )
+
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_convertincrement_geos_model2geovals
                   MPI      6
                   ARGS     testinput/convertincrement_geos_model2geovals.yaml
@@ -1040,9 +1045,13 @@ endif()
 
 # H(x)
 # ----
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_hofx_fv3lm_validate
+                  ARGS     --validate-only testinput/hofx_fv3lm.yaml
+                  COMMAND  fv3jedi_hofx.x )
+
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_hofx_fv3lm
                   MPI      6
-                  ARGS     testinput/hofx_fv3lm.yaml
+                  ARGS     --no-validate testinput/hofx_fv3lm.yaml
                   COMMAND  fv3jedi_hofx.x )
 
 # H(x) when ROPP is enabled
@@ -1176,40 +1185,48 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_ensvariance_geos
                   ARGS     testinput/ensvariance_geos.yaml
                   COMMAND  fv3jedi_ensvariance.x )
 
-# 3DVar, 3DEnVar and hybrid 3DVar
+# hybrid 3DVar
 # -------------------------------
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_hyb-3dvar_validate
+                  ARGS     --validate-only testinput/hyb-3dvar.yaml
+                  COMMAND  fv3jedi_var.x )
+
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_hyb-3dvar
                   MPI      6
-                  ARGS     testinput/hyb-3dvar.yaml
+                  ARGS     --no-validate testinput/hyb-3dvar.yaml
                   COMMAND  fv3jedi_var.x
                   TEST_DEPENDS fv3jedi_test_tier1_bumpparameters_nicas_gfs )
 
 if (BUILD_LARGE_TESTS)
+  ecbuild_add_test( TARGET   fv3jedi_test_tier1_hyb-3dvar_p12_validate
+                    ARGS     --validate-only testinput/hyb-3dvar_p12.yaml
+                    COMMAND  fv3jedi_var.x)
+
   ecbuild_add_test( TARGET   fv3jedi_test_tier1_hyb-3dvar_p12
                     MPI      12
-                    ARGS     testinput/hyb-3dvar_p12.yaml
+                    ARGS     --no-validate testinput/hyb-3dvar_p12.yaml
                     COMMAND  fv3jedi_var.x
                     TEST_DEPENDS fv3jedi_test_tier1_bumpparameters_nicas_gfs_p12 fv3jedi_test_tier1_hyb-3dvar )
 endif()
 
 # 3DVar with zero obs
-ecbuild_add_test( TARGET   fv3jedi_test_tier1_hyb-3dvar_gfs_0obs
-                  MPI      6
-                  ARGS     testinput/hyb-3dvar_gfs_0obs.yaml
-                  COMMAND  fv3jedi_var.x
-                  TEST_DEPENDS fv3jedi_test_tier1_bumpparameters_nicas_gfs )
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_3dvar_gfs_0obs_validate
+                  ARGS     --validate-only testinput/3dvar_gfs_0obs.yaml
+                  COMMAND  fv3jedi_var.x )
 
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_3dvar_gfs_0obs
+                  MPI      6
+                  ARGS     --no-validate testinput/3dvar_gfs_0obs.yaml
+                  COMMAND  fv3jedi_var.x )
+                  
 # 3DVar with zero obs in one of the obs spaces
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_hyb-3dvar_gfs_0obs_inoneobsspace_validate
+                  ARGS     --validate-only testinput/hyb-3dvar_gfs_0obs_inoneobsspace.yaml
+                  COMMAND  fv3jedi_var.x )
+
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_hyb-3dvar_gfs_0obs_inoneobsspace
                   MPI      6
-                  ARGS     testinput/hyb-3dvar_gfs_0obs_inoneobsspace.yaml
-                  COMMAND  fv3jedi_var.x
-                  TEST_DEPENDS fv3jedi_test_tier1_bumpparameters_nicas_gfs )
-
-# 3DVar with bias correction on for one of the satellites
-ecbuild_add_test( TARGET   fv3jedi_test_tier1_hyb-3dvar_bc
-                  MPI      6
-                  ARGS     testinput/hyb-3dvar_bc.yaml
+                  ARGS     --no-validate testinput/hyb-3dvar_gfs_0obs_inoneobsspace.yaml
                   COMMAND  fv3jedi_var.x
                   TEST_DEPENDS fv3jedi_test_tier1_bumpparameters_nicas_gfs )
 
@@ -1235,61 +1252,93 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_3dvar_geos-cf
                   COMMAND  fv3jedi_var.x
                   TEST_DEPENDS fv3jedi_test_tier1_bumpparameters_nicas_geos-cf )
 
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_hyb-3dvar_gfs_aero_validate
+                  ARGS     --validate-only testinput/hyb-3dvar_gfs_aero.yaml
+                  COMMAND  fv3jedi_var.x )
+
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_hyb-3dvar_gfs_aero
                   MPI      6
-                  ARGS     testinput/hyb-3dvar_gfs_aero.yaml
+                  ARGS     --no-validate testinput/hyb-3dvar_gfs_aero.yaml
                   COMMAND  fv3jedi_var.x
                   TEST_DEPENDS fv3jedi_test_tier1_bumpparameters_nicas_gfs_aero )
 
 if( ${geos-aero_FOUND} )
+  ecbuild_add_test( TARGET   fv3jedi_test_tier1_3denvar_geos_aero_validate
+                    ARGS     --validate-only testinput/3denvar_geos_aero.yaml
+                    COMMAND  fv3jedi_var.x )
+
   ecbuild_add_test( TARGET   fv3jedi_test_tier1_3denvar_geos_aero
                     MPI      6
-                    ARGS     testinput/3denvar_geos_aero.yaml
+                    ARGS     --no-validate testinput/3denvar_geos_aero.yaml
                     COMMAND  fv3jedi_var.x
                     TEST_DEPENDS fv3jedi_test_tier1_bumpparameters_nicas_geos )
 endif()
 
 # Hybrid FGAT
 # -----------
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_hyb-fgat_fv3lm_validate
+                  ARGS     --validate-only testinput/hyb-fgat_fv3lm.yaml
+                  COMMAND  fv3jedi_var.x )
+
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_hyb-fgat_fv3lm
                   MPI      6
-                  ARGS     testinput/hyb-fgat_fv3lm.yaml
+                  ARGS     --no-validate testinput/hyb-fgat_fv3lm.yaml
                   COMMAND  fv3jedi_var.x
                   TEST_DEPENDS fv3jedi_test_tier1_bumpparameters_nicas_geos )
 
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_hyb-fgat_gfs_aero_validate
+                  ARGS     --validate-only testinput/hyb-fgat_gfs_aero.yaml
+                  COMMAND  fv3jedi_var.x )
+
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_hyb-fgat_gfs_aero
                   MPI      6
-                  ARGS     testinput/hyb-fgat_gfs_aero.yaml
+                  ARGS     --no-validate testinput/hyb-fgat_gfs_aero.yaml
                   COMMAND  fv3jedi_var.x
                   TEST_DEPENDS fv3jedi_test_tier1_bumpparameters_nicas_gfs_aero )
 
 # 4DEnVar
 # -------
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_4denvar_validate
+                  ARGS     --validate-only testinput/4denvar.yaml
+                  COMMAND  fv3jedi_var.x )
+
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_4denvar
-                  MPI      18
-                  ARGS     testinput/4denvar.yaml
+                  MPI      12
+                  ARGS     --no-validate testinput/4denvar.yaml
                   COMMAND  fv3jedi_var.x
                   TEST_DEPENDS fv3jedi_test_tier1_bumpparameters_nicas_gfs )
 
 # Hybrid 4DVar
 # ------------
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_hyb-4dvar_pseudo-geos_validate
+                  ARGS     --validate-only testinput/hyb-4dvar_pseudo-geos.yaml
+                  COMMAND  fv3jedi_var.x )
+
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_hyb-4dvar_pseudo-geos
                   MPI      6
-                  ARGS     testinput/hyb-4dvar_pseudo-geos.yaml
+                  ARGS     --no-validate testinput/hyb-4dvar_pseudo-geos.yaml
                   COMMAND  fv3jedi_var.x
                   TEST_DEPENDS fv3jedi_test_tier1_bumpparameters_nicas_geos )
 
 # FSOI
 # ----
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_hyb-3dvar_fsoi_forward_validate
+                  ARGS     --validate-only testinput/hyb-3dvar_fsoi_forward.yaml
+                  COMMAND  fv3jedi_var.x )
+
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_hyb-3dvar_fsoi_forward
                   MPI      6
-                  ARGS     testinput/hyb-3dvar_fsoi_forward.yaml
+                  ARGS     --no-validate testinput/hyb-3dvar_fsoi_forward.yaml
                   COMMAND  fv3jedi_var.x
                   TEST_DEPENDS fv3jedi_test_tier1_bumpparameters_nicas_gfs )
 
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_hyb-3dvar_fsoi_backward_validate
+                  ARGS     --validate-only testinput/hyb-3dvar_fsoi_backward.yaml
+                  COMMAND  fv3jedi_var.x )
+
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_hyb-3dvar_fsoi_backward
                   MPI      6
-                  ARGS     testinput/hyb-3dvar_fsoi_backward.yaml
+                  ARGS     --no-validate testinput/hyb-3dvar_fsoi_backward.yaml
                   COMMAND  fv3jedi_var.x
                   TEST_DEPENDS fv3jedi_test_tier1_hyb-3dvar_fsoi_forward )
 
@@ -1336,9 +1385,13 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_letkf
                   ARGS     testinput/letkf.yaml
                   COMMAND  fv3jedi_letkf.x )
 
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_lgetkf_validate
+                  ARGS     --validate-only testinput/lgetkf.yaml
+                  COMMAND  fv3jedi_letkf.x )
+
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_lgetkf
                   MPI      6
-                  ARGS     testinput/lgetkf.yaml
+                  ARGS     --no-validate testinput/lgetkf.yaml
                   COMMAND  fv3jedi_letkf.x )
 
 # Land DA
@@ -1373,16 +1426,24 @@ endif()
 # --------------------------------
 if (BUILD_LARGE_TESTS)
   # 3DVar
+  ecbuild_add_test( TARGET   fv3jedi_test_tier1_eda_3dvar_validate
+                    ARGS     --validate-only testinput/eda_3dvar.yaml
+                    COMMAND  fv3jedi_eda.x )
+
   ecbuild_add_test( TARGET   fv3jedi_test_tier1_eda_3dvar
                     MPI      12
-                    ARGS     testinput/eda_3dvar.yaml
+                    ARGS     --no-validate testinput/eda_3dvar.yaml
                     COMMAND  fv3jedi_eda.x
                     TEST_DEPENDS fv3jedi_test_tier1_bumpparameters_nicas_gfs )
 endif()
 
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_eda_block_3dvar_validate
+                  ARGS     --validate-only testinput/eda_block_3dvar.yaml
+                  COMMAND  fv3jedi_eda.x )
+
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_eda_block_3dvar
                   MPI      12
-                  ARGS     testinput/eda_block_3dvar.yaml
+                  ARGS     --no-validate testinput/eda_block_3dvar.yaml
                   COMMAND  fv3jedi_eda.x
                   TEST_DEPENDS fv3jedi_test_tier1_bumpparameters_nicas_gfs )
 
@@ -1713,9 +1774,13 @@ if (FV3JEDI_TEST_TIER GREATER_EQUAL 2 AND BUILD_LARGE_TESTS)
 
   # EDA 4DVar
   # ---------
+  ecbuild_add_test( TARGET   fv3jedi_test_tier2_eda_4dvar_fv3lm_validate
+                    ARGS     --validate-only testinput/eda_4dvar_fv3lm.yaml
+                    COMMAND  fv3jedi_eda.x )
+
   ecbuild_add_test( TARGET   fv3jedi_test_tier2_eda_4dvar_fv3lm
                     MPI      12
-                    ARGS     testinput/eda_4dvar_fv3lm.yaml
+                    ARGS     --no-validate testinput/eda_4dvar_fv3lm.yaml
                     COMMAND  fv3jedi_eda.x
                     TEST_DEPENDS fv3jedi_test_tier1_bumpparameters_nicas_gfs )
 

@@ -6,8 +6,7 @@ geometry:
   npx: 13
   npy: 13
   npz: 127
-  fieldsets:
-    - fieldset: Data/fieldsets/dynamics.yaml
+  field metadata override: Data/fieldmetadata/gfs-restart.yaml
 initial condition:
   datetime: 2020-12-15T00:00:00Z
   filetype: fms restart
@@ -27,15 +26,15 @@ background error:
                              ozone_mass_mixing_ratio]
     output variables: *bvars
     gsi error covariance file: Data/inputs/nmcbalance/gsi-coeffs-global-l127y192.nc4
-    procesor layout x direction: 3
-    procesor layout y direction: 2
+    processor layout x direction: 3
+    processor layout y direction: 2
     debugging mode: false
   - saber block name: gsi interpolation to model grid
     input variables: *bvars
     output variables: *bvars
     gsi error covariance file: Data/inputs/nmcbalance/gsi-coeffs-global-l127y192.nc4
-    procesor layout x direction: 3
-    procesor layout y direction: 2
+    processor layout x direction: 3
+    processor layout y direction: 2
     debugging mode: false
   linear variable change:
     linear variable change name: Control2Analysis
@@ -47,7 +46,7 @@ dirac:
   iydir: [6]  #Ydir
   ildir: [50] #Level
   itdir: [1]  #Tile
-  ifdir: [ua] #Field
+  ifdir: [eastward_wind] #Field
 output dirac:
   filetype: cube sphere history
   provider: geos

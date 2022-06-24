@@ -666,17 +666,17 @@ type(fv3jedi_field),                          intent(inout) :: fields(:)
 ! Locals
 integer, allocatable :: file_index(:), varid(:)
 integer :: var, lev
-logical :: tile_is_a_dimension, compute_ps_from_delp
+logical :: tile_is_a_dimension
 integer, pointer :: istart(:), icount(:)
 integer, allocatable, target :: is_r3_tile(:), is_r3_noti(:)
-real(kind=kind_real), allocatable :: arrayg(:,:), delp(:,:,:)
+real(kind=kind_real), allocatable :: arrayg(:,:)
 
 
 ! Get ncid and varid for each field
 ! ---------------------------------
 allocate(file_index(size(fields)))
 allocate(varid(size(fields)))
-call get_field_ncid_varid(self, fields, file_index, varid, compute_ps_from_delp)
+call get_field_ncid_varid(self, fields, file_index, varid)
 
 
 ! Local copy of starts for rank 3 in order to do one level at a time
@@ -695,15 +695,6 @@ allocate(arrayg(1:self%npx-1,1:self%npy-1))
 ! Loop over fields
 ! ----------------
 do var = 1,size(fields)
-
-
-  ! Special case of determining ps from delp
-  ! ----------------------------------------
-  if (trim(fields(var)%fv3jedi_name) == 'ps' .and. compute_ps_from_delp) then
-    fields(var)%short_name = 'delp'
-    fields(var)%npz = self%npz
-    allocate(delp(self%isc:self%iec,self%jsc:self%jec,1:self%npz))
-  endif
 
 
   ! Set pointers to the appropriate array ranges
@@ -749,36 +740,20 @@ do var = 1,size(fields)
 
       ! Read the level
       call nccheck ( nf90_get_var( self%ncid(file_index(var)), varid(var), arrayg, istart, icount), &
-                    "nf90_get_var "//trim(fields(var)%short_name) )
+                    "nf90_get_var "//trim(fields(var)%io_name) )
     endif
 
     ! Scatter the field to all processors on the tile
     ! -----------------------------------------------
-    if (trim(fields(var)%fv3jedi_name) == 'ps' .and. compute_ps_from_delp) then
-      if (self%csize > 6) then
-        call scatter_tile(self%isc, self%iec, self%jsc, self%jec, self%npx, self%npy, self%tcomm, &
-                          1, arrayg, delp(self%isc:self%iec,self%jsc:self%jec,lev))
-      else
-        delp(self%isc:self%iec,self%jsc:self%jec,lev) = arrayg(self%isc:self%iec,self%jsc:self%jec)
-      endif
+    if (self%csize > 6) then
+      call scatter_tile(self%isc, self%iec, self%jsc, self%jec, self%npx, self%npy, self%tcomm, &
+                        1, arrayg, fields(var)%array(self%isc:self%iec,self%jsc:self%jec,lev))
     else
-      if (self%csize > 6) then
-        call scatter_tile(self%isc, self%iec, self%jsc, self%jec, self%npx, self%npy, self%tcomm, &
-                          1, arrayg, fields(var)%array(self%isc:self%iec,self%jsc:self%jec,lev))
-      else
-        fields(var)%array(self%isc:self%iec,self%jsc:self%jec,lev) = &
-                                                         arrayg(self%isc:self%iec,self%jsc:self%jec)
-      endif
+      fields(var)%array(self%isc:self%iec,self%jsc:self%jec,lev) = &
+                                                        arrayg(self%isc:self%iec,self%jsc:self%jec)
     endif
 
   enddo
-
-  if (trim(fields(var)%fv3jedi_name) == 'ps' .and. compute_ps_from_delp) then
-    fields(var)%short_name = 'ps'
-    fields(var)%npz = 1
-    fields(var)%array(:,:,1) = sum(delp,3)
-    deallocate(delp)
-  endif
 
 enddo
 
@@ -786,22 +761,18 @@ end subroutine read_fields
 
 ! --------------------------------------------------------------------------------------------------
 
-subroutine get_field_ncid_varid(self, fields, file_index, varid, compute_ps_from_delp)
+subroutine get_field_ncid_varid(self, fields, file_index, varid)
 
 ! Arguments
 type(fv3jedi_io_cube_sphere_history), intent(in)    :: self
 type(fv3jedi_field),                  intent(in)    :: fields(:)
 integer,                              intent(inout) :: file_index(size(fields(:)))
 integer,                              intent(inout) :: varid(size(fields(:)))
-logical,                              intent(out)   :: compute_ps_from_delp
 
 ! Locals
 integer :: f, ff, n
 integer :: status, varid_local
 integer, allocatable :: found(:)
-
-! Option to compute ps from delp (needs deprecating)
-compute_ps_from_delp = .false.
 
 ! Array to keep track of all the files the variable was found in
 allocate(found(self%nfiles))
@@ -813,7 +784,7 @@ do f = 1, size(fields)
   do n = 1, self%nfiles
 
     ! Get the varid
-    status = nf90_inq_varid(self%ncid(n), fields(f)%short_name, varid_local)
+    status = nf90_inq_varid(self%ncid(n), fields(f)%io_name, varid_local)
 
     ! If found then fill the array
     if (status == nf90_noerr) then
@@ -827,32 +798,14 @@ do f = 1, size(fields)
   ! Check that the field was not found more than once
   if (sum(found) > 1) &
     call abor1_ftn("fv3jedi_io_cube_sphere_history_mod.read_fields.get_field_ncid_varid: "// &
-                   "Field "//trim(fields(f)%short_name)//" was found in multiple input files. "// &
+                   "Field "//trim(fields(f)%io_name)//" was found in multiple input files. "// &
                    "Should only be present in one file that is read.")
 
   ! Check that the field was found
   if (sum(found) == 0) then
-    if (trim(fields(f)%fv3jedi_name) .ne. 'ps') then
-      call abor1_ftn("fv3jedi_io_cube_sphere_history_mod.read_fields.get_field_ncid_varid: "// &
-                     "Field "//trim(fields(f)%short_name)//" was not found in any files. "// &
-                     "Should only be present in one file that is read.")
-    else
-      ! Look for delp in files
-      do n = 1, self%nfiles
-        status = nf90_inq_varid(self%ncid(n), 'delp', varid_local)
-        if (status == nf90_noerr) then
-          found(n) = 1
-          file_index(f) = n
-          varid(f) = varid_local
-          compute_ps_from_delp = .true.
-        endif
-      enddo
-      if (.not. compute_ps_from_delp) then
-        call abor1_ftn("fv3jedi_io_cube_sphere_history_mod.read_fields.get_field_ncid_varid: "// &
-                       "Field ps was not found in any files and delp is not present for "// &
-                       "computing it.")
-      endif
-    endif
+    call abor1_ftn("fv3jedi_io_cube_sphere_history_mod.read_fields.get_field_ncid_varid: "// &
+                    "Field "//trim(fields(f)%io_name)//" was not found in any files. "// &
+                    "Should only be present in one file that is read.")
   endif
 
 enddo
@@ -1323,8 +1276,8 @@ do var = 1,size(fields)
       endif
 
       ! Define field
-      call nccheck( nf90_def_var(ncid, trim(fields(var)%short_name), NF90_DOUBLE, dimids, varid), &
-                    "nf90_def_var "//trim(fields(var)%short_name))
+      call nccheck( nf90_def_var(ncid, trim(fields(var)%io_name), NF90_DOUBLE, dimids, varid), &
+                    "nf90_def_var "//trim(fields(var)%io_name))
 
       ! Write attributes if clobbering
       if (self%conf%clobber(1)) then
@@ -1346,8 +1299,8 @@ do var = 1,size(fields)
     else
 
       ! Get existing variable id to write to
-      call nccheck ( nf90_inq_varid (ncid, trim(fields(var)%short_name), varid), &
-                    "nf90_inq_varid "//trim(fields(var)%short_name) )
+      call nccheck ( nf90_inq_varid (ncid, trim(fields(var)%io_name), varid), &
+                    "nf90_inq_varid "//trim(fields(var)%io_name) )
 
     endif
 
@@ -1388,7 +1341,7 @@ do var = 1,size(fields)
       is_r3_noti(self%vindex_noti) = lev
 
       call nccheck( nf90_put_var( ncid, varid, arrayg, start = istart, count = icount ), &
-                                  "nf90_put_var "//trim(fields(var)%short_name) )
+                                  "nf90_put_var "//trim(fields(var)%io_name) )
 
     endif
 

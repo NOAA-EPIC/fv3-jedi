@@ -8,6 +8,7 @@ list( APPEND fv3jedi_src_files
   ErrorCovariance/ErrorCovariance.cc
   ErrorCovariance/ErrorCovariance.h
   FieldMetadata/FieldsMetadata.cc
+  FieldMetadata/FieldsMetadataDefault.h
   FieldMetadata/FieldsMetadata.h
   FieldMetadata/FieldsMetadata.interface.cc
   FieldMetadata/FieldsMetadata.interface.h
@@ -182,10 +183,10 @@ list( APPEND fv3jedi_ufs_src_files
 )
 
 #Requirement libraries
-set(FV3JEDI_LIB_DEP oops saber ufo femps atlas atlas_f fv3jedilm ${LAPACK_LIBRARIES} ${NETCDF_LIBRARIES})
+set(FV3JEDI_LIB_DEP oops saber ufo vader femps atlas atlas_f fv3jedilm ${LAPACK_LIBRARIES} ${NETCDF_LIBRARIES})
 
-# Optional openMP
-if(OpenMP_Fortran_FOUND)
+# If explicitly requested
+if(OPENMP)
   list( APPEND FV3JEDI_LIB_DEP OpenMP::OpenMP_Fortran)
 endif()
 

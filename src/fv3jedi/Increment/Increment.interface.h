@@ -27,21 +27,20 @@ extern "C" {
   void fv3jedi_increment_dot_prod_f90(const F90inc &, const F90inc &, double &);
   void fv3jedi_increment_self_schur_f90(const F90inc &, const F90inc &);
   void fv3jedi_increment_random_f90(const F90inc &);
-  void fv3jedi_increment_diff_incr_f90(const F90inc &, const F90state &, const F90state &,
-                                       const F90geom &);
+  void fv3jedi_increment_diff_states_f90(const F90inc &, const F90state &, const F90state &,
+                                         const F90geom &);
   void fv3jedi_increment_change_resol_f90(const F90inc &, const F90geom &, const F90inc &,
                                           const F90geom &);
   void fv3jedi_increment_sizes_f90(const F90inc &, int &);
   void fv3jedi_increment_norm_f90(const F90inc &, double &);
   void fv3jedi_increment_update_fields_f90(F90inc &, const F90geom &, const oops::Variables &);
-  void fv3jedi_increment_set_atlas_f90(const F90inc &, const F90geom &, const oops::Variables &,
-                                       atlas::field::FieldSetImpl *, const bool &);
-  void fv3jedi_increment_to_atlas_f90(const F90inc &, const F90geom &, const oops::Variables &,
-                                      atlas::field::FieldSetImpl *, const bool &);
-  void fv3jedi_increment_from_atlas_f90(const F90inc &, const F90geom &, const oops::Variables &,
-                                        const atlas::field::FieldSetImpl *);
-  void fv3jedi_increment_to_atlas_ad_f90(const F90inc &, const F90geom &, const oops::Variables &,
-                                      const atlas::field::FieldSetImpl *);
+  void fv3jedi_increment_to_fieldset_f90(const F90inc &, const F90geom &, const oops::Variables &,
+                                         atlas::field::FieldSetImpl *);
+  void fv3jedi_increment_to_fieldset_ad_f90(const F90inc &, const F90geom &,
+                                            const oops::Variables &,
+                                            const atlas::field::FieldSetImpl *);
+  void fv3jedi_increment_from_fieldset_f90(const F90inc &, const F90geom &, const oops::Variables &,
+                                           const atlas::field::FieldSetImpl *);
   void fv3jedi_increment_dirac_f90(const F90inc &, const eckit::Configuration &,
                                    const F90geom &);
   void fv3jedi_increment_serialize_f90(const F90inc &, const std::size_t &, double[]);

@@ -22,7 +22,8 @@ namespace fv3jedi {
 // -------------------------------------------------------------------------------------------------
 
 VariableChange::VariableChange(const Parameters_ & params, const Geometry & geometry)
-  : fieldsMetadata_(geometry.fieldsMetaData()) {
+  : fieldsMetadata_(geometry.fieldsMetaData()),
+    vader_(params.variableChangeParameters.value().vader) {
   // Create the variable change
   variableChange_.reset(VariableChangeFactory::create(geometry,
                                                       params.variableChangeParameters.value()));
@@ -34,19 +35,56 @@ VariableChange::~VariableChange() {}
 
 // -------------------------------------------------------------------------------------------------
 
-void VariableChange::changeVar(State & x, const oops::Variables & vars) const {
+void VariableChange::changeVar(State & x, const oops::Variables & vars_out) const {
   // Trace
   oops::Log::trace() << "VariableChange::changeVar starting" << std::endl;
 
-  // Convert vars to long names and field names
-  const oops::Variables varsLongName = fieldsMetadata_.LongNameFromIONameLongNameOrFieldName(vars);
+  // Make sure vars are longname
+  // ---------------------------
+  const oops::Variables vars = fieldsMetadata_.getLongNameFromAnyName(vars_out);
 
-  // If all variables already in incoming state just remove the no longer needed fields
-  if (varsLongName <= x.variablesLongName()) {
+  // Return if required vars in input
+  // --------------------------------
+  if (vars <= x.variables()) {
     x.updateFields(vars);
-    oops::Log::info() << "VariableChange::changeVar done (identity)" << std::endl;
+    oops::Log::info() << "VariableChange::changeVarInverse done (identity)" << std::endl;
     return;
   }
+
+  // Call Vader to perform first set of variable transforms
+  // ------------------------------------------------------
+
+  // Record start variables
+  oops::Variables varsStart = x.variables();
+
+  // Set state to have all possible variables
+  oops::Variables varsTotal = x.variables();
+  varsTotal += vars;
+  x.updateFields(varsTotal);
+
+  // Record variables either side of Vader
+  oops::Variables varsVaderFinal = vars;
+  varsVaderFinal -= varsStart;  // Pass only the needed variables
+  const oops::Variables varsVaderStart = varsVaderFinal;
+
+  // Call Vader. On entry, varsVaderFinal holds the vars requested from Vader; on exit,
+  // it holds the vars NOT fullfilled by Vader, i.e., the vars still to be requested elsewhere.
+  atlas::FieldSet xfs;
+  x.toFieldSet(xfs);
+  vader_.changeVar(xfs, varsVaderFinal);
+  x.fromFieldSet(xfs);
+
+  // List of variables Vader added
+  oops::Variables varsVaderAdded = varsVaderStart;
+  varsVaderAdded -= varsVaderFinal;
+
+  // Ahead of calling fv3jedi variable transform add vader computed fields to input
+  varsStart += varsVaderAdded;
+  x.updateFields(varsStart);
+
+
+  // Perform fv3jedi factory variable change
+  // ---------------------------------------
 
   // Create output state
   State xout(*x.geometry(), vars, x.time());
@@ -54,7 +92,7 @@ void VariableChange::changeVar(State & x, const oops::Variables & vars) const {
   // Call variable change
   variableChange_->changeVar(x, xout);
 
-  // Allocate any extra fields and remove fields no longer needed
+  // Remove fields not in output
   x.updateFields(vars);
 
   // Copy data from temporary state
@@ -66,19 +104,56 @@ void VariableChange::changeVar(State & x, const oops::Variables & vars) const {
 
 // -------------------------------------------------------------------------------------------------
 
-void VariableChange::changeVarInverse(State & x, const oops::Variables & vars) const {
+void VariableChange::changeVarInverse(State & x, const oops::Variables & vars_out) const {
   // Trace
   oops::Log::trace() << "VariableChange::changeVarInverse starting" << std::endl;
 
-  // Convert vars to long names and field names
-  const oops::Variables varsLongName = fieldsMetadata_.LongNameFromIONameLongNameOrFieldName(vars);
+  // Make sure vars are longname
+  // ---------------------------
+  const oops::Variables vars = fieldsMetadata_.getLongNameFromAnyName(vars_out);
 
-  // If all variables already in incoming state just remove the no longer needed fields
-  if (varsLongName <= x.variablesLongName()) {
+  // Return if required vars in input
+  // --------------------------------
+  if (vars <= x.variables()) {
     x.updateFields(vars);
     oops::Log::info() << "VariableChange::changeVarInverse done (identity)" << std::endl;
     return;
   }
+
+  // Call Vader to perform first set of variable transforms
+  // ------------------------------------------------------
+
+  // Record start variables
+  oops::Variables varsStart = x.variables();
+
+  // Set state to have all possible variables
+  oops::Variables varsTotal = x.variables();
+  varsTotal += vars;
+  x.updateFields(varsTotal);
+
+  // Record variables either side of Vader
+  oops::Variables varsVaderFinal = vars;
+  varsVaderFinal -= varsStart;  // Pass only the needed variables
+  const oops::Variables varsVaderStart = varsVaderFinal;
+
+  // Call Vader. On entry, varsVaderFinal holds the vars requested from Vader; on exit,
+  // it holds the vars NOT fullfilled by Vader, i.e., the vars still to be requested elsewhere.
+  atlas::FieldSet xfs;
+  x.toFieldSet(xfs);
+  vader_.changeVar(xfs, varsVaderFinal);
+  x.fromFieldSet(xfs);
+
+  // List of variables Vader added
+  oops::Variables varsVaderAdded = varsVaderStart;
+  varsVaderAdded -= varsVaderFinal;
+
+  // Ahead of calling fv3jedi variable transform add vader computed fields to input
+  varsStart += varsVaderAdded;
+  x.updateFields(varsStart);
+
+
+  // Perform fv3jedi factory variable change
+  // ---------------------------------------
 
   // Create output state
   State xout(*x.geometry(), vars, x.time());
@@ -86,7 +161,7 @@ void VariableChange::changeVarInverse(State & x, const oops::Variables & vars) c
   // Call variable change
   variableChange_->changeVarInverse(x, xout);
 
-  // Allocate any extra fields and remove fields no longer needed
+  // Remove fields not in output
   x.updateFields(vars);
 
   // Copy data from temporary state

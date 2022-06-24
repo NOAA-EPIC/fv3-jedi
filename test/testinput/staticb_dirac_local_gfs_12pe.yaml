@@ -7,8 +7,7 @@ geometry:
   npx: 13
   npy: 13
   npz: 127
-  fieldsets:
-    - fieldset: Data/fieldsets/dynamics.yaml
+  field metadata override: Data/fieldmetadata/gfs-restart.yaml
 initial condition:
   datetime: 2020-12-15T00:00:00Z
   filetype: fms restart
@@ -48,7 +47,6 @@ background error:
         filename_sfcd: 20201215.000000.cor_rh_1.sfc_data.nc
         filename_sfcw: 20201215.000000.cor_rh_1.fv_srf_wnd.res.nc
         filename_cplr: 20201215.000000.cor_rh_1.coupler.res
-        date: 2020-12-15T00:00:00Z
   - saber block name: StdDev
     input variables: *control_vars
     output variables: *control_vars
@@ -64,7 +62,6 @@ background error:
       filename_sfcd: 20201215.000000.stddev.sfc_data.nc
       filename_sfcw: 20201215.000000.stddev.fv_srf_wnd.res.nc
       filename_cplr: 20201215.000000.stddev.coupler.res
-      date: 2020-12-15T00:00:00Z
   - saber block name: BUMP_VerticalBalance
     input variables: *control_vars
     output variables: *control_vars
@@ -100,14 +97,13 @@ output dirac:
   filename_sfcd: dirac_local_%id%_gfs_12pe.sfc_data.nc
   filename_sfcw: dirac_local_%id%_gfs_12pe.fv_srf_wnd.res.nc
   filename_cplr: dirac_local_%id%_gfs_12pe.coupler.res
-  date: 2020-12-15T00:00:00Z
 dirac:
   ndir: 1
   ixdir: [1]
   iydir: [1]
   ildir: [50]
   itdir: [1]
-  ifdir: [t]
+  ifdir: [air_temperature]
 
 test:
   reference filename: testoutput/staticb_dirac_local_gfs_12pe.ref

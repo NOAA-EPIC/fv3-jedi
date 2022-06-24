@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2017-2021 UCAR
+ * (C) Copyright 2017-2022 UCAR
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -102,7 +102,7 @@ class State : public util::Printable, private util::ObjectCounter<State> {
   void write(const WriteParameters_ &) const;
   double norm() const;
 
-/// Serialize and deserialize
+// Serialize and deserialize
   size_t serialSize() const;
   void serialize(std::vector<double> &) const;
   void deserialize(const std::vector<double> &, size_t &);
@@ -113,7 +113,6 @@ class State : public util::Printable, private util::ObjectCounter<State> {
 // Utilities
   std::shared_ptr<const Geometry> geometry() const {return geom_;}
   const oops::Variables & variables() const {return vars_;}
-  const oops::Variables & variablesLongName() const {return varsLongName_;}
 
   const util::DateTime & time() const {return time_;}
   util::DateTime & time() {return time_;}
@@ -121,8 +120,9 @@ class State : public util::Printable, private util::ObjectCounter<State> {
   util::DateTime & validTime() {return time_;}
   void updateTime(const util::Duration & dt) {time_ += dt;}
 
-// Get values as Atlas FieldSet
-  void getFieldSet(const oops::Variables &, atlas::FieldSet &) const;
+// Accessors to the ATLAS fieldset
+  void toFieldSet(atlas::FieldSet &) const;
+  void fromFieldSet(const atlas::FieldSet &);
 
   int & toFortran() {return keyState_;}
   const int & toFortran() const {return keyState_;}
@@ -133,7 +133,6 @@ class State : public util::Printable, private util::ObjectCounter<State> {
   F90state keyState_;
   std::shared_ptr<const Geometry> geom_;
   oops::Variables vars_;
-  oops::Variables varsLongName_;
   util::DateTime time_;
 };
 

@@ -7,8 +7,7 @@ geometry:
   npx: 13
   npy: 13
   npz: 127
-  fieldsets:
-    - fieldset: Data/fieldsets/dynamics.yaml
+  field metadata override: Data/fieldmetadata/gfs-restart.yaml
 input variables: &inputVars [ua,va,t,ps,sphum,liq_wat,ice_wat,o3mr]
 background:
   datetime: 2020-12-15T00:00:00Z
@@ -52,7 +51,6 @@ bump:
     filename_sfcd: loc_rh.sfc_data.nc
     filename_sfcw: loc_rh.fv_srf_wnd.res.nc
     filename_cplr: loc_rh.coupler.res
-    date: 2020-12-15T00:00:00Z
   - parameter: loc_rv
     filetype: fms restart
     datapath: Data/ensembleb/
@@ -61,7 +59,6 @@ bump:
     filename_sfcd: loc_rv.sfc_data.nc
     filename_sfcw: loc_rv.fv_srf_wnd.res.nc
     filename_cplr: loc_rv.coupler.res
-    date: 2020-12-15T00:00:00Z
 
 test:
   reference filename: testoutput/ensembleb_loc_gfs.ref

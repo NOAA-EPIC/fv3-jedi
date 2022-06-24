@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2017-2021 UCAR
+ * (C) Copyright 2017-2022 UCAR
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -34,8 +34,8 @@ namespace fv3jedi {
 // -------------------------------------------------------------------------------------------------
 
 State::State(const Geometry & geom, const oops::Variables & vars, const util::DateTime & time)
-  : geom_(new Geometry(geom)), vars_(vars), time_(time),
-    varsLongName_(geom_->fieldsMetaData().LongNameFromIONameLongNameOrFieldName(vars))
+  : geom_(new Geometry(geom)), time_(time),
+    vars_(geom_->fieldsMetaData().getLongNameFromAnyName(vars))
 {
   oops::Log::trace() << "State::State (from geom, vars and time) starting" << std::endl;
 
@@ -58,7 +58,8 @@ State::State(const Geometry & geom, const Parameters_ & params)
   if (params.analytic.value() != boost::none) {
     // Variables are hard coded for analytic initial condition (must not be provided)
     ASSERT(params.stateVariables.value() == boost::none);
-    vars_ = oops::Variables({"ua", "va", "t", "delp", "p", "q", "qi", "ql", "phis", "o3mr", "w"});
+    vars_ = oops::Variables({"ua", "va", "t", "delp", "p", "sphum", "ice_wat", "liq_wat", "phis",
+                             "o3mr", "w"});
   } else {
     // If variables are being read they must be defined in the config
     ASSERT(params.stateVariables.value() != boost::none);
@@ -66,7 +67,7 @@ State::State(const Geometry & geom, const Parameters_ & params)
   }
 
   // Set long name variables
-  varsLongName_ = geom_->fieldsMetaData().LongNameFromIONameLongNameOrFieldName(vars_);
+  vars_ = geom_->fieldsMetaData().getLongNameFromAnyName(vars_);
 
   // Allocate state
   fv3jedi_state_create_f90(keyState_, geom_->toFortran(), vars_, time_);
@@ -84,8 +85,7 @@ State::State(const Geometry & geom, const Parameters_ & params)
 // -------------------------------------------------------------------------------------------------
 
 State::State(const Geometry & resol, const State & other)
-  : geom_(new Geometry(resol)), vars_(other.vars_), time_(other.time_),
-    varsLongName_(other.varsLongName_)
+  : geom_(new Geometry(resol)), vars_(other.vars_), time_(other.time_)
 {
   oops::Log::trace() << "State::State (from geom and other) starting" << std::endl;
   fv3jedi_state_create_f90(keyState_, geom_->toFortran(), vars_, time_);
@@ -97,7 +97,7 @@ State::State(const Geometry & resol, const State & other)
 // -------------------------------------------------------------------------------------------------
 
 State::State(const State & other)
-  : geom_(other.geom_), vars_(other.vars_), time_(other.time_), varsLongName_(other.varsLongName_)
+  : geom_(other.geom_), vars_(other.vars_), time_(other.time_)
 {
   oops::Log::trace() << "State::State (from other) starting" << std::endl;
   fv3jedi_state_create_f90(keyState_, geom_->toFortran(), vars_, time_);
@@ -129,8 +129,7 @@ void State::changeResolution(const State & other) {
 // -------------------------------------------------------------------------------------------------
 
 void State::updateFields(const oops::Variables & newVars) {
-  vars_ = newVars;
-  varsLongName_ = geom_->fieldsMetaData().LongNameFromIONameLongNameOrFieldName(newVars);
+  vars_ = oops::Variables(newVars);
   fv3jedi_state_update_fields_f90(keyState_, geom_->toFortran(), newVars);
 }
 
@@ -138,10 +137,12 @@ void State::updateFields(const oops::Variables & newVars) {
 
 State & State::operator+=(const Increment & dx) {
   ASSERT(this->validTime() == dx.validTime());
+  // Increment variables must be a equal to or a subset of the State variables
+  ASSERT(dx.variables() <= vars_);
   // Interpolate increment to state resolution
   Increment dx_sr(*geom_, dx);
   // Call transform and add
-  fv3jedi_state_add_incr_f90(geom_->toFortran(), keyState_, dx_sr.toFortran());
+  fv3jedi_state_add_increment_f90(keyState_, dx_sr.toFortran());
   return *this;
 }
 
@@ -235,12 +236,16 @@ double State::norm() const {
   return zz;
 }
 
-// -----------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------
 
-void State::getFieldSet(const oops::Variables & vars, atlas::FieldSet & fset) const {
-  const bool include_halo = true;
-  fv3jedi_state_set_atlas_f90(keyState_, geom_->toFortran(), vars, fset.get(), include_halo);
-  fv3jedi_state_to_atlas_f90(keyState_, geom_->toFortran(), vars, fset.get(), include_halo);
+void State::toFieldSet(atlas::FieldSet & fset) const {
+  fv3jedi_state_to_fieldset_f90(keyState_, geom_->toFortran(), vars_, fset.get());
+}
+
+// -------------------------------------------------------------------------------------------------
+
+void State::fromFieldSet(const atlas::FieldSet & fset) {
+  fv3jedi_state_from_fieldset_f90(keyState_, geom_->toFortran(), vars_, fset.get());
 }
 
 // -----------------------------------------------------------------------------

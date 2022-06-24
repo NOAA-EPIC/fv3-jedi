@@ -7,8 +7,7 @@ geometry:
   npx: 13
   npy: 13
   npz: 127
-  fieldsets:
-    - fieldset: Data/fieldsets/dynamics.yaml
+  field metadata override: Data/fieldmetadata/gfs-restart.yaml
 input variables: &inputVars [psi,chi,t,ps,rh,liq_wat,ice_wat,o3mr]
 background:
   datetime: _YYYY_-_MM_-_DD_T_HH_:00:00Z
@@ -51,7 +50,6 @@ bump:
       filename_sfcd: sfc_data.nc
       filename_sfcw: fv_srf_wnd.res.nc
       filename_cplr: coupler.res
-    date: _YYYY_-_MM_-_DD_T_HH_:00:00Z
   - input:
       datetime: _YYYY_-_MM_-_DD_T_HH_:00:00Z
       filetype: fms restart
@@ -71,7 +69,6 @@ bump:
       filename_sfcd: sfc_data.nc
       filename_sfcw: fv_srf_wnd.res.nc
       filename_cplr: coupler.res
-    date: _YYYY_-_MM_-_DD_T_HH_:00:00Z
   - input:
       datetime: _YYYY_-_MM_-_DD_T_HH_:00:00Z
       filetype: fms restart
@@ -91,7 +88,6 @@ bump:
       filename_sfcd: sfc_data.nc
       filename_sfcw: fv_srf_wnd.res.nc
       filename_cplr: coupler.res
-    date: _YYYY_-_MM_-_DD_T_HH_:00:00Z
   - input:
       datetime: _YYYY_-_MM_-_DD_T_HH_:00:00Z
       filetype: fms restart
@@ -111,7 +107,6 @@ bump:
       filename_sfcd: sfc_data.nc
       filename_sfcw: fv_srf_wnd.res.nc
       filename_cplr: coupler.res
-    date: _YYYY_-_MM_-_DD_T_HH_:00:00Z
   - input:
       datetime: _YYYY_-_MM_-_DD_T_HH_:00:00Z
       filetype: fms restart
@@ -131,7 +126,6 @@ bump:
       filename_sfcd: sfc_data.nc
       filename_sfcw: fv_srf_wnd.res.nc
       filename_cplr: coupler.res
-    date: _YYYY_-_MM_-_DD_T_HH_:00:00Z
   - input:
       datetime: _YYYY_-_MM_-_DD_T_HH_:00:00Z
       filetype: fms restart
@@ -151,7 +145,6 @@ bump:
       filename_sfcd: sfc_data.nc
       filename_sfcw: fv_srf_wnd.res.nc
       filename_cplr: coupler.res
-    date: _YYYY_-_MM_-_DD_T_HH_:00:00Z
   - input:
       datetime: _YYYY_-_MM_-_DD_T_HH_:00:00Z
       filetype: fms restart
@@ -171,7 +164,6 @@ bump:
       filename_sfcd: sfc_data.nc
       filename_sfcw: fv_srf_wnd.res.nc
       filename_cplr: coupler.res
-    date: _YYYY_-_MM_-_DD_T_HH_:00:00Z
   - input:
       datetime: _YYYY_-_MM_-_DD_T_HH_:00:00Z
       filetype: fms restart
@@ -191,7 +183,6 @@ bump:
       filename_sfcd: sfc_data.nc
       filename_sfcw: fv_srf_wnd.res.nc
       filename_cplr: coupler.res
-    date: _YYYY_-_MM_-_DD_T_HH_:00:00Z
   - input:
       datetime: _YYYY_-_MM_-_DD_T_HH_:00:00Z
       filetype: fms restart
@@ -211,7 +202,6 @@ bump:
       filename_sfcd: sfc_data.nc
       filename_sfcw: fv_srf_wnd.res.nc
       filename_cplr: coupler.res
-    date: _YYYY_-_MM_-_DD_T_HH_:00:00Z
   - input:
       datetime: _YYYY_-_MM_-_DD_T_HH_:00:00Z
       filetype: fms restart
@@ -231,7 +221,6 @@ bump:
       filename_sfcd: sfc_data.nc
       filename_sfcw: fv_srf_wnd.res.nc
       filename_cplr: coupler.res
-    date: _YYYY_-_MM_-_DD_T_HH_:00:00Z
 
 test:
   reference filename: testoutput/staticb_unbal__YYYY__MM__DD__HH__gfs.ref

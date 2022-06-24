@@ -1,4 +1,4 @@
-! (C) Copyright 2017-2020 UCAR
+! (C) Copyright 2017-2022 UCAR
 !
 ! This software is licensed under the terms of the Apache Licence Version 2.0
 ! which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -149,24 +149,21 @@ end subroutine fv3jedi_state_axpy_c
 
 ! --------------------------------------------------------------------------------------------------
 
-subroutine fv3jedi_state_add_incr_c(c_key_geom,c_key_self,c_key_rhs) &
-           bind(c,name='fv3jedi_state_add_incr_f90')
+subroutine fv3jedi_state_add_increment_c(c_key_self,c_key_rhs) &
+           bind(c,name='fv3jedi_state_add_increment_f90')
 
 implicit none
-integer(c_int), intent(in) :: c_key_geom
 integer(c_int), intent(in) :: c_key_self
 integer(c_int), intent(in) :: c_key_rhs
-type(fv3jedi_geom), pointer :: geom
 type(fv3jedi_state), pointer :: self
 type(fv3jedi_increment), pointer :: rhs
 
 call fv3jedi_state_registry%get(c_key_self,self)
 call fv3jedi_increment_registry%get(c_key_rhs,rhs)
-call fv3jedi_geom_registry%get(c_key_geom, geom)
 
-call self%add_incr(geom,rhs%fields)
+call self%add_increment(rhs%fields)
 
-end subroutine fv3jedi_state_add_incr_c
+end subroutine fv3jedi_state_add_increment_c
 
 ! --------------------------------------------------------------------------------------------------
 
@@ -309,59 +306,53 @@ end subroutine fv3jedi_state_getminmaxrms_c
 
 ! --------------------------------------------------------------------------------------------------
 
-subroutine fv3jedi_state_set_atlas_c(c_key_self, c_key_geom, c_vars, c_afieldset, c_include_halo) &
- & bind (c,name='fv3jedi_state_set_atlas_f90')
+subroutine fv3jedi_state_to_fieldset_c(c_key_self, c_key_geom, c_vars, c_afieldset) &
+ & bind (c,name='fv3jedi_state_to_fieldset_f90')
 
 implicit none
 integer(c_int), intent(in) :: c_key_self
 integer(c_int), intent(in) :: c_key_geom
 type(c_ptr), value, intent(in) :: c_vars
 type(c_ptr), intent(in), value :: c_afieldset
-logical(c_bool), intent(in)    :: c_include_halo
 
 type(fv3jedi_state), pointer :: self
 type(fv3jedi_geom),  pointer :: geom
 type(oops_variables) :: vars
 type(atlas_fieldset) :: afieldset
-logical :: include_halo
 
 call fv3jedi_state_registry%get(c_key_self, self)
 call fv3jedi_geom_registry%get(c_key_geom, geom)
 vars = oops_variables(c_vars)
 afieldset = atlas_fieldset(c_afieldset)
-include_halo = c_include_halo
 
-call self%set_atlas(geom, vars, afieldset, include_halo)
+call self%to_fieldset(geom, vars, afieldset)
 
-end subroutine fv3jedi_state_set_atlas_c
+end subroutine fv3jedi_state_to_fieldset_c
 
 ! --------------------------------------------------------------------------------------------------
 
-subroutine fv3jedi_state_to_atlas_c(c_key_self, c_key_geom, c_vars, c_afieldset, c_include_halo) &
- & bind (c,name='fv3jedi_state_to_atlas_f90')
+subroutine fv3jedi_state_from_fieldset_c(c_key_self, c_key_geom, c_vars, c_afieldset) &
+ & bind (c,name='fv3jedi_state_from_fieldset_f90')
 
 implicit none
 integer(c_int), intent(in) :: c_key_self
 integer(c_int), intent(in) :: c_key_geom
 type(c_ptr), value, intent(in) :: c_vars
 type(c_ptr), intent(in), value :: c_afieldset
-logical(c_bool), intent(in) :: c_include_halo
 
 type(fv3jedi_state), pointer :: self
 type(fv3jedi_geom),  pointer :: geom
 type(oops_variables) :: vars
 type(atlas_fieldset) :: afieldset
-logical :: include_halo
 
 call fv3jedi_state_registry%get(c_key_self, self)
 call fv3jedi_geom_registry%get(c_key_geom, geom)
 vars = oops_variables(c_vars)
 afieldset = atlas_fieldset(c_afieldset)
-include_halo = c_include_halo
 
-call self%to_atlas(geom, vars, afieldset, include_halo)
+call self%from_fieldset(geom, vars, afieldset)
 
-end subroutine fv3jedi_state_to_atlas_c
+end subroutine fv3jedi_state_from_fieldset_c
 
 ! --------------------------------------------------------------------------------------------------
 

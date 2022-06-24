@@ -6,9 +6,7 @@ geometry:
   npx: 13
   npy: 13
   npz: 64
-  fieldsets:
-    - fieldset: Data/fieldsets/dynamics.yaml
-    - fieldset: Data/fieldsets/aerosols_gfs.yaml
+  field metadata override: Data/fieldmetadata/gfs-aerosol.yaml
 input variables: [sulf]
 background:
   datetime: 2018-04-14T21:00:00Z
@@ -39,13 +37,11 @@ bump:
     datapath: Data/bump/
     filename_core: bumpparameters_nicas_gfs_aero.cor_rh.fv_core.res.nc
     filename_trcr: bumpparameters_nicas_gfs_aero.cor_rh.fv_tracer.res.nc
-    date: 2018-04-14T21:00:00Z
   - parameter: cor_rv
     filetype: fms restart
     datapath: Data/bump/
     filename_core: bumpparameters_nicas_gfs_aero.cor_rv.fv_core.res.nc
     filename_trcr: bumpparameters_nicas_gfs_aero.cor_rv.fv_tracer.res.nc
-    date: 2018-04-14T21:00:00Z
 
 test:
   reference filename: testoutput/bumpparameters_nicas_gfs_aero.ref
