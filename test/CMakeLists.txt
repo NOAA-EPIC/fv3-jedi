@@ -109,6 +109,7 @@ list( APPEND fv3jedi_testinput
   testinput/forecast_fv3lm.yaml
   testinput/forecast_geos.yaml
   testinput/forecast_ufs_c48.yaml
+  testinput/forecast_ufs.yaml
   testinput/geometry_2d.yaml
   testinput/geometry_geos.yaml
   testinput/geometry_gfs127.yaml
@@ -159,6 +160,7 @@ list( APPEND fv3jedi_testinput
   testinput/model_fv3lm.yaml
   testinput/model_geos.yaml
   testinput/model_ufs_c48.yaml
+  testinput/model_ufs.yaml
   testinput/model_pseudo-geos.yaml
   testinput/model_pseudo-gfs.yaml
   testinput/obslocalization.yaml
@@ -326,6 +328,7 @@ LINK_FILES( "${fv3jedi_femps_grid}" ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_
 # ----------
 list( APPEND fv3jedi_field_metadata
 Data/fieldmetadata/geos.yaml
+Data/fieldmetadata/ufs.yaml
 Data/fieldmetadata/geos-cf.yaml
 Data/fieldmetadata/gfs-aerosol.yaml
 Data/fieldmetadata/gfs-history.yaml
