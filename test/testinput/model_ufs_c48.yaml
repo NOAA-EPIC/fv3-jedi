@@ -9,13 +9,15 @@ geometry:
   npy: 49
   npz: 27
   ntiles: 6
-  fieldsets:
-    - fieldset: Data/fieldsets/dynamics.yaml
+  field metadata override: Data/fieldmetadata/ufs.yaml
 model:
   name: UFS 
   tstep: PT1H
   ufs_run_directory: Data/ModelRunDirs/UFS
-  model variables: [u, v, ua, va, T, delp, sphum, ice_wat, liq_wat, o3mr, phis, slmsk,
+# model variables: [u, v, ua, va, T, delp, sphum, ice_wat, liq_wat, o3mr, phis, slmsk,
+#                   sheleg, tsea, vtype, stype, vfrac, stc, smc, snwdph, u_srf, v_srf,
+#                   f10m]
+  model variables: [T, delp, sphum, ice_wat, liq_wat, o3mr, phis, slmsk,
                     sheleg, tsea, vtype, stype, vfrac, stc, smc, snwdph, u_srf, v_srf,
                     f10m]
 model aux control: null
