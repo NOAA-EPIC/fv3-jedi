@@ -209,7 +209,7 @@ endif()
 if( FV3_FORECAST_MODEL MATCHES "UFS" )
   list( APPEND FV3JEDI_SRC_DEP ${fv3jedi_ufs_src_files} )
   if(CMAKE_Fortran_COMPILER_ID MATCHES GNU)
-    set_source_files_properties(${fv3jedi_ufs_src_files} PROPERTIES COMPILE_FLAGS "${CMAKE_Fortran_FLAGS} -ffree-line-length-none -fdec -fno-range-check -ffree-form ")
+    set_source_files_properties(${fv3jedi_ufs_src_files} PROPERTIES COMPILE_FLAGS "${CMAKE_Fortran_FLAGS} -ffree-line-length-none -fno-range-check ")
   endif()
 endif()
 
