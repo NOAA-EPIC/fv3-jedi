@@ -508,7 +508,7 @@ contains
 
       elseif (rank == 3) then
         call ESMF_FieldGet( field, 0, farrayPtr = farrayPtr3, totalLBound = lb, totalUBound = ub, rc = rc )
-        if (rc.ne.0) call abor1_ftn("fv3_to_state: ESMF_FieldGet 3D failed",rc)
+        if (rc.ne.0) call abor1_ftn("fv3_to_state: ESMF_FieldGet 3D failed")
 
         fnpz = ub(3)-lb(3)+1
         field_fv3(self%isc:self%iec,self%jsc:self%jec,1:fnpz) = farrayPtr3(lb(1):ub(1),lb(2):ub(2),lb(3):ub(3))
