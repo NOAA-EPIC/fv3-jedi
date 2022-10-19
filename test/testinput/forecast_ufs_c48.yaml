@@ -32,6 +32,6 @@ initial condition:
 output:
   filetype: fms restart
   datapath: ../../../Data/forecast
-  filename: forecast.jediex.
+  prefix: forecast.jediex.
   first: PT1H
   frequency: PT1H
