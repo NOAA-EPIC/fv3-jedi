@@ -707,8 +707,12 @@ file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/ensembleb)
 
 # Stage directory with directories for running the models
 # -------------------------------------------------------
-set(FV3_FORECAST_MODEL_RUNDIR ${CMAKE_SOURCE_DIR}/fv3-jedi-data/testinput_tier_1/inputs/ufs_c48)
-if(FV3_FORECAST_MODEL MATCHES "GEOS" OR FV3_FORECAST_MODEL MATCHES "UFS")
+if (FV3_FORECAST_MODEL MATCHES "GEOS" OR FV3_FORECAST_MODEL MATCHES "UFS")
+  # TODO: set FV3_FORECAST_MODEL_RUNDIR for GEOS case too
+  if (FV3_FORECAST_MODEL MATCHES "UFS")
+    set(FV3_FORECAST_MODEL_RUNDIR ${CMAKE_SOURCE_DIR}/fv3-jedi-data/testinput_tier_1/inputs/ufs_c48)
+  endif()
+
   file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/ModelRunDirs/${FV3_FORECAST_MODEL})
   file(GLOB model_files "${FV3_FORECAST_MODEL_RUNDIR}/*")
   LINK_FILES_DIR("${model_files}" ${CMAKE_CURRENT_BINARY_DIR}/Data/ModelRunDirs/${FV3_FORECAST_MODEL}/)
@@ -718,55 +722,6 @@ if(FV3_FORECAST_MODEL MATCHES "GEOS" OR FV3_FORECAST_MODEL MATCHES "UFS")
     execute_process( COMMAND chmod 755 ${CMAKE_CURRENT_BINARY_DIR}/Data/ModelRunDirs/${FV3_FORECAST_MODEL}/cap_restart )
   endif()
   if (FV3_FORECAST_MODEL MATCHES "UFS")
-    set(input_files 
-        fv_core.res.nc
-        fv_core.res.tile1.nc
-        fv_core.res.tile2.nc
-        fv_core.res.tile3.nc
-        fv_core.res.tile4.nc
-        fv_core.res.tile5.nc
-        fv_core.res.tile6.nc
-        fv_srf_wnd.res.tile1.nc
-        fv_srf_wnd.res.tile2.nc
-        fv_srf_wnd.res.tile3.nc
-        fv_srf_wnd.res.tile4.nc
-        fv_srf_wnd.res.tile5.nc
-        fv_srf_wnd.res.tile6.nc
-        fv_tracer.res.tile1.nc
-        fv_tracer.res.tile2.nc
-        fv_tracer.res.tile3.nc
-        fv_tracer.res.tile4.nc
-        fv_tracer.res.tile5.nc
-        fv_tracer.res.tile6.nc
-        gfs_data.tile1.nc
-        gfs_data.tile2.nc
-        gfs_data.tile3.nc
-        gfs_data.tile4.nc
-        gfs_data.tile5.nc
-        gfs_data.tile6.nc
-        grid_spec.nc
-        oro_data.tile1.nc
-        oro_data.tile2.nc
-        oro_data.tile3.nc
-        oro_data.tile4.nc
-        oro_data.tile5.nc
-        oro_data.tile6.nc
-        phy_data.tile1.nc
-        phy_data.tile2.nc
-        phy_data.tile3.nc
-        phy_data.tile4.nc
-        phy_data.tile5.nc
-        phy_data.tile6.nc
-        sfc_data.tile1.nc
-        sfc_data.tile2.nc
-        sfc_data.tile3.nc
-        sfc_data.tile4.nc
-        sfc_data.tile5.nc
-        sfc_data.tile6.nc
-        )
-    foreach( input_file ${input_files})
-      execute_process( COMMAND mv ${FV3_FORECAST_MODEL_RUNDIR}/INPUT/C48_${input_file} ${FV3_FORECAST_MODEL_RUNDIR}/INPUT/${input_file}  )
-    endforeach()
     file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/ModelRunDirs/${FV3_FORECAST_MODEL}/RESTART)
   endif()
 endif()
