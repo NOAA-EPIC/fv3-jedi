@@ -713,6 +713,16 @@ if (FV3_FORECAST_MODEL MATCHES "GEOS" OR FV3_FORECAST_MODEL MATCHES "UFS")
     set(FV3_FORECAST_MODEL_RUNDIR ${CMAKE_SOURCE_DIR}/fv3-jedi-data/testinput_tier_1/inputs/ufs_c48)
   endif()
 
+  # TODO: The code below only works if FV3_FORECAST_MODEL_RUNDIR is set up before ecbuild is run.
+  #       This is because the GLOB below will match 0 files if FV3_FORECAST_MODEL_RUNDIR is not set up,
+  #       and in this case no files are linked into the build dir.
+  #
+  #       For the UFS-bundle, this breaks the UFS tests because the UFS "rundir" is in fv3-jedi-data,
+  #       and the fv3-jedi-data repo is checked out AFTER fv3-jedi. A workaround for now is to run
+  #       ecbuild twice: first to clone all the repos, then a second time to set up the symlinks.
+  #
+  #       Ultimately, we need a better solution...
+
   file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/ModelRunDirs/${FV3_FORECAST_MODEL})
   file(GLOB model_files "${FV3_FORECAST_MODEL_RUNDIR}/*")
   LINK_FILES_DIR("${model_files}" ${CMAKE_CURRENT_BINARY_DIR}/Data/ModelRunDirs/${FV3_FORECAST_MODEL}/)
