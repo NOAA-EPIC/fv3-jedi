@@ -959,7 +959,7 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_model_ufs
                   MPI      6
                   ARGS     testinput/model_ufs_c48.yaml
                   COMMAND  test_fv3jedi_model.x
-                  DEPENDS  fv3jedi_setup_ufs_rundir )
+                  TEST_DEPENDS fv3jedi_setup_ufs_rundir )
 endif()
 
 # Disabled until setup of GEOS model rundir is added (e.g., see fv3jedi_setup_ufs_rundir)
@@ -993,7 +993,7 @@ if( FV3_FORECAST_MODEL MATCHES "UFS" AND BUILD_LARGE_TESTS )
                     MPI      6
                     ARGS     testinput/forecast_ufs_c48.yaml
                     COMMAND  fv3jedi_forecast.x
-                    DEPENDS  fv3jedi_setup_ufs_rundir )
+                    TEST_DEPENDS fv3jedi_setup_ufs_rundir )
 endif()
 
 # Disabled until setup of GEOS model rundir is added (e.g., see fv3jedi_setup_ufs_rundir)
