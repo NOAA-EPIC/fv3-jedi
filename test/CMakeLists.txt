@@ -707,34 +707,23 @@ file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/ensembleb)
 
 # Stage directory with directories for running the models
 # -------------------------------------------------------
-if (FV3_FORECAST_MODEL MATCHES "GEOS" OR FV3_FORECAST_MODEL MATCHES "UFS")
-  # TODO: set FV3_FORECAST_MODEL_RUNDIR for GEOS case too
-  if (FV3_FORECAST_MODEL MATCHES "UFS")
-    set(FV3_FORECAST_MODEL_RUNDIR ${CMAKE_SOURCE_DIR}/fv3-jedi-data/testinput_tier_1/inputs/ufs_c48)
-  endif()
 
-  # TODO: The code below only works if FV3_FORECAST_MODEL_RUNDIR is set up before ecbuild is run.
-  #       This is because the GLOB below will match 0 files if FV3_FORECAST_MODEL_RUNDIR is not set up,
-  #       and in this case no files are linked into the build dir.
-  #
-  #       For the UFS-bundle, this breaks the UFS tests because the UFS "rundir" is in fv3-jedi-data,
-  #       and the fv3-jedi-data repo is checked out AFTER fv3-jedi. A workaround for now is to run
-  #       ecbuild twice: first to clone all the repos, then a second time to set up the symlinks.
-  #
-  #       Ultimately, we need a better solution...
+if (FV3_FORECAST_MODEL MATCHES "UFS")
+  set(FV3_FORECAST_MODEL_RUNDIR ${CMAKE_SOURCE_DIR}/fv3-jedi-data/testinput_tier_1/inputs/ufs_c48)
+  set(FV3_FORECAST_MODEL_TESTDIR ${CMAKE_CURRENT_BINARY_DIR}/Data/ModelRunDirs/${FV3_FORECAST_MODEL}/)
 
-  file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/ModelRunDirs/${FV3_FORECAST_MODEL})
-  file(GLOB model_files "${FV3_FORECAST_MODEL_RUNDIR}/*")
-  LINK_FILES_DIR("${model_files}" ${CMAKE_CURRENT_BINARY_DIR}/Data/ModelRunDirs/${FV3_FORECAST_MODEL}/)
-  if (FV3_FORECAST_MODEL MATCHES "GEOS")
-    execute_process( COMMAND rm ${CMAKE_CURRENT_BINARY_DIR}/Data/ModelRunDirs/${FV3_FORECAST_MODEL}/cap_restart )
-    execute_process( COMMAND cp ${FV3_FORECAST_MODEL_RUNDIR}/cap_restart ${CMAKE_CURRENT_BINARY_DIR}/Data/ModelRunDirs/${FV3_FORECAST_MODEL}/cap_restart )
-    execute_process( COMMAND chmod 755 ${CMAKE_CURRENT_BINARY_DIR}/Data/ModelRunDirs/${FV3_FORECAST_MODEL}/cap_restart )
-  endif()
-  if (FV3_FORECAST_MODEL MATCHES "UFS")
-    file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/ModelRunDirs/${FV3_FORECAST_MODEL}/RESTART)
-  endif()
+  file(MAKE_DIRECTORY ${FV3_FORECAST_MODEL_TESTDIR})
+
+  set(FV3_SETUP_UFS_RUNDIR_SCRIPT fv3jedi_setup_ufs_rundir.py)
+  configure_file(${FV3_SETUP_UFS_RUNDIR_SCRIPT} ${CMAKE_BINARY_DIR}/bin/${FV3_SETUP_UFS_RUNDIR_SCRIPT} COPYONLY)
+
+  ecbuild_add_test( TARGET  fv3jedi_setup_ufs_rundir
+                    TYPE    SCRIPT
+                    COMMAND ${CMAKE_BINARY_DIR}/bin/${FV3_SETUP_UFS_RUNDIR_SCRIPT}
+                    ARGS    ${FV3_FORECAST_MODEL_RUNDIR} ${FV3_FORECAST_MODEL_TESTDIR} )
 endif()
+
+# Setting up RUNDIR for other models would happen here
 
 ecbuild_add_resources( TARGET   fv3jedi_test_scripts
                        SOURCES_PACK
@@ -969,15 +958,17 @@ if( FV3_FORECAST_MODEL MATCHES "UFS" AND BUILD_LARGE_TESTS )
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_model_ufs
                   MPI      6
                   ARGS     testinput/model_ufs_c48.yaml
-                  COMMAND  test_fv3jedi_model.x )
+                  COMMAND  test_fv3jedi_model.x
+                  DEPENDS  fv3jedi_setup_ufs_rundir )
 endif()
 
-if( FV3_FORECAST_MODEL MATCHES "GEOS" AND BUILD_LARGE_TESTS)
-ecbuild_add_test( TARGET   fv3jedi_test_tier1_model_geos
-                  MPI      6
-                  ARGS     testinput/model_geos.yaml
-                  COMMAND  test_fv3jedi_model.x )
-endif()
+# Disabled until setup of GEOS model rundir is added (e.g., see fv3jedi_setup_ufs_rundir)
+#if( FV3_FORECAST_MODEL MATCHES "GEOS" AND BUILD_LARGE_TESTS)
+#ecbuild_add_test( TARGET   fv3jedi_test_tier1_model_geos
+#                  MPI      6
+#                  ARGS     testinput/model_geos.yaml
+#                  COMMAND  test_fv3jedi_model.x )
+#endif()
 
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_linearmodel
                   MPI      6
@@ -1001,15 +992,17 @@ if( FV3_FORECAST_MODEL MATCHES "UFS" AND BUILD_LARGE_TESTS )
   ecbuild_add_test( TARGET   fv3jedi_test_tier1_forecast_ufs
                     MPI      6
                     ARGS     testinput/forecast_ufs_c48.yaml
-                    COMMAND  fv3jedi_forecast.x )
+                    COMMAND  fv3jedi_forecast.x
+                    DEPENDS  fv3jedi_setup_ufs_rundir )
 endif()
 
-if( FV3_FORECAST_MODEL MATCHES "GEOS" AND BUILD_LARGE_TESTS)
-  ecbuild_add_test( TARGET   fv3jedi_test_tier1_forecast_geos
-                    MPI      6
-                    ARGS     testinput/forecast_geos.yaml
-                    COMMAND  fv3jedi_forecast.x )
-endif()
+# Disabled until setup of GEOS model rundir is added (e.g., see fv3jedi_setup_ufs_rundir)
+#if( FV3_FORECAST_MODEL MATCHES "GEOS" AND BUILD_LARGE_TESTS)
+#  ecbuild_add_test( TARGET   fv3jedi_test_tier1_forecast_geos
+#                    MPI      6
+#                    ARGS     testinput/forecast_geos.yaml
+#                    COMMAND  fv3jedi_forecast.x )
+#endif()
 
 # H(x)
 # ----
