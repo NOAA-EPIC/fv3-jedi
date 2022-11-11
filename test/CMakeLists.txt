@@ -519,7 +519,7 @@ function(ADD_DOWNLOAD_TEST repo test_files_dirname output_data_path)
     # temporary solution for release 1.1.0
     if ( ${repo} STREQUAL "crtm" )
       list( APPEND REPO_DATA_DOWNLOADER_ARGS
-	          ${ECBUILD_DOWNLOAD_BASE_URL}
+            ${ECBUILD_DOWNLOAD_BASE_URL}
             ${TESTFILE_DIR_REPO}
             ${test_files_dirname}
             ${checksum} )
