@@ -1,4 +1,4 @@
-# (C) Copyright 2017-2019 UCAR.
+# (C) Copyright 2017-2022 UCAR.
 #
 # This software is licensed under the terms of the Apache Licence Version 2.0
 # which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -9,7 +9,7 @@
 
 cmake_minimum_required( VERSION 3.3.2 FATAL_ERROR )
 
-project( fv3jedi VERSION 1.1.0 LANGUAGES C CXX Fortran )
+project( fv3jedi VERSION 1.3.0 LANGUAGES C CXX Fortran )
 
 option(OPENMP "Build fv3-jedi with OpenMP support" ON)
 
@@ -63,13 +63,13 @@ find_package( jedicmake QUIET )
 find_package( NetCDF REQUIRED COMPONENTS Fortran )
 
 # atlas
-find_package( atlas 0.20.2 REQUIRED )
+find_package( atlas 0.27.0 REQUIRED )
 
 # oops
-find_package( oops 1.0.0 REQUIRED )
+find_package( oops 1.3.0 REQUIRED )
 
 # saber
-find_package( saber 1.0.0 REQUIRED )
+find_package( saber 1.3.0 REQUIRED )
 
 # crtm
 find_package( crtm 2.2.3 REQUIRED )
@@ -80,11 +80,18 @@ find_package( ropp-ufo QUIET )
 # geos-aero
 find_package( geos-aero QUIET )
 
-# gsibclim
-find_package( gsibclim QUIET )
+# gsibec
+find_package( gsibec 1.0.6 QUIET )
+if( gsibec_FOUND )
+    message( STATUS "FV3-SABER block GSI is enabled" )
+    add_definitions(-DENABLE_GSIBEC=1)
+endif()
+
+# ncep-sp
+find_package( sp QUIET )
 
 # ufo
-find_package( ufo 1.0.0 REQUIRED )
+find_package( ufo 1.3.0 REQUIRED )
 
 # femps
 find_package( femps 1.0.0 REQUIRED )

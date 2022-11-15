@@ -2,7 +2,7 @@ cost function:
   cost type: 3D-Var
   window begin: 2020-12-14T21:00:00Z
   window length: PT6H
-  analysis variables: &3dvars [ua,va,T,DELP,sphum,ice_wat,liq_wat,o3mr]
+  analysis variables: &3dvars [eastward_wind,northward_wind,air_temperature,air_pressure_thickness,specific_humidity,cloud_liquid_ice,cloud_liquid_water,ozone_mass_mixing_ratio]
   geometry:
     fms initialization:
       namelist filename: Data/fv3files/fmsmpp.nml
@@ -18,7 +18,7 @@ cost function:
     filetype: fms restart
     datapath: Data/
     prefix: 20201215.000000.c24
-    state variables: [ua,va,T,DELP,sphum,ice_wat,liq_wat,o3mr,phis,
+    state variables: [u,v,ua,va,T,DELP,sphum,ice_wat,liq_wat,o3mr,phis,
                       slmsk,sheleg,tsea,vtype,stype,vfrac,stc,smc,snwdph,
                       u_srf,v_srf,f10m]
   background error:
@@ -26,11 +26,9 @@ cost function:
     components:
     - covariance:
         covariance model: SABER
-        saber blocks:
-        - saber block name: BUMP_NICAS
-          saber central block: true
-          input variables: *3dvars
-          output variables: *3dvars
+        saber central block:
+          saber block name: BUMP_NICAS
+          active variables: [eastward_wind,northward_wind,air_temperature,air_pressure_thickness,specific_humidity,cloud_liquid_ice,cloud_liquid_water,ozone_mass_mixing_ratio]
           bump:
             prefix: Data/bump/fv3jedi_bumpparameters_nicas_3D_gfs_p12
             method: cor
@@ -55,10 +53,9 @@ cost function:
           zero padding: 3
         localization:
           localization method: SABER
-          saber block:
+          saber central block:
             saber block name: BUMP_NICAS
-            input variables: *3dvars
-            output variables: *3dvars
+            active variables: [eastward_wind,northward_wind,air_temperature,air_pressure_thickness,specific_humidity,cloud_liquid_ice,cloud_liquid_water,ozone_mass_mixing_ratio]
             bump:
               prefix: Data/bump/fv3jedi_bumpparameters_nicas_3D_gfs_p12
               method: loc
@@ -78,7 +75,9 @@ cost function:
         # air_temperature@ObsError. In this way we verify derived variables can be assimilated.
         name: Aircraft
         obsdatain:
-          obsfile: Data/obs/testinput_tier_1/aircraft_obs_2020121500_m_renamed_var.nc4
+          engine:
+            type: H5File
+            obsfile: Data/obs/testinput_tier_1/aircraft_obs_2020121500_m_renamed_var.nc4
         simulated variables: [eastward_wind, northward_wind, air_temperature]
         observed variables: [eastward_wind, northward_wind]
         derived variables: [air_temperature]
@@ -119,14 +118,16 @@ cost function:
     - obs space:
         name: GnssroBndNBAM
         obsdatain:
-          obsfile: Data/obs/testinput_tier_1/gnssro_obs_2020121500_m.nc4
+          engine:
+            type: H5File
+            obsfile: Data/obs/testinput_tier_1/gnssro_obs_2020121500_m.nc4
         simulated variables: [bending_angle]
       obs operator:
         name: GnssroBndNBAM
         obs options:
           sr_steps: 2
           vertlayer: full
-          compress: 1
+          use_compress: 1
           super_ref_qc: NBAM
       obs error:
         covariance model: diagonal ufo
@@ -149,7 +150,9 @@ cost function:
     - obs space:
         name: AMSUA-NOAA19
         obsdatain:
-          obsfile: Data/obs/testinput_tier_1/amsua_n19_obs_2020121500_m.nc4
+          engine:
+            type: H5File
+            obsfile: Data/obs/testinput_tier_1/amsua_n19_obs_2020121500_m.nc4
         simulated variables: [brightness_temperature]
         channels: 1-15
       obs operator:
@@ -206,7 +209,9 @@ cost function:
     - obs space:
         name: SfcObs
         obsdatain:
-          obsfile: Data/obs/testinput_tier_1/sfc_obs_2020121500_m.nc4
+          engine:
+            type: H5File
+            obsfile: Data/obs/testinput_tier_1/sfc_obs_2020121500_m.nc4
         simulated variables: [surface_pressure]
       obs operator:
         name: SfcPCorrected
@@ -221,7 +226,9 @@ cost function:
     - obs space:
         name: Radiosonde
         obsdatain:
-          obsfile: Data/obs/testinput_tier_1/sondes_obs_2020121500_m.nc4
+          engine:
+            type: H5File
+            obsfile: Data/obs/testinput_tier_1/sondes_obs_2020121500_m.nc4
         simulated variables: [eastward_wind, northward_wind, air_temperature]
       obs operator:
         name: VertInterp
@@ -275,7 +282,14 @@ output:
   frequency: PT1H
 
 test:
-  reference filename: testoutput/hyb-3dvar.ref
+  # TODO: compare the p12 test.out against the normal (6-proc) test reference.
+  # Context: the improvement to the oops interpolation accuracy (FH, fall 2022) introduced a
+  # dependence on the number of MPI tasks used to partition the grid. This makes it impossible to
+  # compare the p6 and p12 test results without very loose tolerances. It is a goal to improve
+  # the triangulation algorithm used in the interpolator so that the interpolation result no longer
+  # changes with the number of MPI tasks, and once this is done the two tests can compare against
+  # the same reference once again.
+  reference filename: testoutput/hyb-3dvar_p12.ref
   test output filename: testoutput/hyb-3dvar_p12.test.out
   float relative tolerance: 1.0e-3
   float absolute tolerance: 1.0e-6

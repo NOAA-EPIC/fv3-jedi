@@ -20,6 +20,8 @@
 #include "oops/util/parameters/RequiredParameter.h"
 #include "oops/util/Printable.h"
 
+#include "vader/vader.h"
+
 #include "fv3jedi/FieldMetadata/FieldsMetadata.h"
 #include "fv3jedi/LinearVariableChange/Base/LinearVariableChangeBase.h"
 
@@ -36,19 +38,21 @@ class LinearVariableChange : public util::Printable {
   explicit LinearVariableChange(const Geometry &, const Parameters_ &);
   ~LinearVariableChange();
 
-  void setTrajectory(const State &, const State &);
+  void changeVarTraj(const State &, const oops::Variables &);
 
-  void multiply(Increment &, const oops::Variables &) const;
-  void multiplyInverse(Increment &, const oops::Variables &) const;
-  void multiplyAD(Increment &, const oops::Variables &) const;
-  void multiplyInverseAD(Increment &, const oops::Variables &) const;
+  void changeVarTL(Increment &, const oops::Variables &) const;
+  void changeVarInverseTL(Increment &, const oops::Variables &) const;
+  void changeVarAD(Increment &, const oops::Variables &) const;
+  void changeVarInverseAD(Increment &, const oops::Variables &) const;
 
  private:
   void print(std::ostream &) const override;
   Parameters_ params_;
-  std::shared_ptr<const Geometry> geom_;
+  const Geometry & geom_;
   std::unique_ptr<LinearVariableChangeBase> linearVariableChange_;
   FieldsMetadata fieldsMetadata_;
+  vader::Vader vader_;
+  oops::Variables varsVaderPopulates_;
 };
 
 // -------------------------------------------------------------------------------------------------

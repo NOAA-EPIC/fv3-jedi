@@ -125,6 +125,9 @@ real(kind=kind_real), allocatable :: ua(:,:,:)
 real(kind=kind_real), allocatable :: va(:,:,:)
 real(kind=kind_real), allocatable :: ud(:,:,:)
 real(kind=kind_real), allocatable :: vd(:,:,:)
+real(kind=kind_real), allocatable :: ud_tmp(:,:,:)
+real(kind=kind_real), allocatable :: vd_tmp(:,:,:)
+
 type(fv3jedi_field), pointer :: u_in
 type(fv3jedi_field), pointer :: v_in
 type(fv3jedi_field), pointer :: u_ou
@@ -139,6 +142,12 @@ if (hasfield(fields_in,'ud')) then
 
   call get_field(fields_in, 'ud', u_in)
   call get_field(fields_in, 'vd', v_in)
+
+  ! Create temporary save of d-grid fields for reallocation at the end
+  allocate(ud_tmp(geom_ou%isc:geom_ou%iec  ,geom_ou%jsc:geom_ou%jec+1,geom_ou%npz))
+  allocate(vd_tmp(geom_ou%isc:geom_ou%iec+1,geom_ou%jsc:geom_ou%jec  ,geom_ou%npz))
+  call get_field(fields_in, 'ud', ud_tmp)
+  call get_field(fields_in, 'vd', vd_tmp)
 
   allocate(ua(geom_in%isc:geom_in%iec,geom_in%jsc:geom_in%jec,geom_in%npz))
   allocate(va(geom_in%isc:geom_in%iec,geom_in%jsc:geom_in%jec,geom_in%npz))
@@ -252,7 +261,7 @@ if (do_d_to_a) then
   allocate(u_ou%array(geom_ou%isc:geom_ou%iec  ,geom_ou%jsc:geom_ou%jec+1,1:geom_ou%npz))
   allocate(v_ou%array(geom_ou%isc:geom_ou%iec+1,geom_ou%jsc:geom_ou%jec  ,1:geom_ou%npz))
 
-  ! Put new D grid back into arrays
+  ! Put new D grid back into arrays of new state
   u_ou%array = ud
   v_ou%array = vd
 
@@ -260,6 +269,15 @@ if (do_d_to_a) then
   v_ou%space = 'vector'
 
   deallocate(ud, vd)
+
+  ! Put old D grid back into arrays of initial state
+  u_in%array = ud_tmp
+  v_in%array = vd_tmp
+
+  u_in%space = 'vector'
+  v_in%space = 'vector'
+
+  deallocate(ud_tmp, vd_tmp)
 
 endif
 
@@ -295,8 +313,8 @@ call unsinterp%apply(field_in, field_ou_tmp, field_neighbours)
 
 ! Global min and max integers in field
 ! ------------------------------------
-maxtypel = int(maxval(field_in))
-mintypel = int(minval(field_in))
+maxtypel = nint(maxval(field_in))
+mintypel = nint(minval(field_in))
 call unsinterp%comm%allreduce(maxtypel,maxtype,fckit_mpi_max())
 call unsinterp%comm%allreduce(mintypel,mintype,fckit_mpi_min())
 
@@ -309,7 +327,7 @@ field_ou = 0.0_kind_real
 do i = 1,ngrid_ou
   field_types = 0.0
   do n = 1, unsinterp%nn
-    index = int(field_neighbours(n,i))
+    index = nint(field_neighbours(n,i))
     field_types(index) = field_types(index) + unsinterp%interp_w(n,i)
   enddo
   field_ou(i) = real(maxloc(field_types,1)+(mintype-1),kind_real)

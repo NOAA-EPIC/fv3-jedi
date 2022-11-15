@@ -20,6 +20,8 @@ list( APPEND fv3jedi_src_files
   Geometry/Geometry.interface.h
   Geometry/fv3jedi_geom_interface_mod.F90
   Geometry/fv3jedi_geom_mod.f90
+  Geometry/TimeInvariantFieldsHelpers.cc
+  Geometry/TimeInvariantFieldsHelpers.h
   GeometryIterator/GeometryIterator.cc
   GeometryIterator/GeometryIterator.h
   GeometryIterator/GeometryIterator.interface.h
@@ -40,11 +42,11 @@ list( APPEND fv3jedi_src_files
   IO/CubeSphereHistory/IOCubeSphereHistory.h
   IO/CubeSphereHistory/IOCubeSphereHistory.interface.F90
   IO/CubeSphereHistory/IOCubeSphereHistory.interface.h
-  IO/LatLon/fv3jedi_io_latlon_mod.f90
-  IO/LatLon/IOLatLon.cc
-  IO/LatLon/IOLatLon.h
-  IO/LatLon/IOLatLon.interface.F90
-  IO/LatLon/IOLatLon.interface.h
+  IO/AuxGrid/fv3jedi_io_auxgrid_mod.f90
+  IO/AuxGrid/IOAuxGrid.cc
+  IO/AuxGrid/IOAuxGrid.h
+  IO/AuxGrid/IOAuxGrid.interface.F90
+  IO/AuxGrid/IOAuxGrid.interface.h
   IO/Utils/fv3jedi_io_utils_mod.f90
   IO/Utils/IOBase.cc
   IO/Utils/IOBase.h
