@@ -23,7 +23,8 @@ module fv3jedi_ufs_mod
   use ESMF
   use NUOPC
   use NUOPC_Driver
-  use module_EARTH_GRID_COMP, only: esmSS => EARTH_REGISTER
+  !use module_EARTH_GRID_COMP, only: esmSS => EARTH_REGISTER
+  use UFSDriver, only: esmSS => UFSDriver_SS
   use mpp_mod,            only: read_input_nml,mpp_pe
 
 
