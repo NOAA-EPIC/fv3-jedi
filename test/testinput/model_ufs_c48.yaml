@@ -1,17 +1,17 @@
 geometry:
   fms initialization:
-    namelist filename: Data/fv3files/fmsmpp.nml
-    field table filename: Data/fv3files/field_table_gfdl
-  akbk: Data/fv3files/akbk27.nc4
+    namelist filename: Data/ModelRunDirs/UFS/input.nml
+    field table filename: Data/ModelRunDirs/UFS/field_table
+  akbk: Data/fv3files/akbk127.nc4
   layout: [1,1]
   io_layout: [1,1]
   npx: 49
   npy: 49
-  npz: 27
+  npz: 127
   ntiles: 6
   field metadata override: Data/fieldmetadata/ufs.yaml
 model:
-  name: UFS 
+  name: UFS
   tstep: PT1H
   ufs_run_directory: Data/ModelRunDirs/UFS
   model variables: [T, delp, sphum, ice_wat, liq_wat, o3mr, phis, slmsk,
@@ -21,12 +21,12 @@ model aux control: null
 model aux error: null
 model test:
   forecast length: PT1H
-  final norm: 1323.5199176846763
+  final norm: 355.73804590837096
   tolerance: 1.0e-4
   test reforecast: false
 initial condition:
+  datetime: 2021-07-28T06:00:00Z
   filetype: fms restart
-  datetime: 2021-07-28T00:00:00Z
   datapath: Data/ModelRunDirs/UFS/INPUT
   filename_core: fv_core.res.nc
   filename_trcr: fv_tracer.res.nc
