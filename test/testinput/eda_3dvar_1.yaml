@@ -2,7 +2,7 @@ cost function:
   cost type: 3D-Var
   window begin: 2020-12-14T21:00:00Z
   window length: PT6H
-  analysis variables: &3dvars [ua,va,T,DELP,sphum,ice_wat,liq_wat,o3mr]
+  analysis variables: &3dvars [eastward_wind,northward_wind,air_temperature,air_pressure_thickness,specific_humidity,cloud_liquid_ice,cloud_liquid_water,ozone_mass_mixing_ratio]
   geometry:
     fms initialization:
       namelist filename: Data/fv3files/fmsmpp.nml
@@ -29,11 +29,9 @@ cost function:
     components:
     - covariance:
         covariance model: SABER
-        saber blocks:
-        - saber block name: BUMP_NICAS
-          saber central block: true
-          input variables: *3dvars
-          output variables: *3dvars
+        saber central block:
+          saber block name: BUMP_NICAS
+          active variables: [eastward_wind,northward_wind,air_temperature,air_pressure_thickness,specific_humidity,cloud_liquid_ice,cloud_liquid_water,ozone_mass_mixing_ratio]
           bump:
             prefix: Data/bump/fv3jedi_bumpparameters_nicas_3D_gfs
             method: cor
@@ -62,10 +60,9 @@ cost function:
           zero padding: 3
         localization:
           localization method: SABER
-          saber block:
+          saber central block:
             saber block name: BUMP_NICAS
-            input variables: *3dvars
-            output variables: *3dvars
+            active variables: [eastward_wind,northward_wind,air_temperature,air_pressure_thickness,specific_humidity,cloud_liquid_ice,cloud_liquid_water,ozone_mass_mixing_ratio]
             bump:
               prefix: Data/bump/fv3jedi_bumpparameters_nicas_3D_gfs
               method: loc
@@ -85,9 +82,13 @@ cost function:
         # air_temperature@ObsError. In this way we verify derived variables can be assimilated.
         name: Aircraft
         obsdatain:
-          obsfile: Data/obs/testinput_tier_1/aircraft_obs_2020121500_m_renamed_var.nc4
+          engine:
+            type: H5File
+            obsfile: Data/obs/testinput_tier_1/aircraft_obs_2020121500_m_renamed_var.nc4
         obsdataout:
-          obsfile: Data/hofx/eda/gfs/mem001/aircraft_eda-3dvar-gfs_2020121500_m.nc4
+          engine:
+            type: H5File
+            obsfile: Data/hofx/eda/gfs/mem001/aircraft_eda-3dvar-gfs_2020121500_m.nc4
         simulated variables: [eastward_wind, northward_wind, air_temperature]
         observed variables: [eastward_wind, northward_wind]
         derived variables: [air_temperature]
@@ -129,7 +130,9 @@ cost function:
     - obs space:
         name: GnssroBndNBAM
         obsdatain:
-          obsfile: Data/obs/testinput_tier_1/gnssro_obs_2020121500_m.nc4
+          engine:
+            type: H5File
+            obsfile: Data/obs/testinput_tier_1/gnssro_obs_2020121500_m.nc4
         simulated variables: [bending_angle]
         obs perturbations seed: 1
       obs operator:
@@ -137,7 +140,7 @@ cost function:
         obs options:
           sr_steps: 2
           vertlayer: full
-          compress: 1
+          use_compress: 1
           super_ref_qc: NBAM
       obs error:
         covariance model: diagonal
@@ -160,7 +163,9 @@ cost function:
     - obs space:
         name: AMSUA-NOAA19
         obsdatain:
-          obsfile: Data/obs/testinput_tier_1/amsua_n19_obs_2020121500_m.nc4
+          engine:
+            type: H5File
+            obsfile: Data/obs/testinput_tier_1/amsua_n19_obs_2020121500_m.nc4
         simulated variables: [brightness_temperature]
         channels: 1-15
         obs perturbations seed: 1
@@ -188,7 +193,9 @@ cost function:
     - obs space:
         name: Radiosonde
         obsdatain:
-          obsfile: Data/obs/testinput_tier_1/sondes_obs_2020121500_m.nc4
+          engine:
+            type: H5File
+            obsfile: Data/obs/testinput_tier_1/sondes_obs_2020121500_m.nc4
         simulated variables: [eastward_wind, northward_wind, air_temperature]
         obs perturbations seed: 1
       obs operator:
