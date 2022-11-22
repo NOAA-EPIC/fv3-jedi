@@ -1,6 +1,5 @@
  &fv_grid_nml
          grid_file = 'Data/inputs/lam_cmaq/INPUT/grid_spec.nc'
-         mosaic_path = 'Data/inputs/lam_cmaq/INPUT/'
 /
 
  &fv_core_nml
