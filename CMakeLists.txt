@@ -55,7 +55,6 @@ endif()
 # Dependencies
 ################################################################################
 
-#add_dependencies( fv3jedi ufs-weather-model)
 # jedi-cmake
 find_package( jedicmake QUIET )
 

@@ -139,8 +139,6 @@ type(fv3jedi_state), pointer :: state
 call fv3jedi_state_registry%get(c_key_state,state)
 call fv3jedi_ufs_registry%get(c_key_self, self)
 
-!call c_f_datetime(c_dt)
-
 end subroutine c_fv3jedi_ufs_finalize
 
 ! --------------------------------------------------------------------------------------------------

@@ -80,7 +80,6 @@ if( .not. conf%get('check tracers nt', self%nt_checker) ) self%nt_checker = 0
 if (.not. conf%get("source of inputs", str)) then
   str = 'FV3GFS GAUSSIAN NETCDF FILE'
 endif
-!source = trim(str)
 
 ! Remapping needs nggps_ic to be true
 self%Atm(1)%flagstruct%nggps_ic = .true.
