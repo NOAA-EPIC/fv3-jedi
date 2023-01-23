@@ -346,8 +346,6 @@ contains
     character(len=128) :: name, msg
     type(ESMF_Time) :: startTime, stopTime
     type(ESMF_TimeInterval) :: timeStep
-    integer, save     :: tstep=1
-    character(len=80) :: fileName
 
 !-----------------------------------------------------------------------------
 
@@ -379,13 +377,18 @@ contains
          stopTime=stopTime, currTime=startTime, timeStep=timeStep, rc=rc)
      esmf_err_abort(rc)
 
+    call NUOPC_SetTimestamp(self%fromJedi, self%clock, rc=rc)
+    esmf_err_abort(rc)
+    write(msg, "(I3)") rc
+    call ESMF_LogWrite("after NUOPC_SetTimestamp (self%fromJedi, self%clock, rc=rc): "//trim(msg)//" rc", &
+         ESMF_LOGMSG_INFO)
+
     ! Update UFS state from JEDI
     call ESMF_StateGet(self%fromJedi, itemCount=cnt, rc=rc)
     esmf_err_abort(rc)
     write(msg, "(I2)") cnt
     call ESMF_LogWrite("before step fromJedi state with "//trim(msg)//" items", &
          ESMF_LOGMSG_INFO)
-    write(fileName, '("fields_in_esm_export_step",I2.2,".nc")') tstep
     call state_to_fv3(self, state)
     call ESMF_LogWrite("after UFS state write "//trim(msg)//" rc", &
          ESMF_LOGMSG_INFO)
@@ -403,7 +406,6 @@ contains
     write(msg, "(I2)") cnt
     call ESMF_LogWrite("after step toJedi state with "//trim(msg)//" items", &
          ESMF_LOGMSG_INFO)
-    write(fileName, '("fields_in_esm_import_step",I2.2,".nc")') tstep
     call fv3_to_state(self, state)
     call ESMF_LogWrite("after JEDI state write "//trim(msg)//" rc", &
          ESMF_LOGMSG_INFO)
@@ -592,7 +594,7 @@ contains
   type(fv3jedi_field), pointer :: field_ptr
 
   real(kind=ESMF_KIND_R8),allocatable,dimension(:,:,:)      :: field_fv3
-
+  character(len=256) :: msg
 
   ! Array to hold output from JEDI in UFS precision
   ! ------------------------------------------------
@@ -618,10 +620,15 @@ contains
     ! Create map between UFS name and fv3-jedi name
     ! ----------------------------------------------
     short_name = trim(item_names(i))
-    call ESMF_LogWrite("item name is "//short_name, ESMF_LOGMSG_INFO)
+    call ESMF_LogWrite("state_to_fv3: item name is "//short_name, ESMF_LOGMSG_INFO)
     if(trim(item_names(i)) == 'u') short_name = 'ud'
     if(trim(item_names(i)) == 'v') short_name = 'vd'
     if(trim(item_names(i)) == 'weasd') short_name = 'sheleg'
+    ! DH*
+    !if(trim(item_names(i)) == 't') short_name = 'air_temperature'
+    !if(trim(item_names(i)) == 'T') short_name = 'air_temperature'
+    call ESMF_LogWrite("Mapped UFS/ESMF field " // trim(item_names(i)) // " to JEDI field " // trim(short_name))
+    ! *DH
 
     ! Only need to update field in UFS if fv3-jedi has it
     ! ---------------------------------------------------------
@@ -631,21 +638,28 @@ contains
       call ESMF_StateGet(self%fromJedi, item_names(i), field, rc = rc)
       if (rc.ne.0) call abor1_ftn("state_to_fv3: ESMF_StateGet field failed")
 
+      call ESMF_LogWrite("Retrieved field "//short_name, ESMF_LOGMSG_INFO)
+
       !Validate the field
       call ESMF_FieldValidate(field, rc = rc)
       if (rc.ne.0) call abor1_ftn("state_to_fv3: ESMF_FieldValidate failed")
 
+      call ESMF_LogWrite("Validated field "//short_name, ESMF_LOGMSG_INFO)
+
       !Get the field rank
       call ESMF_FieldGet(field, rank = rank, rc = rc)
-
       if (rc.ne.0) call abor1_ftn("fv3_to_state: ESMF_FieldGet rank failed")
+
+      call ESMF_LogWrite("Retrieved rank for field "//short_name, ESMF_LOGMSG_INFO)
 
       !Convert field to pointer and pointer bounds
       if (rank == 2) then
+        call ESMF_LogWrite("Calling 'call ESMF_FieldGet( field, 0, farrayPtr = farrayPtr2, totalLBound = lb(1:2), totalUBound = ub(1:2), rc = rc )'")
         call ESMF_FieldGet( field, 0, farrayPtr = farrayPtr2, totalLBound = lb(1:2), totalUBound = ub(1:2), rc = rc )
         if (rc.ne.0) call abor1_ftn("state_to_fv3: ESMF_FieldGet 2D failed")
         fnpz = 1
       elseif (rank == 3) then
+        call ESMF_LogWrite("Calling 'call ESMF_FieldGet( field, 0, farrayPtr = farrayPtr3, totalLBound = lb, totalUBound = ub, rc = rc )'")
         call ESMF_FieldGet( field, 0, farrayPtr = farrayPtr3, totalLBound = lb, totalUBound = ub, rc = rc )
         if (rc.ne.0) call abor1_ftn("state_to_fv3: ESMF_FieldGet 3D failed")
         fnpz = ub(3)-lb(3)+1
@@ -661,18 +675,28 @@ contains
       ! Get pointer to fv3-jedi side field
       call state%get_field(trim(short_name), field_ptr)
 
+      call ESMF_LogWrite("Got field pointer for field "//short_name, ESMF_LOGMSG_INFO)
+      write(msg, "(a,e16.7,a,e16.7)") "field_ptr for " // trim(short_name) // " has minval ", minval(field_ptr%array(self%isc:self%iec,self%jsc:self%jec,1:fnpz)), " and maxval ", maxval(field_ptr%array(self%isc:self%iec,self%jsc:self%jec,1:fnpz))
+      call ESMF_LogWrite(trim(msg), ESMF_LOGMSG_INFO)
+
       if (field_ptr%npz .ne. fnpz) &
         call abor1_ftn("state_to_fv3: dimension mismatch between JEDI and UFS vertical grid")
 
       ! Copy from fv3-jedi to UFS
       field_fv3(self%isc:self%iec,self%jsc:self%jec,1:fnpz) = field_ptr%array(self%isc:self%iec,self%jsc:self%jec,1:fnpz)
+      write(msg, "(a,e16.7,a,e16.7)") "field_fv3 for " // trim(short_name) // " has minval ", minval(field_fv3), " and maxval ", maxval(field_fv3)
+      call ESMF_LogWrite(trim(msg), ESMF_LOGMSG_INFO)
 
       ! Update UFS state fieldpointer
       if (rank == 2) then
         farrayPtr2(lb(1):ub(1),lb(2):ub(2)) = field_fv3(self%isc:self%iec,self%jsc:self%jec,1)
+        write(msg, "(a,e16.7,a,e16.7)") "farrayPtr2 for " // trim(short_name) // " has minval ", minval(farrayPtr2), " and maxval ", maxval(farrayPtr2)
+        call ESMF_LogWrite(trim(msg), ESMF_LOGMSG_INFO)
         nullify(farrayPtr2)
       elseif (rank == 3) then
         farrayPtr3(lb(1):ub(1),lb(2):ub(2),lb(3):ub(3)) = field_fv3(self%isc:self%iec,self%jsc:self%jec,1:fnpz)
+        write(msg, "(a,e16.7,a,e16.7)") "farrayPtr3 for " // trim(short_name) // " has minval ", minval(farrayPtr3), " and maxval ", maxval(farrayPtr3)
+        call ESMF_LogWrite(trim(msg), ESMF_LOGMSG_INFO)
         nullify(farrayPtr3)
       else
         call abor1_ftn("fv3_mod: can only handle rank 2 or rank 3 fields from UFS")
