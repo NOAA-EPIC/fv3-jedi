@@ -168,12 +168,16 @@ contains
          TransferOfferGeomObject="cannot provide", rc=rc)
     esmf_err_abort(rc)
 
+    call ESMF_StateGet(self%toJedi, itemCount=cnt, rc=rc)
+    esmf_err_abort(rc)
+
+    write(msg, "(I2)") cnt
+    call ESMF_LogWrite("After filling advertise toJedi state has "//trim(msg)//" items.", &
+         ESMF_LOGMSG_INFO)
 
     call ESMF_LogWrite("Advertising imports to ESM", ESMF_LOGMSG_INFO)
-    ! Advertise fields on the importState, for data going into ESM componenta
-
-! imports are not yet implemented
-#if 0
+    ! Advertise fields on the importState, for data going into ESM component
+    ! Note--only certain fields are available. Check ???
     call NUOPC_Advertise(self%fromJedi, &
          StandardNames=(/ &
                         "u                                    ", &   ! Example fields
@@ -200,17 +204,14 @@ contains
                         "v_srf                                ", &   ! Example fields
                         "f10m                                 "/), &   ! Example fields
          TransferOfferGeomObject="cannot provide", rc=rc)
-
     esmf_err_abort(rc)
-#endif
 
-    call ESMF_StateGet(self%toJedi, itemCount=cnt, rc=rc)
+    call ESMF_StateGet(self%fromJedi, itemCount=cnt, rc=rc)
     esmf_err_abort(rc)
 
     write(msg, "(I2)") cnt
-    call ESMF_LogWrite("After filling advertise toJedi state has "//trim(msg)//" items.", &
+    call ESMF_LogWrite("After filling advertise fromJedi state has "//trim(msg)//" items.", &
          ESMF_LOGMSG_INFO)
-
 
     ! call ExternalAdvertise phase
     call NUOPC_CompSearchPhaseMap(self%esmComp, &
@@ -231,6 +232,14 @@ contains
 
     write(msg, "(I2)") cnt
     call ESMF_LogWrite("After calling advertise toJedi state has "//trim(msg)//" items.", &
+         ESMF_LOGMSG_INFO)
+
+
+    call ESMF_StateGet(self%fromJedi, itemCount=cnt, rc=rc)
+    esmf_err_abort(rc)
+
+    write(msg, "(I2)") cnt
+    call ESMF_LogWrite("After calling advertise fromJedi state has "//trim(msg)//" items.", &
          ESMF_LOGMSG_INFO)
 
 
@@ -268,6 +277,7 @@ contains
     esmf_err_abort(rc)
     esmf_err_abort(urc)
 
+
     call ESMF_StateGet(self%toJedi, itemCount=cnt, rc=rc)
     esmf_err_abort(rc)
 
@@ -275,6 +285,16 @@ contains
 
     call ESMF_LogWrite("Dumping toJedi state with "//trim(msg)//" items", &
          ESMF_LOGMSG_INFO)
+
+
+    call ESMF_StateGet(self%fromJedi, itemCount=cnt, rc=rc)
+    esmf_err_abort(rc)
+
+    write(msg, "(I2)") cnt
+
+    call ESMF_LogWrite("Dumping fromJedi state with "//trim(msg)//" items", &
+         ESMF_LOGMSG_INFO)
+
 
     ! call ExternalDataInit phase
     call NUOPC_CompSearchPhaseMap(self%esmComp, &
@@ -359,13 +379,25 @@ contains
          stopTime=stopTime, currTime=startTime, timeStep=timeStep, rc=rc)
      esmf_err_abort(rc)
 
-    ! step the model forward
+    ! Update UFS state from JEDI
+    call ESMF_StateGet(self%fromJedi, itemCount=cnt, rc=rc)
+    esmf_err_abort(rc)
+    write(msg, "(I2)") cnt
+    call ESMF_LogWrite("before step fromJedi state with "//trim(msg)//" items", &
+         ESMF_LOGMSG_INFO)
+    write(fileName, '("fields_in_esm_export_step",I2.2,".nc")') tstep
+    call state_to_fv3(self, state)
+    call ESMF_LogWrite("after UFS state write "//trim(msg)//" rc", &
+         ESMF_LOGMSG_INFO)
+
+    ! Step the model forward
     call ESMF_GridCompRun(self%esmComp, &
          importState=self%fromJedi, exportState=self%toJedi, &
          clock=self%clock, userRc=urc, rc=rc)
     esmf_err_abort(rc)
     esmf_err_abort(urc)
 
+    ! Update JEDI state from UFS
     call ESMF_StateGet(self%toJedi, itemCount=cnt, rc=rc)
     esmf_err_abort(rc)
     write(msg, "(I2)") cnt
@@ -373,7 +405,7 @@ contains
          ESMF_LOGMSG_INFO)
     write(fileName, '("fields_in_esm_import_step",I2.2,".nc")') tstep
     call fv3_to_state(self, state)
-    call ESMF_LogWrite("after state write "//trim(msg)//" rc", &
+    call ESMF_LogWrite("after JEDI state write "//trim(msg)//" rc", &
          ESMF_LOGMSG_INFO)
 
     call ESMF_LogWrite("Exit "//subname, ESMF_LOGMSG_INFO)
@@ -540,8 +572,122 @@ contains
   end do
 
   deallocate(item_names)
+  deallocate(field_fv3)
 
   end subroutine fv3_to_state
+
+
+  subroutine state_to_fv3( self, state )
+
+  implicit none
+  type(model_ufs),    intent(inout) :: self
+  type(fv3jedi_state), intent(in)   :: state
+
+  integer :: num_items, i, rc, rank, lb(3), ub(3), fnpz
+  type(ESMF_Field) :: field
+  character(len=ESMF_MAXSTR), allocatable :: item_names(:)
+  real(kind=ESMF_KIND_R8), pointer :: farrayPtr2(:,:)
+  real(kind=ESMF_KIND_R8), pointer :: farrayPtr3(:,:,:)
+  character(len=field_clen) :: short_name
+  type(fv3jedi_field), pointer :: field_ptr
+
+  real(kind=ESMF_KIND_R8),allocatable,dimension(:,:,:)      :: field_fv3
+
+
+  ! Array to hold output from JEDI in UFS precision
+  ! ------------------------------------------------
+  allocate(field_fv3(self%isc:self%iec, self%jsc:self%jec, self%npz+1))
+
+
+  ! Get number of items
+  ! -------------------
+  call ESMF_StateGet(self%fromJedi, itemcount = num_items, rc = rc)
+  if (rc.ne.0) call abor1_ftn("state_to_fv3: ESMF_StateGet itemcount failed")
+
+
+  ! Get names of the items
+  ! ----------------------
+  allocate(item_names(num_items))
+  call ESMF_StateGet(self%fromJedi, itemnamelist = item_names, rc = rc)
+  if (rc.ne.0) call abor1_ftn("state_to_fv3: ESMF_StateGet itemnamelist failed")
+
+
+  ! Loop over states coming from UFS and convert to JEDI state
+  ! -----------------------------------------------------------
+  do i = 1, num_items
+    ! Create map between UFS name and fv3-jedi name
+    ! ----------------------------------------------
+    short_name = trim(item_names(i))
+    call ESMF_LogWrite("item name is "//short_name, ESMF_LOGMSG_INFO)
+    if(trim(item_names(i)) == 'u') short_name = 'ud'
+    if(trim(item_names(i)) == 'v') short_name = 'vd'
+    if(trim(item_names(i)) == 'weasd') short_name = 'sheleg'
+
+    ! Only need to update field in UFS if fv3-jedi has it
+    ! ---------------------------------------------------------
+    if (state%has_field(trim(short_name))) then
+
+      !Get field from the state
+      call ESMF_StateGet(self%fromJedi, item_names(i), field, rc = rc)
+      if (rc.ne.0) call abor1_ftn("state_to_fv3: ESMF_StateGet field failed")
+
+      !Validate the field
+      call ESMF_FieldValidate(field, rc = rc)
+      if (rc.ne.0) call abor1_ftn("state_to_fv3: ESMF_FieldValidate failed")
+
+      !Get the field rank
+      call ESMF_FieldGet(field, rank = rank, rc = rc)
+
+      if (rc.ne.0) call abor1_ftn("fv3_to_state: ESMF_FieldGet rank failed")
+
+      !Convert field to pointer and pointer bounds
+      if (rank == 2) then
+        call ESMF_FieldGet( field, 0, farrayPtr = farrayPtr2, totalLBound = lb(1:2), totalUBound = ub(1:2), rc = rc )
+        if (rc.ne.0) call abor1_ftn("state_to_fv3: ESMF_FieldGet 2D failed")
+        fnpz = 1
+      elseif (rank == 3) then
+        call ESMF_FieldGet( field, 0, farrayPtr = farrayPtr3, totalLBound = lb, totalUBound = ub, rc = rc )
+        if (rc.ne.0) call abor1_ftn("state_to_fv3: ESMF_FieldGet 3D failed")
+        fnpz = ub(3)-lb(3)+1
+      else
+        call abor1_ftn("fv3_mod: can only handle rank 2 or rank 3 fields from UFS")
+      endif
+
+      ! Check that dimensions match
+      if ((ub(1)-lb(1)+1 .ne. self%iec-self%isc+1) .or. (ub(2)-lb(2)+1 .ne. self%jec-self%jsc+1) ) then
+        call abor1_ftn("state_to_fv3: dimension mismatch between JEDI and UFS horizontal grid")
+      endif
+
+      ! Get pointer to fv3-jedi side field
+      call state%get_field(trim(short_name), field_ptr)
+
+      if (field_ptr%npz .ne. fnpz) &
+        call abor1_ftn("state_to_fv3: dimension mismatch between JEDI and UFS vertical grid")
+
+      ! Copy from fv3-jedi to UFS
+      field_fv3(self%isc:self%iec,self%jsc:self%jec,1:fnpz) = field_ptr%array(self%isc:self%iec,self%jsc:self%jec,1:fnpz)
+
+      ! Update UFS state fieldpointer
+      if (rank == 2) then
+        farrayPtr2(lb(1):ub(1),lb(2):ub(2)) = field_fv3(self%isc:self%iec,self%jsc:self%jec,1)
+        nullify(farrayPtr2)
+      elseif (rank == 3) then
+        farrayPtr3(lb(1):ub(1),lb(2):ub(2),lb(3):ub(3)) = field_fv3(self%isc:self%iec,self%jsc:self%jec,1:fnpz)
+        nullify(farrayPtr3)
+      else
+        call abor1_ftn("fv3_mod: can only handle rank 2 or rank 3 fields from UFS")
+      endif
+
+    else
+      call ESMF_LogWrite("Not provided by JEDI is "//short_name, ESMF_LOGMSG_INFO)
+    endif
+
+  end do
+
+  deallocate(item_names)
+  deallocate(field_fv3)
+
+  end subroutine state_to_fv3
 
 
   subroutine setUFSClock(self,date_start,date_final)
