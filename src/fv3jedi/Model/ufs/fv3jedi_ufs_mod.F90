@@ -481,7 +481,7 @@ contains
   type(fv3jedi_field), pointer :: field_ptr
 
   real(kind=ESMF_KIND_R8),allocatable,dimension(:,:,:)      :: field_fv3
-
+  character(len=256) :: msg
 
   ! Array to hold output from UFS in JEDI precision
   ! ------------------------------------------------
@@ -565,8 +565,18 @@ contains
       if (field_ptr%npz .ne. fnpz) &
         call abor1_ftn("fv3_to_state: dimension mismatch between JEDI and UFS vertical grid")
 
+      write(msg, "(e16.7)") minval(field_ptr%array(self%isc:self%iec,self%jsc:self%jec,1:fnpz))
+      call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS, minval=" // trim(msg))
+      write(msg, "(e16.7)") maxval(field_ptr%array(self%isc:self%iec,self%jsc:self%jec,1:fnpz))
+      call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS, maxval=" // trim(msg))
+      !
       ! Copy from UFS to fv3-jedi
       field_ptr%array(self%isc:self%iec,self%jsc:self%jec,1:fnpz) = field_fv3(self%isc:self%iec,self%jsc:self%jec,1:fnpz)
+      !
+      write(msg, "(e16.7)") minval(field_ptr%array(self%isc:self%iec,self%jsc:self%jec,1:fnpz))
+      call ESMF_LogWrite("After updating field "// trim(short_name) // " in JEDI from UFS, minval=" // trim(msg))
+      write(msg, "(e16.7)") maxval(field_ptr%array(self%isc:self%iec,self%jsc:self%jec,1:fnpz))
+      call ESMF_LogWrite("After updating field "// trim(short_name) // " in JEDI from UFS, maxval=" // trim(msg))
     else
       call ESMF_LogWrite("Not needed by JEDI is "//short_name, ESMF_LOGMSG_INFO)
     endif
