@@ -1,8 +1,7 @@
-forecast length: PT1H
 geometry:
   fms initialization:
-    namelist filename: Data/ModelRunDirs/UFS/input.nml
-    field table filename: Data/ModelRunDirs/UFS/field_table
+    namelist filename: Data/ModelRunDirs/UFS_warmstart/input.nml
+    field table filename: Data/ModelRunDirs/UFS_warmstart/field_table
   akbk: Data/fv3files/akbk127.nc4
   layout: [1,1]
   io_layout: [1,1]
@@ -14,14 +13,21 @@ geometry:
 model:
   name: UFS
   tstep: PT1H
-  ufs_run_directory: Data/ModelRunDirs/UFS
+  ufs_run_directory: Data/ModelRunDirs/UFS_warmstart
   model variables: [T, delp, sphum, ice_wat, liq_wat, o3mr, phis, slmsk,
                     sheleg, tsea, vtype, stype, vfrac, stc, smc, snwdph, u_srf, v_srf,
                     f10m]
+model aux control: null
+model aux error: null
+model test:
+  forecast length: PT1H
+  final norm: 356.2560331095832
+  tolerance: 1.0e-4
+  test reforecast: false
 initial condition:
   datetime: 2021-07-28T06:00:00Z
   filetype: fms restart
-  datapath: Data/ModelRunDirs/UFS/INPUT
+  datapath: Data/ModelRunDirs/UFS_warmstart/INPUT
   filename_core: fv_core.res.nc
   filename_trcr: fv_tracer.res.nc
   filename_sfcd: sfc_data.nc
@@ -30,9 +36,3 @@ initial condition:
   state variables: [u, v, ua, va, T, delp, sphum, ice_wat, liq_wat, o3mr, phis, slmsk,
                     sheleg, tsea, vtype, stype, vfrac, stc, smc, snwdph, u_srf, v_srf,
                     f10m]
-output:
-  filetype: fms restart
-  datapath: ../../../Data/forecast
-  prefix: forecast.jediex.
-  first: PT1H
-  frequency: PT1H

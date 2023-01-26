@@ -47,9 +47,16 @@ ModelUFS::~ModelUFS() {
 void ModelUFS::initialize(State & xx) const {
   oops::Log::trace() << "ModelUFS::initialize starting" << std::endl;
   oops::Log::trace() << "ModelUFS::cd to " << ufsdir_ << std::endl;
-
   chdir(ufsdir_);
-  fv3jedi_ufs_initialize_f90(keyConfig_, xx.toFortran());
+
+  util::DateTime start = xx.validTime();
+  util::DateTime * dtp1 = &start;
+  util::DateTime stop = xx.validTime() + tstep_;
+  util::DateTime * dtp2 = &stop;
+  oops::Log::trace() << "Forecast start time is " << start << std::endl;
+  oops::Log::trace() << "Forecast stop time is " << stop << std::endl;
+
+  fv3jedi_ufs_initialize_f90(keyConfig_, xx.toFortran(), &dtp1, &dtp2);
   oops::Log::trace() << "ModelUFS::initialize done" << std::endl;
 }
 // -------------------------------------------------------------------------------------------------
@@ -65,6 +72,7 @@ void ModelUFS::step(State & xx, const ModelBias &) const
   oops::Log::trace() << "Forecast time step is " << tstep_ << std::endl;
   xx.validTime() += tstep_;
   util::DateTime * dtp2 = &xx.validTime();
+
   fv3jedi_ufs_step_f90(keyConfig_, xx.toFortran(), &dtp1, &dtp2);
   oops::Log::trace() << "ModelUFS::step done" << std::endl;
 }
