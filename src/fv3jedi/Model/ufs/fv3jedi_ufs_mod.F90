@@ -376,9 +376,9 @@ contains
 
     ! local variables
     integer :: rc, urc, cnt
-    character(len=20) :: strStartTime, strStopTime
+    character(len=20) :: strCurrTime, strStopTime
     character(len=128) :: name, msg
-    type(ESMF_Time) :: startTime, stopTime
+    type(ESMF_Time) :: currTime, stopTime
     type(ESMF_TimeInterval) :: timeStep
 
 !-----------------------------------------------------------------------------
@@ -386,26 +386,26 @@ contains
     character(len=*),parameter :: subname = modname//' (step)'
     call ESMF_LogWrite("Enter "//subname, ESMF_LOGMSG_INFO)
 
-    call datetime_to_string(vdate_start, strStartTime)
+    call datetime_to_string(vdate_start, strCurrTime)
     call datetime_to_string(vdate_final, strStopTime)
 
-    call ESMF_LogWrite(" --> REQUESTED START TIME:"//trim(strStartTime), ESMF_LOGMSG_INFO)
-    call ESMF_LogWrite(" --> REQUESTED STOP  TIME:"//trim(strStopTime), ESMF_LOGMSG_INFO)
+    call ESMF_LogWrite(" --> REQUESTED MODEL START TIME:"//trim(strCurrTime), ESMF_LOGMSG_INFO)
+    call ESMF_LogWrite(" --> REQUESTED MODEL STOP  TIME:"//trim(strStopTime), ESMF_LOGMSG_INFO)
 
-    call ESMF_ClockGet(self%clock, startTime=startTime, &
-         stopTime=stopTime, rc=rc)
-    esmf_err_abort(rc)
+    !call ESMF_ClockGet(self%clock, startTime=startTime, &
+    !     currTime=currTime, stopTime=stopTime, rc=rc)
+    !esmf_err_abort(rc)
 
-    call ESMF_TimeSet(startTime, timeString=strStartTime, rc=rc)
+    call ESMF_TimeSet(currTime, timeString=strCurrTime, rc=rc)
     esmf_err_abort(rc)
 
     call ESMF_TimeSet(stopTime, timeString=strStopTime, rc=rc)
     esmf_err_abort(rc)
 
-    timeStep = stopTime - startTime
+    timeStep = stopTime - currTime
 
-    call ESMF_ClockSet(self%clock, startTime=startTime, &
-         stopTime=stopTime, currTime=startTime, timeStep=timeStep, rc=rc)
+    call ESMF_ClockSet(self%clock, &
+         stopTime=stopTime, currTime=currTime, timeStep=timeStep, rc=rc)
     esmf_err_abort(rc)
 
     call ESMF_ClockPrint(self%clock, options="startTime", &
@@ -465,21 +465,6 @@ contains
 
     call ESMF_LogWrite("Enter "//subname, ESMF_LOGMSG_INFO)
 
-#if 0
-    call ESMF_GridCompDestroy(self%esmComp, rc=rc)
-    esmf_err_abort(rc)
-
-    call ESMF_LogWrite("About to destroy toJedi state "//subname, ESMF_LOGMSG_INFO)
-
-    call ESMF_StateDestroy(self%toJedi, rc=rc)
-    esmf_err_abort(rc)
-
-    call ESMF_LogWrite("About to destroy fromJedi state "//subname, ESMF_LOGMSG_INFO)
-
-    call ESMF_StateDestroy(self%fromJedi, rc=rc)
-    esmf_err_abort(rc)
-#endif
-
     call ESMF_LogWrite("Setting model as uninitialized", ESMF_LOGMSG_INFO)
     self%initialized = .false.
 
@@ -489,6 +474,7 @@ contains
     if (rc /= ESMF_SUCCESS) then
        call ESMF_LogWrite("ERROR FINALIZING ESMF "//subname, ESMF_LOGMSG_INFO)
     endif
+
   end subroutine delete
 
   ! --------------------------------------------------------------------------------------------------
@@ -503,7 +489,6 @@ contains
 
     call ESMF_LogWrite("Enter "//subname, ESMF_LOGMSG_INFO)
 
-#if 1
     call ESMF_GridCompDestroy(self%esmComp, rc=rc)
     esmf_err_abort(rc)
 
@@ -516,7 +501,6 @@ contains
 
     call ESMF_StateDestroy(self%fromJedi, rc=rc)
     esmf_err_abort(rc)
-#endif
 
     call ESMF_LogWrite("Exit "//subname, ESMF_LOGMSG_INFO)
 
