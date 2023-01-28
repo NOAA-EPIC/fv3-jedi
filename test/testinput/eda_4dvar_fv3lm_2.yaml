@@ -19,18 +19,44 @@ cost function:
         saber central block:
           saber block name: BUMP_NICAS
           bump:
-            method: cor
-            strategy: specific_univariate
-            load_nicas_local: true
+            io:
+              alias:
+              - in code: eastward_wind
+                in file: fixed_2500km_0.3
+              - in code: northward_wind
+                in file: fixed_2500km_0.3
+              - in code: air_temperature
+                in file: fixed_2500km_0.3
+              - in code: specific_humidity
+                in file: fixed_2500km_0.3
+              - in code: cloud_liquid_ice
+                in file: fixed_2500km_0.3
+              - in code: cloud_liquid_water
+                in file: fixed_2500km_0.3
+              - in code: ozone_mass_mixing_ratio
+                in file: fixed_2500km_0.3
+              - in code: surface_pressure
+                in file: fixed_2500km
+            drivers:
+              multivariate strategy: univariate
+              read local nicas: true
             grids:
-            - prefix: Data/bump/fv3jedi_bumpparameters_nicas_3D_gfs
-              variables: [eastward_wind,northward_wind,air_temperature,specific_humidity,cloud_liquid_ice,cloud_liquid_water,ozone_mass_mixing_ratio]
-              io_keys: [eastward_wind-eastward_wind,northward_wind-northward_wind,air_temperature-air_temperature,specific_humidity-specific_humidity,cloud_liquid_ice-cloud_liquid_ice,cloud_liquid_water-cloud_liquid_water,ozone_mass_mixing_ratio-ozone_mass_mixing_ratio]
-              io_values: [fixed_2500km_0.3,fixed_2500km_0.3,fixed_2500km_0.3,fixed_2500km_0.3,fixed_2500km_0.3,fixed_2500km_0.3,fixed_2500km_0.3]
-            - prefix: Data/bump/fv3jedi_bumpparameters_nicas_2D_gfs
-              variables: [surface_pressure]
-              io_keys: [surface_pressure-surface_pressure]
-              io_values: [fixed_2500km]
+            - model:
+                variables:
+                - eastward_wind
+                - northward_wind
+                - air_temperature
+                - specific_humidity
+                - cloud_liquid_ice
+                - cloud_liquid_water
+                - ozone_mass_mixing_ratio
+              io:
+                files prefix: Data/bump/fv3jedi_bumpparameters_nicas_3D_gfs
+            - model:
+                variables:
+                - surface_pressure
+              io:
+                files prefix: Data/bump/fv3jedi_bumpparameters_nicas_2D_gfs
       weight:
         value: 0.1
     - covariance:
@@ -55,15 +81,18 @@ cost function:
             saber block name: BUMP_NICAS
             active variables: *incvars
             bump:
-              prefix: Data/bump/fv3jedi_bumpparameters_nicas_3D_gfs
-              method: loc
-              strategy: common
-              load_nicas_local: true
-              io_keys: [common]
-              io_values: [fixed_2500km_0.3]
+              io:
+                files prefix: Data/bump/fv3jedi_bumpparameters_nicas_3D_gfs
+                alias:
+                - in code: common
+                  in file: fixed_2500km_0.3
+              drivers:
+                multivariate strategy: duplicated
+                read local nicas: true
       weight:
         value: 0.9
   observations:
+    obs perturbations: true
     observers:
     - obs space:
         name: Aircraft
@@ -75,21 +104,21 @@ cost function:
           engine:
             type: H5File
             obsfile: Data/hofx/eda/gfs/mem002/aircraft_eda-4dvar-gfs_2020121500_m.nc4
-        simulated variables: [eastward_wind, northward_wind, air_temperature]
+        simulated variables: [windEastward, windNorthward, airTemperature]
         obs perturbations seed: 2
       obs operator:
         name: VertInterp
       obs error:
         covariance model: diagonal
-        random amplitude: 0.4
+        obs perturbations amplitude: 0.4
       obs filters:
       - filter: PreQC
         maxvalue: 3
       - filter: Background Check
         filter variables:
-        - name: eastward_wind
-        - name: northward_wind
-        - name: air_temperature
+        - name: windEastward
+        - name: windNorthward
+        - name: airTemperature
         threshold: 6.0
 #       - filter: BlackList
 #         where:
@@ -105,21 +134,21 @@ cost function:
           engine:
             type: H5File
             obsfile: Data/hofx/eda/gfs/mem002/sondes_eda-4dvar-gfs_2020121500_m.nc4
-        simulated variables: [eastward_wind, northward_wind, air_temperature]
+        simulated variables: [windEastward, windNorthward, airTemperature]
         obs perturbations seed: 2
       obs operator:
         name: VertInterp
       obs error:
         covariance model: diagonal
-        random amplitude: 0.2
+        obs perturbations amplitude: 0.2
       obs filters:
       - filter: PreQC
         maxvalue: 3
       - filter: Background Check
         filter variables:
-        - name: eastward_wind
-        - name: northward_wind
-        - name: air_temperature
+        - name: windEastward
+        - name: windNorthward
+        - name: airTemperature
         threshold: 6.0
     - obs space:
         name: GnssroBndNBAM
@@ -131,7 +160,7 @@ cost function:
           engine:
             type: H5File
             obsfile: Data/hofx/eda/gfs/mem002/gnssro_eda-4dvar-gfs_2020121500_m.nc4
-        simulated variables: [bending_angle]
+        simulated variables: [bendingAngle]
         obs perturbations seed: 2
       obs operator:
         name: GnssroBndNBAM
@@ -145,19 +174,19 @@ cost function:
       obs filters:
       - filter: Domain Check
         filter variables:
-        - name: bending_angle
+        - name: bendingAngle
         where:
         - variable:
-            name: impact_height@MetaData
+            name: MetaData/impactHeightRO
           minvalue: 0
           maxvalue: 50000
       - filter: ROobserror
         filter variables:
-        - name: bending_angle
+        - name: bendingAngle
         errmodel: NBAM
       - filter: Background Check RONBAM
         filter variables:
-        - name: bending_angle
+        - name: bendingAngle
     - obs space:
         name: AMSUA-NOAA19
         obsdatain:
@@ -168,7 +197,7 @@ cost function:
           engine:
             type: H5File
             obsfile: Data/hofx/eda/gfs/mem002/amsua_n19_eda-4dvar-gfs_2020121500_m.nc4
-        simulated variables: [brightness_temperature]
+        simulated variables: [brightnessTemperature]
         channels: 1-15
         obs perturbations seed: 2
       obs operator:
@@ -180,17 +209,17 @@ cost function:
           CoefficientPath: Data/crtm/
       obs error:
         covariance model: diagonal
-        random amplitude: 0.3
+        obs perturbations amplitude: 0.3
       obs filters:
       - filter: Bounds Check
         filter variables:
-        - name: brightness_temperature
+        - name: brightnessTemperature
           channels: 1-15
         minvalue: 100.0
         maxvalue: 500.0
       - filter: Background Check
         filter variables:
-        - name: brightness_temperature
+        - name: brightnessTemperature
           channels: 1-15
         threshold: 3.0
   cost type: 4D-Var
@@ -241,7 +270,6 @@ variational:
       field metadata override: Data/fieldmetadata/gfs-restart.yaml
     diagnostics:
       departures: ombg
-    obs perturbations: true
     linear model:
       name: FV3JEDITLM
       namelist filename: Data/fv3files/input_gfs_c12.nml

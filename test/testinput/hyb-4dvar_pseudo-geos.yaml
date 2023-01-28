@@ -18,18 +18,44 @@ cost function:
         saber central block:
           saber block name: BUMP_NICAS
           bump:
-            method: cor
-            strategy: specific_univariate
-            load_nicas_local: true
+            io:
+              alias:
+              - in code: eastward_wind
+                in file: fixed_2500km_0.3
+              - in code: northward_wind
+                in file: fixed_2500km_0.3
+              - in code: air_temperature
+                in file: fixed_2500km_0.3
+              - in code: specific_humidity
+                in file: fixed_2500km_0.3
+              - in code: cloud_liquid_ice
+                in file: fixed_2500km_0.3
+              - in code: cloud_liquid_water
+                in file: fixed_2500km_0.3
+              - in code: mole_fraction_of_ozone_in_air
+                in file: fixed_2500km_0.3
+              - in code: surface_pressure
+                in file: fixed_2500km
+            drivers:
+              multivariate strategy: univariate
+              read local nicas: true
             grids:
-            - prefix: Data/bump/fv3jedi_bumpparameters_nicas_3D_geos
-              variables: [eastward_wind,northward_wind,air_temperature,specific_humidity,cloud_liquid_ice,cloud_liquid_water,mole_fraction_of_ozone_in_air]
-              io_keys: [eastward_wind-eastward_wind,northward_wind-northward_wind,air_temperature-air_temperature,specific_humidity-specific_humidity,cloud_liquid_ice-cloud_liquid_ice,cloud_liquid_water-cloud_liquid_water,mole_fraction_of_ozone_in_air-mole_fraction_of_ozone_in_air]
-              io_values: [fixed_2500km_0.3,fixed_2500km_0.3,fixed_2500km_0.3,fixed_2500km_0.3,fixed_2500km_0.3,fixed_2500km_0.3,fixed_2500km_0.3]
-            - prefix: Data/bump/fv3jedi_bumpparameters_nicas_2D_geos
-              variables: [surface_pressure]
-              io_keys: [surface_pressure-surface_pressure]
-              io_values: [fixed_2500km]
+            - model:
+                variables:
+                - eastward_wind
+                - northward_wind
+                - air_temperature
+                - specific_humidity
+                - cloud_liquid_ice
+                - cloud_liquid_water
+                - mole_fraction_of_ozone_in_air
+              io:
+                files prefix: Data/bump/fv3jedi_bumpparameters_nicas_3D_geos
+            - model:
+                variables:
+                - surface_pressure
+              io:
+                files prefix: Data/bump/fv3jedi_bumpparameters_nicas_2D_geos
       weight:
         value: 0.1
     - covariance:
@@ -51,20 +77,22 @@ cost function:
             saber block name: BUMP_NICAS
             active variables: [eastward_wind,northward_wind,air_temperature,surface_pressure,specific_humidity,cloud_liquid_ice,cloud_liquid_water,mole_fraction_of_ozone_in_air]
             bump:
-              prefix: Data/bump/fv3jedi_bumpparameters_nicas_3D_geos
-              method: loc
-              strategy: common
-              load_nicas_local: true
-              io_keys: [common]
-              io_values: [fixed_2500km_0.3]
+              io:
+                files prefix: Data/bump/fv3jedi_bumpparameters_nicas_3D_geos
+                alias:
+                - in code: common
+                  in file: fixed_2500km_0.3
+              drivers:
+                multivariate strategy: duplicated
+                read local nicas: true
       weight:
          value: 0.9
   observations:
     observers:
     - obs space:
         # The input file does not contain a variable called 'air_temperature', but contains one
-        # called 'renamed_air_temperature'. We use filters to copy renamed_air_temperature@ObsValue
-        # to air_temperature@DerivedObsValue and renamed_air_temperature@ObsError to
+        # called 'renamed_airTemperature'. We use filters to copy renamed_airTemperature@ObsValue
+        # to air_temperature@DerivedObsValue and renamed_airTemperature@ObsError to
         # air_temperature@ObsError. In this way we verify derived variables can be assimilated.
         name: Aircraft
         obsdatain:
@@ -75,9 +103,9 @@ cost function:
           engine:
             type: H5File
             obsfile: Data/hofx/aircraft_hyb-3dvar-gfs_2020121500_m.nc4
-        simulated variables: [eastward_wind, northward_wind, air_temperature]
-        observed variables: [eastward_wind, northward_wind]
-        derived variables: [air_temperature]
+        simulated variables: [windEastward, windNorthward, airTemperature]
+        observed variables: [windEastward, windNorthward]
+        derived variables: [airTemperature]
       obs operator:
         name: VertInterp
       obs error:
@@ -86,32 +114,32 @@ cost function:
       # Create a derived variable
       - filter: Variable Assignment
         assignments:
-        - name: air_temperature@DerivedObsValue
+        - name: DerivedObsValue/airTemperature
           type: float
           source variable:
-            name: renamed_air_temperature@ObsValue
+            name: ObsValue/renamed_airTemperature
       # Populate its ObsError estimates (filled with missing values up to now)
       - filter: Perform Action
-        filter variables: [air_temperature]
+        filter variables: [airTemperature]
         action:
           name: assign error
           error function:
-            name: renamed_air_temperature@ObsError
+            name: ObsError/renamed_airTemperature
       # Populate its PreQC flags
       - filter: Variable Assignment
         assignments:
-        - name: air_temperature@PreQC
+        - name: PreQC/airTemperature
           type: int
           source variable:
-            name: renamed_air_temperature@PreQC
+            name: PreQC/renamed_airTemperature
       - filter: PreQC
         maxvalue: 3
       - filter: Background Check
         apply at iterations: 0, 1
         filter variables:
-        - name: eastward_wind
-        - name: northward_wind
-        - name: air_temperature
+        - name: windEastward
+        - name: windNorthward
+        - name: airTemperature
         threshold: 6.0
     - obs space:
         name: GnssroBndNBAM
@@ -119,7 +147,7 @@ cost function:
           engine:
             type: H5File
             obsfile: Data/obs/testinput_tier_1/gnssro_obs_2020121500_m.nc4
-        simulated variables: [bending_angle]
+        simulated variables: [bendingAngle]
       obs operator:
         name: GnssroBndNBAM
         obs options:
@@ -132,26 +160,26 @@ cost function:
       obs filters:
       - filter: Domain Check
         filter variables:
-        - name: bending_angle
+        - name: bendingAngle
         where:
         - variable:
-            name: impact_height@MetaData
+            name: MetaData/impactHeightRO
           minvalue: 0
           maxvalue: 50000
       - filter: ROobserror
         filter variables:
-        - name: bending_angle
+        - name: bendingAngle
         errmodel: NBAM
       - filter: Background Check RONBAM
         filter variables:
-        - name: bending_angle
+        - name: bendingAngle
     - obs space:
         name: AMSUA-NOAA19
         obsdatain:
           engine:
             type: H5File
             obsfile: Data/obs/testinput_tier_1/amsua_n19_obs_2020121500_m.nc4
-        simulated variables: [brightness_temperature]
+        simulated variables: [brightnessTemperature]
         channels: 1-15
       obs operator:
         name: CRTM
@@ -167,13 +195,13 @@ cost function:
       obs filters:
       - filter: Bounds Check
         filter variables:
-        - name: brightness_temperature
+        - name: brightnessTemperature
           channels: 1-15
         minvalue: 100.0
         maxvalue: 500.0
       - filter: Background Check
         filter variables:
-        - name: brightness_temperature
+        - name: brightnessTemperature
           channels: 1-15
         threshold: 3.0
   cost type: 4D-Var

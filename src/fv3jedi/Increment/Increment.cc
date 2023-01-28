@@ -37,8 +37,8 @@ namespace fv3jedi {
 // -------------------------------------------------------------------------------------------------
 Increment::Increment(const Geometry & geom, const oops::Variables & vars,
                      const util::DateTime & time)
-  : geom_(geom), time_(time),
-    vars_(geom_.fieldsMetaData().getLongNameFromAnyName(vars))
+  : geom_(geom), vars_(geom_.fieldsMetaData().getLongNameFromAnyName(vars)),
+    time_(time)
 {
   oops::Log::trace() << "Increment::Increment (from geom, vars and time) starting" << std::endl;
   fv3jedi_increment_create_f90(keyInc_, geom_.toFortran(), vars_, time_);
@@ -232,12 +232,12 @@ void Increment::print(std::ostream & os) const {
                   << " | cube sphere face size: C" << cubeSize;
 
   // Print info field by field
-  const int FieldNameLen = 45;
+  const int FieldNameLen = 46;
   char fieldName[FieldNameLen];
   std::vector<double> minMaxRms(3);
   for (int f = 0; f < numberFields; f++) {
     int fp1 = f+1;
-    fv3jedi_increment_getminmaxrms_f90(keyInc_, fp1, FieldNameLen, fieldName, minMaxRms[0]);
+    fv3jedi_increment_getminmaxrms_f90(keyInc_, fp1, FieldNameLen-1, fieldName, minMaxRms[0]);
     std::string fieldNameStr(fieldName);
     os << std::endl << std::scientific << std::showpos << fieldNameStr.substr(0, FieldNameLen-1)
                     << " | Min:" << minMaxRms[0] << " Max:" << minMaxRms[1]
