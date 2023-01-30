@@ -1,4 +1,4 @@
-forecast length: PT1H
+forecast length: PT2H
 geometry:
   fms initialization:
     namelist filename: Data/ModelRunDirs/UFS_warmstart/input.nml
