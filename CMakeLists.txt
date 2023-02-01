@@ -59,7 +59,7 @@ endif()
 find_package( jedicmake QUIET )
 
 # NetCDF
-find_package( NetCDF REQUIRED COMPONENTS Fortran )
+find_package( NetCDF REQUIRED COMPONENTS C Fortran )
 
 # atlas
 find_package( atlas 0.27.0 REQUIRED )
@@ -156,7 +156,8 @@ if (FV3_FORECAST_MODEL MATCHES UFS)
   if( UFS_APP MATCHES ATM )
     set( FV3JEDI_LIBRARIES fv3jedi ccpp_framework ccpp_physics )
   elseif( UFS_APP MATCHES S2S )
-    set( FV3JEDI_LIBRARIES fv3jedi gsw mom6 cice cmeps piof pioc ccpp_framework ccpp_physics)
+    find_package( PIO 2.5.3 REQUIRED COMPONENTS C Fortran)
+    set( FV3JEDI_LIBRARIES fv3jedi gsw mom6 cice cmeps PIO::PIO_Fortran PIO::PIO_C ccpp_framework ccpp_physics)
   else()
     message(FATAL_ERROR "fv3jedi FV3JEDI_LIBRARIES not configured for UFS_APP ${UFS_APP}")
   endif()
