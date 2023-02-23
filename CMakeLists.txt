@@ -153,11 +153,40 @@ set( FV3JEDI_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
                           ${DEPEND_LIB_ROOT}/include/fv3
                           ${CMAKE_Fortran_MODULE_DIRECTORY})
 if (FV3_FORECAST_MODEL MATCHES UFS)
-  if( UFS_APP MATCHES ATM )
-    set( FV3JEDI_LIBRARIES fv3jedi ccpp_framework ccpp_physics )
-  elseif( UFS_APP MATCHES S2S )
+  if( UFS_APP MATCHES "^(ATM)$" )
+    set( FV3JEDI_LIBRARIES fv3jedi
+                           ccpp_framework
+                           ccpp_physics )
+  elseif( UFS_APP MATCHES "^(ATMAERO)$" )
+    find_package(GFTL_SHARED REQUIRED)
+    find_package (MAPL REQUIRED)
+    set( FV3JEDI_LIBRARIES fv3jedi
+                           ufs_aerosols
+                           aerosols_gridcomp
+                           gocart_gridcomp
+                           ca2g_gridcomp
+                           chem_shared
+                           gocart_process
+                           du2g_gridcomp
+                           ni2g_gridcomp
+                           ss2g_gridcomp
+                           su2g_gridcomp
+                           ga_environment
+                           MAPL
+                           ccpp_framework
+                           ccpp_physics
+                           GFTL_SHARED::gftl-shared )
+  elseif( UFS_APP MATCHES "^(S2S)$" )
     find_package( PIO 2.5.3 REQUIRED COMPONENTS C Fortran)
-    set( FV3JEDI_LIBRARIES fv3jedi gsw mom6 cice cmeps PIO::PIO_Fortran PIO::PIO_C ccpp_framework ccpp_physics)
+    set( FV3JEDI_LIBRARIES fv3jedi
+                           gsw
+                           mom6
+                           cice
+                           cmeps
+                           PIO::PIO_Fortran
+                           PIO::PIO_C
+                           ccpp_framework
+                           ccpp_physics )
   else()
     message(FATAL_ERROR "fv3jedi FV3JEDI_LIBRARIES not configured for UFS_APP ${UFS_APP}")
   endif()
