@@ -739,29 +739,30 @@ file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/ensembleb)
 # -------------------------------------------------------
 
 if (FV3_FORECAST_MODEL MATCHES "UFS")
-  set(FV3_FORECAST_MODEL_RUNDIR_WARMSTART ${CMAKE_SOURCE_DIR}/fv3-jedi-data/testinput_tier_1/inputs/ufs_c48_warmstart)
-  set(FV3_FORECAST_MODEL_TESTDIR_WARMSTART ${CMAKE_CURRENT_BINARY_DIR}/Data/ModelRunDirs/${FV3_FORECAST_MODEL}_warmstart/)
+  if( UFS_APP MATCHES "^(ATM)$" )
+    set(FV3_FORECAST_MODEL_RUNDIR_WARMSTART ${CMAKE_SOURCE_DIR}/fv3-jedi-data/testinput_tier_1/inputs/ufs_c48_warmstart)
+    set(FV3_FORECAST_MODEL_TESTDIR_WARMSTART ${CMAKE_CURRENT_BINARY_DIR}/Data/ModelRunDirs/${FV3_FORECAST_MODEL}_warmstart/)
+    file(MAKE_DIRECTORY ${FV3_FORECAST_MODEL_TESTDIR_WARMSTART})
 
-  file(MAKE_DIRECTORY ${FV3_FORECAST_MODEL_TESTDIR_WARMSTART})
+    set(FV3_FORECAST_MODEL_RUNDIR_COLDSTART ${CMAKE_SOURCE_DIR}/fv3-jedi-data/testinput_tier_1/inputs/ufs_c48_coldstart)
+    set(FV3_FORECAST_MODEL_TESTDIR_COLDSTART ${CMAKE_CURRENT_BINARY_DIR}/Data/ModelRunDirs/${FV3_FORECAST_MODEL}_coldstart/)
+    file(MAKE_DIRECTORY ${FV3_FORECAST_MODEL_TESTDIR_COLDSTART})
 
-  set(FV3_FORECAST_MODEL_RUNDIR_COLDSTART ${CMAKE_SOURCE_DIR}/fv3-jedi-data/testinput_tier_1/inputs/ufs_c48_coldstart)
-  set(FV3_FORECAST_MODEL_TESTDIR_COLDSTART ${CMAKE_CURRENT_BINARY_DIR}/Data/ModelRunDirs/${FV3_FORECAST_MODEL}_coldstart/)
+    set(FV3_SETUP_UFS_RUNDIR_SCRIPT fv3jedi_setup_ufs_rundir.py)
+    configure_file(${FV3_SETUP_UFS_RUNDIR_SCRIPT} ${CMAKE_BINARY_DIR}/bin/${FV3_SETUP_UFS_RUNDIR_SCRIPT} COPYONLY)
 
-  file(MAKE_DIRECTORY ${FV3_FORECAST_MODEL_TESTDIR_COLDSTART})
+    ecbuild_add_test( TARGET  fv3jedi_setup_ufs_rundir_warmstart
+                      TYPE    SCRIPT
+                      COMMAND ${CMAKE_BINARY_DIR}/bin/${FV3_SETUP_UFS_RUNDIR_SCRIPT}
+                      ARGS    ${FV3_FORECAST_MODEL_RUNDIR_WARMSTART} ${FV3_FORECAST_MODEL_TESTDIR_WARMSTART} )
 
-  set(FV3_SETUP_UFS_RUNDIR_SCRIPT fv3jedi_setup_ufs_rundir.py)
-  configure_file(${FV3_SETUP_UFS_RUNDIR_SCRIPT} ${CMAKE_BINARY_DIR}/bin/${FV3_SETUP_UFS_RUNDIR_SCRIPT} COPYONLY)
-
-  ecbuild_add_test( TARGET  fv3jedi_setup_ufs_rundir_warmstart
-                    TYPE    SCRIPT
-                    COMMAND ${CMAKE_BINARY_DIR}/bin/${FV3_SETUP_UFS_RUNDIR_SCRIPT}
-                    ARGS    ${FV3_FORECAST_MODEL_RUNDIR_WARMSTART} ${FV3_FORECAST_MODEL_TESTDIR_WARMSTART} )
-
-  ecbuild_add_test( TARGET  fv3jedi_setup_ufs_rundir_coldstart
-                    TYPE    SCRIPT
-                    COMMAND ${CMAKE_BINARY_DIR}/bin/${FV3_SETUP_UFS_RUNDIR_SCRIPT}
-                    ARGS    ${FV3_FORECAST_MODEL_RUNDIR_COLDSTART} ${FV3_FORECAST_MODEL_TESTDIR_COLDSTART} )
-
+    ecbuild_add_test( TARGET  fv3jedi_setup_ufs_rundir_coldstart
+                      TYPE    SCRIPT
+                      COMMAND ${CMAKE_BINARY_DIR}/bin/${FV3_SETUP_UFS_RUNDIR_SCRIPT}
+                      ARGS    ${FV3_FORECAST_MODEL_RUNDIR_COLDSTART} ${FV3_FORECAST_MODEL_TESTDIR_COLDSTART} )
+  else()
+    message("WARNING: No ctests configured for UFS APP ${UFS_APP}")
+  endif()
 endif()
 
 # Setting up RUNDIR for other models would happen here
