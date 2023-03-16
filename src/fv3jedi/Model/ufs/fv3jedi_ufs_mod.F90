@@ -64,6 +64,7 @@ contains
     type(fv3jedi_geom),        intent(in)    :: geom
 
     character(len=*),parameter :: subname = modname//' (create)'
+    character(len=128) :: msg
     integer :: rc
 
     ! Initialize ESMF
@@ -81,6 +82,9 @@ contains
     self%jsc = geom%jsc
     self%jec = geom%jec
     self%npz = geom%npz
+
+    write(msg, "(a,5i7)") 'My dimensions are:', self%isc, self%iec, self%jsc, self%jec, self%npz
+    call ESMF_LogWrite(trim(msg))
 
     self%initialized = .false.
 
@@ -196,30 +200,35 @@ contains
     ! Advertise fields on the exportState, for data coming out of ESM component
     ! Note--only certain fields are available. Check in GFS_surface_generic to see if they are filled
     call NUOPC_Advertise(self%toJedi, &
+         !StandardNames=(/ &
+         !               "u                                    ", &   ! Example fields
+         !               "v                                    ", &   ! Example fields
+         !               "ua                                   ", &   ! Example fields
+         !               "va                                   ", &   ! Example fields
+         !               "t                                    ", &   ! Example fields
+         !               "delp                                 ", &   ! Example fields
+         !               "sphum                                ", &   ! Example fields
+         !               "ice_wat                              ", &   ! Example fields
+         !               "liq_wat                              ", &   ! Example fields
+         !               "o3mr                                 ", &   ! Example fields
+         !               "phis                                 ", &   ! Example fields
+         !               "slmsk                                ", &   ! Example fields
+         !               "weasd                                ", &   ! Example fields
+         !               "tsea                                 ", &   ! Example fields
+         !               "vtype                                ", &   ! Example fields
+         !               "stype                                ", &   ! Example fields
+         !               "vfrac                                ", &   ! Example fields
+         !               "stc                                  ", &   ! Example fields
+         !               "smc                                  ", &   ! Example fields
+         !               "snwdph                               ", &   ! Example fields
+         !               "u_srf                                ", &   ! Example fields
+         !               "v_srf                                ", &   ! Example fields
+         !               "f10m                                 "/), &   ! Example fields
+         !SharePolicyField="share", &
+         !TransferOfferGeomObject="cannot provide", rc=rc)
          StandardNames=(/ &
-                        "u                                    ", &   ! Example fields
-                        "v                                    ", &   ! Example fields
-                        "ua                                   ", &   ! Example fields
-                        "va                                   ", &   ! Example fields
-                        "t                                    ", &   ! Example fields
-                        "delp                                 ", &   ! Example fields
-                        "sphum                                ", &   ! Example fields
-                        "ice_wat                              ", &   ! Example fields
-                        "liq_wat                              ", &   ! Example fields
-                        "o3mr                                 ", &   ! Example fields
-                        "phis                                 ", &   ! Example fields
-                        "slmsk                                ", &   ! Example fields
-                        "weasd                                ", &   ! Example fields
-                        "tsea                                 ", &   ! Example fields
-                        "vtype                                ", &   ! Example fields
-                        "stype                                ", &   ! Example fields
-                        "vfrac                                ", &   ! Example fields
-                        "stc                                  ", &   ! Example fields
-                        "smc                                  ", &   ! Example fields
-                        "snwdph                               ", &   ! Example fields
-                        "u_srf                                ", &   ! Example fields
-                        "v_srf                                ", &   ! Example fields
-                        "f10m                                 "/), &   ! Example fields
+                        !"f10m                                 "/), &   ! Example fields
+                        "u                                    "/), &   ! Example fields
          SharePolicyField="share", &
          TransferOfferGeomObject="cannot provide", rc=rc)
     esmf_err_abort(rc)
@@ -235,30 +244,33 @@ contains
     ! Advertise fields on the importState, for data going into ESM component
     ! Note--only certain fields are available. Check ???
     call NUOPC_Advertise(self%fromJedi, &
+         !StandardNames=(/ &
+         !               "u                                    ", &   ! Example fields
+         !               "v                                    ", &   ! Example fields
+         !               "ua                                   ", &   ! Example fields
+         !               "va                                   ", &   ! Example fields
+         !               "t                                    ", &   ! Example fields
+         !               "delp                                 ", &   ! Example fields
+         !               "sphum                                ", &   ! Example fields
+         !               "ice_wat                              ", &   ! Example fields
+         !               "liq_wat                              ", &   ! Example fields
+         !               "o3mr                                 ", &   ! Example fields
+         !               "phis                                 ", &   ! Example fields
+         !               "slmsk                                ", &   ! Example fields
+         !               "weasd                                ", &   ! Example fields
+         !               "tsea                                 ", &   ! Example fields
+         !               "vtype                                ", &   ! Example fields
+         !               "stype                                ", &   ! Example fields
+         !               "vfrac                                ", &   ! Example fields
+         !               "stc                                  ", &   ! Example fields
+         !               "smc                                  ", &   ! Example fields
+         !               "snwdph                               ", &   ! Example fields
+         !               "u_srf                                ", &   ! Example fields
+         !               "v_srf                                ", &   ! Example fields
+         !               "f10m                                 "/), &   ! Example fields
          StandardNames=(/ &
-                        "u                                    ", &   ! Example fields
-                        "v                                    ", &   ! Example fields
-                        "ua                                   ", &   ! Example fields
-                        "va                                   ", &   ! Example fields
-                        "t                                    ", &   ! Example fields
-                        "delp                                 ", &   ! Example fields
-                        "sphum                                ", &   ! Example fields
-                        "ice_wat                              ", &   ! Example fields
-                        "liq_wat                              ", &   ! Example fields
-                        "o3mr                                 ", &   ! Example fields
-                        "phis                                 ", &   ! Example fields
-                        "slmsk                                ", &   ! Example fields
-                        "weasd                                ", &   ! Example fields
-                        "tsea                                 ", &   ! Example fields
-                        "vtype                                ", &   ! Example fields
-                        "stype                                ", &   ! Example fields
-                        "vfrac                                ", &   ! Example fields
-                        "stc                                  ", &   ! Example fields
-                        "smc                                  ", &   ! Example fields
-                        "snwdph                               ", &   ! Example fields
-                        "u_srf                                ", &   ! Example fields
-                        "v_srf                                ", &   ! Example fields
-                        "f10m                                 "/), &   ! Example fields
+                        !"f10m                                 "/), &   ! Example fields
+                        "u                                    "/), &   ! Example fields
          TransferOfferGeomObject="cannot provide", rc=rc)
     esmf_err_abort(rc)
 
@@ -429,7 +441,7 @@ contains
     write(msg, "(I2)") cnt
     call ESMF_LogWrite("before step fromJedi state with "//trim(msg)//" items", &
          ESMF_LOGMSG_INFO)
-    call state_to_fv3(self, state)
+    call state_to_fv3(self, state, strCurrTime)
     call ESMF_LogWrite("after UFS state write "//trim(msg)//" rc", &
          ESMF_LOGMSG_INFO)
 
@@ -446,7 +458,7 @@ contains
     write(msg, "(I2)") cnt
     call ESMF_LogWrite("after step toJedi state with "//trim(msg)//" items", &
          ESMF_LOGMSG_INFO)
-    call fv3_to_state(self, state)
+    call fv3_to_state(self, state, strCurrTime)
     call ESMF_LogWrite("after JEDI state write "//trim(msg)//" rc", &
          ESMF_LOGMSG_INFO)
 
@@ -506,11 +518,12 @@ contains
 
   end subroutine finalize
 
-  subroutine fv3_to_state( self, state )
+  subroutine fv3_to_state( self, state, strCurrTime )
 
   implicit none
   type(model_ufs),    intent(in)    :: self
   type(fv3jedi_state), intent(inout) :: state
+  character(len=*), intent(in)      :: strCurrTime
 
   integer :: num_items, i, rc, rank, lb(3), ub(3), fnpz
   type(ESMF_Field) :: field
@@ -578,6 +591,22 @@ contains
 
         fnpz = 1
         field_fv3(self%isc:self%iec,self%jsc:self%jec,1) = farrayPtr2(lb(1):ub(1),lb(2):ub(2))
+
+        write(msg, "(4i6)") lb(1), ub(1), lb(2), ub(2)
+        call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", UFS 2D dims: " // trim(msg))
+        write(msg, "(6i6)") self%isc, self%iec, self%jsc, self%jec, 1, fnpz
+        call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", JEDI 2D dims: " // trim(msg))
+
+        write(msg, "(e16.7)") minval(farrayPtr2(lb(1):ub(1),lb(2):ub(2)))
+        call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", UFS 2D minval 1=" // trim(msg))
+        write(msg, "(e16.7)") maxval(farrayPtr2(lb(1):ub(1),lb(2):ub(2)))
+        call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", UFS 2D maxval 1=" // trim(msg))
+
+        write(msg, "(e16.7)") minval(field_fv3(self%isc:self%iec,self%jsc:self%jec,1:fnpz))
+        call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", UFS 2D minval 2=" // trim(msg))
+        write(msg, "(e16.7)") maxval(field_fv3(self%isc:self%iec,self%jsc:self%jec,1:fnpz))
+        call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", UFS 2D maxval 2=" // trim(msg))
+
         nullify(farrayPtr2)
 
       elseif (rank == 3) then
@@ -586,6 +615,22 @@ contains
 
         fnpz = ub(3)-lb(3)+1
         field_fv3(self%isc:self%iec,self%jsc:self%jec,1:fnpz) = farrayPtr3(lb(1):ub(1),lb(2):ub(2),lb(3):ub(3))
+
+        write(msg, "(6i6)") lb(1), ub(1), lb(2), ub(2), lb(3), ub(3)
+        call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", UFS 3D dims: " // trim(msg))
+        write(msg, "(6i6)") self%isc, self%iec, self%jsc, self%jec, 1, fnpz
+        call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", JEDI 3D dims: " // trim(msg))
+
+        write(msg, "(e16.7)") minval(farrayPtr3(lb(1):ub(1),lb(2):ub(2),lb(3):ub(3)))
+        call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", UFS 3D minval 1=" // trim(msg))
+        write(msg, "(e16.7)") maxval(farrayPtr3(lb(1):ub(1),lb(2):ub(2),lb(3):ub(3)))
+        call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", UFS 3D maxval 1=" // trim(msg))
+
+        write(msg, "(e16.7)") minval(field_fv3(self%isc:self%iec,self%jsc:self%jec,1:fnpz))
+        call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", UFS 3D minval 2=" // trim(msg))
+        write(msg, "(e16.7)") maxval(field_fv3(self%isc:self%iec,self%jsc:self%jec,1:fnpz))
+        call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", UFS 3D maxval 2=" // trim(msg))
+
         nullify(farrayPtr3)
 
       else
@@ -602,21 +647,33 @@ contains
       ! Get pointer to fv3-jedi side field
       call state%get_field(trim(short_name), field_ptr)
 
+      write(msg, "(3i6)") lbound(field_ptr%array)
+      call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", REAL JEDI 3D lbounds: " // trim(msg))
+      write(msg, "(3i6)") ubound(field_ptr%array)
+      call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", REAL JEDI 3D ubounds: " // trim(msg))
+
       if (field_ptr%npz .ne. fnpz) &
         call abor1_ftn("fv3_to_state: dimension mismatch between JEDI and UFS vertical grid")
 
       write(msg, "(e16.7)") minval(field_ptr%array(self%isc:self%iec,self%jsc:self%jec,1:fnpz))
-      call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS, minval=" // trim(msg))
+      call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", JEDI minval=" // trim(msg))
       write(msg, "(e16.7)") maxval(field_ptr%array(self%isc:self%iec,self%jsc:self%jec,1:fnpz))
-      call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS, maxval=" // trim(msg))
+      call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", JEDI maxval=" // trim(msg))
       !
       ! Copy from UFS to fv3-jedi
       field_ptr%array(self%isc:self%iec,self%jsc:self%jec,1:fnpz) = field_fv3(self%isc:self%iec,self%jsc:self%jec,1:fnpz)
       !
       write(msg, "(e16.7)") minval(field_ptr%array(self%isc:self%iec,self%jsc:self%jec,1:fnpz))
-      call ESMF_LogWrite("After updating field "// trim(short_name) // " in JEDI from UFS, minval=" // trim(msg))
+      call ESMF_LogWrite("After updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", minval=" // trim(msg))
       write(msg, "(e16.7)") maxval(field_ptr%array(self%isc:self%iec,self%jsc:self%jec,1:fnpz))
-      call ESMF_LogWrite("After updating field "// trim(short_name) // " in JEDI from UFS, maxval=" // trim(msg))
+      call ESMF_LogWrite("After updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", maxval=" // trim(msg))
+      !
+      if (abs(minval(field_ptr%array(self%isc:self%iec,self%jsc:self%jec,1:fnpz)))>1.0E30 .or. abs(maxval(field_ptr%array(self%isc:self%iec,self%jsc:self%jec,1:fnpz)))>1.0E30) then
+        write(msg, "(a,6i5,1x,e16.7,1x,3i6)") trim(short_name), self%isc, self%iec, self%jsc, self%jec, 1, fnpz, minval(field_ptr%array(self%isc:self%iec,self%jsc:self%jec,1:fnpz)), minloc(field_ptr%array(self%isc:self%iec,self%jsc:self%jec,1:fnpz))
+        call ESMF_LogWrite("DOM-ERROR MIN: " // trim(msg))
+        write(msg, "(a,6i5,1x,e16.7,1x,3i6)") trim(short_name), self%isc, self%iec, self%jsc, self%jec, 1, fnpz, maxval(field_ptr%array(self%isc:self%iec,self%jsc:self%jec,1:fnpz)), maxloc(field_ptr%array(self%isc:self%iec,self%jsc:self%jec,1:fnpz))
+        call ESMF_LogWrite("DOM-ERROR MAX: " // trim(msg))
+      end if
     else
       call ESMF_LogWrite("Not needed by JEDI is "//short_name, ESMF_LOGMSG_INFO)
     endif
@@ -629,11 +686,12 @@ contains
   end subroutine fv3_to_state
 
 
-  subroutine state_to_fv3( self, state )
+  subroutine state_to_fv3( self, state, strCurrTime )
 
   implicit none
   type(model_ufs),    intent(inout) :: self
   type(fv3jedi_state), intent(in)   :: state
+  character(len=*), intent(in) :: strCurrTime
 
   integer :: num_items, i, rc, rank, lb(3), ub(3), fnpz
   type(ESMF_Field) :: field
@@ -732,10 +790,19 @@ contains
       if (field_ptr%npz .ne. fnpz) &
         call abor1_ftn("state_to_fv3: dimension mismatch between JEDI and UFS vertical grid")
 
+      write(msg, "(e16.7)") minval(field_fv3(self%isc:self%iec,self%jsc:self%jec,1:fnpz))
+      call ESMF_LogWrite("Before updating field "// trim(short_name) // " in UFS from JEDI at " // trim(strCurrTime) // ", minval=" // trim(msg))
+      write(msg, "(e16.7)") maxval(field_fv3(self%isc:self%iec,self%jsc:self%jec,1:fnpz))
+      call ESMF_LogWrite("Before updating field "// trim(short_name) // " in UFS from JEDI at " // trim(strCurrTime) // ", maxval=" // trim(msg))
+      !
       ! Copy from fv3-jedi to UFS
+      !
       field_fv3(self%isc:self%iec,self%jsc:self%jec,1:fnpz) = field_ptr%array(self%isc:self%iec,self%jsc:self%jec,1:fnpz)
-      write(msg, "(a,e16.7,a,e16.7)") "field_fv3 for " // trim(short_name) // " has minval ", minval(field_fv3), " and maxval ", maxval(field_fv3)
-      call ESMF_LogWrite(trim(msg), ESMF_LOGMSG_INFO)
+      !
+      write(msg, "(e16.7)") minval(field_fv3(self%isc:self%iec,self%jsc:self%jec,1:fnpz))
+      call ESMF_LogWrite("After updating field "// trim(short_name) // " in UFS from JEDI at " // trim(strCurrTime) // ", minval=" // trim(msg))
+      write(msg, "(e16.7)") maxval(field_fv3(self%isc:self%iec,self%jsc:self%jec,1:fnpz))
+      call ESMF_LogWrite("After updating field "// trim(short_name) // " in UFS from JEDI at " // trim(strCurrTime) // ", maxval=" // trim(msg))
 
       ! Update UFS state fieldpointer
       if (rank == 2) then

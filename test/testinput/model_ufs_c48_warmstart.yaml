@@ -12,7 +12,7 @@ geometry:
   field metadata override: Data/fieldmetadata/ufs.yaml
 model:
   name: UFS
-  tstep: PT1H
+  tstep: PT1200S
   ufs_run_directory: Data/ModelRunDirs/UFS_warmstart
   model variables: [T, delp, sphum, ice_wat, liq_wat, o3mr, phis, slmsk,
                     sheleg, tsea, vtype, stype, vfrac, stc, smc, snwdph, u_srf, v_srf,
