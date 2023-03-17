@@ -211,13 +211,13 @@ contains
                         "ice_wat                              ", &   ! Example fields
                         "liq_wat                              ", &   ! Example fields
                         "o3mr                                 ", &   ! Example fields
-         !               "phis                                 ", &   ! Example fields
-         !               "slmsk                                ", &   ! Example fields
-         !               "weasd                                ", &   ! Example fields
-         !               "tsea                                 ", &   ! Example fields
-         !               "vtype                                ", &   ! Example fields
-         !               "stype                                ", &   ! Example fields
-         !               "vfrac                                ", &   ! Example fields
+                        "phis                                 ", &   ! Example fields
+                        "slmsk                                ", &   ! Example fields
+                        "weasd                                ", &   ! Example fields
+                        "tsea                                 ", &   ! Example fields
+                        "vtype                                ", &   ! Example fields
+                        "stype                                ", &   ! Example fields
+                        "vfrac                                ", &   ! Example fields
                         "stc                                  ", &   ! Example fields
                         "smc                                  ", &   ! Example fields
                         "snwdph                               ", &   ! Example fields
@@ -250,13 +250,13 @@ contains
                         "ice_wat                              ", &   ! Example fields
                         "liq_wat                              ", &   ! Example fields
                         "o3mr                                 ", &   ! Example fields
-         !               "phis                                 ", &   ! Example fields
-         !               "slmsk                                ", &   ! Example fields
-         !               "weasd                                ", &   ! Example fields
-         !               "tsea                                 ", &   ! Example fields
-         !               "vtype                                ", &   ! Example fields
-         !               "stype                                ", &   ! Example fields
-         !               "vfrac                                ", &   ! Example fields
+                        "phis                                 ", &   ! Example fields
+                        "slmsk                                ", &   ! Example fields
+                        "weasd                                ", &   ! Example fields
+                        "tsea                                 ", &   ! Example fields
+                        "vtype                                ", &   ! Example fields
+                        "stype                                ", &   ! Example fields
+                        "vfrac                                ", &   ! Example fields
                         "stc                                  ", &   ! Example fields
                         "smc                                  ", &   ! Example fields
                         "snwdph                               ", &   ! Example fields
