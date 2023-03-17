@@ -203,10 +203,10 @@ contains
          StandardNames=(/ &
                         "u                                    ", &   ! Example fields
                         "v                                    ", &   ! Example fields
-         !               "ua                                   ", &   ! Example fields
-         !               "va                                   ", &   ! Example fields
-         !               "t                                    ", &   ! Example fields
-         !               "delp                                 ", &   ! Example fields
+                        "ua                                   ", &   ! Example fields
+                        "va                                   ", &   ! Example fields
+                        "t                                    ", &   ! Example fields
+                        "delp                                 ", &   ! Example fields
                         "sphum                                ", &   ! Example fields
                         "ice_wat                              ", &   ! Example fields
                         "liq_wat                              ", &   ! Example fields
@@ -242,10 +242,10 @@ contains
          StandardNames=(/ &
                         "u                                    ", &   ! Example fields
                         "v                                    ", &   ! Example fields
-         !               "ua                                   ", &   ! Example fields
-         !               "va                                   ", &   ! Example fields
-         !               "t                                    ", &   ! Example fields
-         !               "delp                                 ", &   ! Example fields
+                        "ua                                   ", &   ! Example fields
+                        "va                                   ", &   ! Example fields
+                        "t                                    ", &   ! Example fields
+                        "delp                                 ", &   ! Example fields
                         "sphum                                ", &   ! Example fields
                         "ice_wat                              ", &   ! Example fields
                         "liq_wat                              ", &   ! Example fields
