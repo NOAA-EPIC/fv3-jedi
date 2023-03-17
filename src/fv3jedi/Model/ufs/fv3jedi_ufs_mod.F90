@@ -202,15 +202,15 @@ contains
     call NUOPC_Advertise(self%toJedi, &
          StandardNames=(/ &
                         "u                                    ", &   ! Example fields
-         !               "v                                    ", &   ! Example fields
+                        "v                                    ", &   ! Example fields
          !               "ua                                   ", &   ! Example fields
          !               "va                                   ", &   ! Example fields
          !               "t                                    ", &   ! Example fields
          !               "delp                                 ", &   ! Example fields
-         !               "sphum                                ", &   ! Example fields
-         !               "ice_wat                              ", &   ! Example fields
-         !               "liq_wat                              ", &   ! Example fields
-         !               "o3mr                                 ", &   ! Example fields
+                        "sphum                                ", &   ! Example fields
+                        "ice_wat                              ", &   ! Example fields
+                        "liq_wat                              ", &   ! Example fields
+                        "o3mr                                 ", &   ! Example fields
          !               "phis                                 ", &   ! Example fields
          !               "slmsk                                ", &   ! Example fields
          !               "weasd                                ", &   ! Example fields
@@ -218,11 +218,11 @@ contains
          !               "vtype                                ", &   ! Example fields
          !               "stype                                ", &   ! Example fields
          !               "vfrac                                ", &   ! Example fields
-         !               "stc                                  ", &   ! Example fields
-         !               "smc                                  ", &   ! Example fields
-         !               "snwdph                               ", &   ! Example fields
-         !               "u_srf                                ", &   ! Example fields
-         !               "v_srf                                ", &   ! Example fields
+                        "stc                                  ", &   ! Example fields
+                        "smc                                  ", &   ! Example fields
+                        "snwdph                               ", &   ! Example fields
+                        "u_srf                                ", &   ! Example fields
+                        "v_srf                                ", &   ! Example fields
                         "f10m                                 "/), &   ! Example fields
          SharePolicyField="share", &
          TransferOfferGeomObject="cannot provide", rc=rc)
@@ -246,10 +246,10 @@ contains
          !               "va                                   ", &   ! Example fields
          !               "t                                    ", &   ! Example fields
          !               "delp                                 ", &   ! Example fields
-         !               "sphum                                ", &   ! Example fields
-         !               "ice_wat                              ", &   ! Example fields
-         !               "liq_wat                              ", &   ! Example fields
-         !               "o3mr                                 ", &   ! Example fields
+                        "sphum                                ", &   ! Example fields
+                        "ice_wat                              ", &   ! Example fields
+                        "liq_wat                              ", &   ! Example fields
+                        "o3mr                                 ", &   ! Example fields
          !               "phis                                 ", &   ! Example fields
          !               "slmsk                                ", &   ! Example fields
          !               "weasd                                ", &   ! Example fields
@@ -257,11 +257,11 @@ contains
          !               "vtype                                ", &   ! Example fields
          !               "stype                                ", &   ! Example fields
          !               "vfrac                                ", &   ! Example fields
-         !               "stc                                  ", &   ! Example fields
-         !               "smc                                  ", &   ! Example fields
+                        "stc                                  ", &   ! Example fields
+                        "smc                                  ", &   ! Example fields
                         "snwdph                               ", &   ! Example fields
-         !               "u_srf                                ", &   ! Example fields
-         !               "v_srf                                ", &   ! Example fields
+                        "u_srf                                ", &   ! Example fields
+                        "v_srf                                ", &   ! Example fields
                         "f10m                                 "/), &   ! Example fields
          SharePolicyField="share", &
          TransferOfferGeomObject="cannot provide", rc=rc)
