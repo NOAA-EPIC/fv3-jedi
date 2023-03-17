@@ -200,8 +200,8 @@ contains
     ! Advertise fields on the exportState, for data coming out of ESM component
     ! Note--only certain fields are available. Check in GFS_surface_generic to see if they are filled
     call NUOPC_Advertise(self%toJedi, &
-         !StandardNames=(/ &
-         !               "u                                    ", &   ! Example fields
+         StandardNames=(/ &
+                        "u                                    ", &   ! Example fields
          !               "v                                    ", &   ! Example fields
          !               "ua                                   ", &   ! Example fields
          !               "va                                   ", &   ! Example fields
@@ -223,12 +223,7 @@ contains
          !               "snwdph                               ", &   ! Example fields
          !               "u_srf                                ", &   ! Example fields
          !               "v_srf                                ", &   ! Example fields
-         !               "f10m                                 "/), &   ! Example fields
-         !SharePolicyField="share", &
-         !TransferOfferGeomObject="cannot provide", rc=rc)
-         StandardNames=(/ &
-                        !"f10m                                 "/), &   ! Example fields
-                        "u                                    "/), &   ! Example fields
+                        "f10m                                 "/), &   ! Example fields
          SharePolicyField="share", &
          TransferOfferGeomObject="cannot provide", rc=rc)
     esmf_err_abort(rc)
@@ -244,9 +239,9 @@ contains
     ! Advertise fields on the importState, for data going into ESM component
     ! Note--only certain fields are available. Check ???
     call NUOPC_Advertise(self%fromJedi, &
-         !StandardNames=(/ &
-         !               "u                                    ", &   ! Example fields
-         !               "v                                    ", &   ! Example fields
+         StandardNames=(/ &
+                        "u                                    ", &   ! Example fields
+                        "v                                    ", &   ! Example fields
          !               "ua                                   ", &   ! Example fields
          !               "va                                   ", &   ! Example fields
          !               "t                                    ", &   ! Example fields
@@ -264,13 +259,11 @@ contains
          !               "vfrac                                ", &   ! Example fields
          !               "stc                                  ", &   ! Example fields
          !               "smc                                  ", &   ! Example fields
-         !               "snwdph                               ", &   ! Example fields
+                        "snwdph                               ", &   ! Example fields
          !               "u_srf                                ", &   ! Example fields
          !               "v_srf                                ", &   ! Example fields
-         !               "f10m                                 "/), &   ! Example fields
-         StandardNames=(/ &
-                        !"f10m                                 "/), &   ! Example fields
-                        "u                                    "/), &   ! Example fields
+                        "f10m                                 "/), &   ! Example fields
+         SharePolicyField="share", &
          TransferOfferGeomObject="cannot provide", rc=rc)
     esmf_err_abort(rc)
 
