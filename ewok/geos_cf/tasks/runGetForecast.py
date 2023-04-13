@@ -8,10 +8,9 @@
 import sys
 import os
 import yamltools
-from r2d2 import fetch
+from r2d2 import R2D2Data
 
 conf = yamltools.configure_runtime(sys.argv[1])
-
 # Check for working directory
 if not os.path.exists(conf['workdir']):
     raise RuntimeError('Working directory does not exist')
@@ -25,40 +24,27 @@ if 'exp_source' in conf:
 # Fetch state
 
 base = conf['experiment']['expid'] + '.fc.'
-sdate = conf['fcdate'] + '.' + conf['fcstep']
-filename = base + sdate + '.$(file_type).nc'
+sdate = yamltools.jedifnformat(conf['fcdate']) + '.' + conf['fcstep']
 
 fcstep = yamltools.parse_timedelta(conf['fcstep'])
-if 'hack_step_bg' in conf and conf['hack_step_bg'] == True:
+if 'hack_step_bg' in conf and conf['hack_step_bg']:
     pt3h = yamltools.parse_timedelta('PT3H')
     fcstep -= pt3h
 hackstep = yamltools.jediformat(fcstep)
 
+member = R2D2Data.DEFAULT_INT_VALUE
 if 'member' in conf:
-    fetch(
-        model=conf['experiment']['model'],
-        type='fc_ens',
-        experiment=exp_read,
-        resolution=conf['resolution'],
-        date=conf['fcdate'],
-        step=hackstep,
-        target_file=filename,
-        file_format='netcdf',
-        file_type=['bkg'],
-        fc_date_rendering='analysis',
-        member=conf['member'],
-    )
+    member = conf['member']
 
-else:
-    fetch(
-        model=conf['experiment']['model'],
-        type='fc',
-        experiment=exp_read,
-        resolution=conf['resolution'],
-        date=conf['fcdate'],
-        step=hackstep,
-        target_file=filename,
-        file_format='netcdf',
-        file_type=['bkg'],
-        fc_date_rendering='analysis',
-    )
+R2D2Data.fetch(
+    model=conf['experiment']['model'],
+    item='forecast',
+    experiment=exp_read,
+    step=hackstep,
+    resolution=conf['resolution'],
+    date=conf['fcdate'],
+    target_file=f'{base}{sdate}.bkg.nc',
+    file_extension='nc',
+    file_type='bkg',
+    member=member,
+)

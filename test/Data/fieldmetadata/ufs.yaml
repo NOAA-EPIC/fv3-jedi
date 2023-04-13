@@ -15,7 +15,7 @@ field metadata:
 - long name: stc
   io file: surface
 
-- long name: soilMoistureVolumetric 
+- long name: soilMoistureVolumetric
   io name: smc
   io file: surface
 
@@ -29,7 +29,7 @@ field metadata:
   io name: sphum
   io file: tracer
 
-- long name: cloud_liquid_ice 
+- long name: cloud_liquid_ice
   io name: ice_wat
   io file: tracer
 
