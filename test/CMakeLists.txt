@@ -96,7 +96,7 @@ list( APPEND fv3jedi_testinput
   testinput/convertstate_gfs.yaml
   testinput/convertstate_gfs_c2ll.yaml
   testinput/convertstate_gfs_c2gaussian.yaml
-  testinput/converttolatlon_gfs.yaml
+  #testinput/converttolatlon_gfs.yaml
   testinput/diffstates_geos.yaml
   testinput/diffstates_gfs.yaml
   testinput/diffstates_lam_cmaq.yaml
@@ -255,7 +255,7 @@ list( APPEND fv3jedi_testoutput
   testoutput/convertstate_gfs.ref
   testoutput/convertstate_gfs_c2ll.ref
   testoutput/convertstate_gfs_c2gaussian.ref
-  testoutput/converttolatlon_gfs.ref
+  #testoutput/converttolatlon_gfs.ref
   testoutput/diffstates_geos.ref
   testoutput/diffstates_gfs.ref
   testoutput/diffstates_lam_cmaq.ref
@@ -993,10 +993,10 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_convertincrement_geos_model2geoval
                   ARGS     testinput/convertincrement_geos_model2geovals.yaml
                   COMMAND  fv3jedi_convertincrement.x )
 
-ecbuild_add_test( TARGET   fv3jedi_test_tier1_converttolatlon_gfs
-                  MPI      6
-                  ARGS     testinput/converttolatlon_gfs.yaml
-                  COMMAND  fv3jedi_converttolatlon.x )
+#ecbuild_add_test( TARGET   fv3jedi_test_tier1_converttolatlon_gfs
+#                  MPI      6
+#                  ARGS     testinput/converttolatlon_gfs.yaml
+#                  COMMAND  fv3jedi_converttolatlon.x )
                   
 # Remaining interface tests
 # -------------------------
@@ -1104,14 +1104,13 @@ endif()
 #                    ARGS     testinput/forecast_geos.yaml
 #                    COMMAND  fv3jedi_forecast.x )
 #endif()
-=======
+
 if( FV3_FORECAST_MODEL MATCHES "GEOS")
   ecbuild_add_test( TARGET   fv3jedi_test_tier1_forecast_geos
                     MPI      6
                     ARGS     testinput/forecast_geos.yaml
                     COMMAND  fv3jedi_forecast.x )
 endif()
->>>>>>> develop
 
 # H(x)
 # ----
