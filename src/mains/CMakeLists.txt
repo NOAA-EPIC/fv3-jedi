@@ -22,7 +22,7 @@ oops_output_json_schema(fv3jedi_convertstate.x)
 
 ecbuild_add_executable( TARGET  fv3jedi_converttolatlon.x
                         SOURCES fv3jediConvertToLatLon.cc
-                        LIBS    fv3jedi
+                        LIBS    ${FV3JEDI_LIBRARIES}
                        )
 oops_output_json_schema(fv3jedi_converttolatlon.x)
 
