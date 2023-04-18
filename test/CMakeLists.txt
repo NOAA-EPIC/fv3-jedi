@@ -170,6 +170,7 @@ list( APPEND fv3jedi_testinput
   testinput/letkf.yaml
   testinput/lgetkf.yaml
   testinput/letkf_snow.yaml
+  testinput/letkf_observer_soil_moisture.yaml
   testinput/adjointforecast.yaml
   testinput/linearmodel_physics.yaml
   testinput/linearmodel.yaml
@@ -301,6 +302,7 @@ list( APPEND fv3jedi_testoutput
   testoutput/hyb-fgat_gfs_aero.ref
   testoutput/letkf.ref
   testoutput/letkf_snow.ref
+  testoutput/letkf_observer_soil_moisture.ref
   testoutput/lgetkf.ref
   testoutput/adjointforecast.ref
   testoutput/staticb_cor_gfs.ref
@@ -495,6 +497,7 @@ message(STATUS "Running fv3jedi tests for tiers up to and including tier " ${FV3
 # Repo wide configuration for getting test data
 # ---------------------------------------------
 set( CRTM_COEFFS_BRANCH "2.4.0_skylab_3.0" )
+#set( CRTM_COEFFS_BRANCH "3.0.0_skylab_4.0" )
 
 function(ADD_DOWNLOAD_TEST repo test_files_dirname output_data_path)
   # If REPO branch is being built set GIT_BRANCH_FUNC to REPO's current branch.
@@ -603,7 +606,7 @@ endfunction()
 #############################################
 # add tests to download fv3-jedi & crtm data
 
-ADD_DOWNLOAD_TEST( "fv3-jedi" fv3-jedi_testinput_tier_1_1.4.0.tar.gz FV3JEDI_FV3JEDI_TESTFILES_PATH )
+ADD_DOWNLOAD_TEST( "fv3-jedi" fv3-jedi_testinput_tier_1_1.5.0.tar.gz FV3JEDI_FV3JEDI_TESTFILES_PATH )
 ADD_DOWNLOAD_TEST( "crtm" crtm_coefficients_${CRTM_COEFFS_BRANCH}.tar.gz CRTM_FV3JEDI_TESTFILES_PATH )
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/obs)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/crtm)
@@ -1518,6 +1521,11 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_lgetkf
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_letkf_snow
                   MPI      6
                   ARGS     testinput/letkf_snow.yaml
+                  COMMAND  fv3jedi_letkf.x )
+
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_letkf_observer_soil_moisture
+                  MPI      6
+                  ARGS     testinput/letkf_observer_soil_moisture.yaml
                   COMMAND  fv3jedi_letkf.x )
 
 # Obs Localizaton Tests
