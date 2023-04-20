@@ -20,6 +20,8 @@ list( APPEND fv3jedi_src_files
   Geometry/Geometry.interface.h
   Geometry/fv3jedi_geom_interface_mod.F90
   Geometry/fv3jedi_geom_mod.f90
+  Geometry/fv3jedi_time_invariant_fields_helpers_interface_mod.F90
+  Geometry/fv3jedi_time_invariant_fields_helpers_mod.f90
   Geometry/TimeInvariantFieldsHelpers.cc
   Geometry/TimeInvariantFieldsHelpers.h
   GeometryIterator/GeometryIterator.cc
@@ -87,6 +89,8 @@ list( APPEND fv3jedi_src_files
   State/State.interface.h
   State/fv3jedi_state_interface_mod.F90
   State/fv3jedi_state_mod.F90
+  Utilities/Constants.cc
+  Utilities/Constants.h
   Utilities/Traits.h
   Utilities/interface.h
   Utilities/fv3jedi_communication_mod.f90
@@ -115,11 +119,6 @@ list( APPEND fv3jedi_src_files
   VariableChange/Control2Analysis/VarChaC2A.cc
   VariableChange/Control2Analysis/VarChaC2A.h
   VariableChange/Control2Analysis/VarChaC2A.interface.h
-  VariableChange/GEOSRstToBkg/fv3jedi_vc_geosrst2bkg.interface.F90
-  VariableChange/GEOSRstToBkg/fv3jedi_vc_geosrst2bkg_mod.f90
-  VariableChange/GEOSRstToBkg/VarChaGeosRst2Bkg.cc
-  VariableChange/GEOSRstToBkg/VarChaGeosRst2Bkg.h
-  VariableChange/GEOSRstToBkg/VarChaGeosRst2Bkg.interface.h
   VariableChange/Model2GeoVaLs/fv3jedi_vc_model2geovals.interface.F90
   VariableChange/Model2GeoVaLs/fv3jedi_vc_model2geovals_mod.f90
   VariableChange/Model2GeoVaLs/VarChaModel2GeoVaLs.cc
@@ -127,6 +126,7 @@ list( APPEND fv3jedi_src_files
   VariableChange/Model2GeoVaLs/VarChaModel2GeoVaLs.interface.h
   VariableChange/Utils/fv3jedi_fieldfail_mod.f90
   VariableChange/Utils/height_variables_mod.f90
+  VariableChange/Utils/hydrometeor_radii_variables_mod.f90
   VariableChange/Utils/moisture_variables_mod.f90
   VariableChange/Utils/pressure_variables_mod.f90
   VariableChange/Utils/surface_variables_mod.f90

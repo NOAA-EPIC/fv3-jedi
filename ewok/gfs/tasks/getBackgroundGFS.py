@@ -10,13 +10,17 @@ import ewok.tasks.getBackground as generic
 
 class getBackgroundGFS(generic.getBackground):
 
-    def setup(self, config, fc):
+    def setup(self, config, fc, fix):
 
         # Get generic defaults
-        generic.getBackground.setup(self, config, fc)
+        generic.getBackground.setup(self, config, fc, fix)
 
         if 'hack_step_bg' in config and config['hack_step_bg'] == True:
             self.RUNTIME_YAML['hack_step_bg'] = True
 
         # Use GFS specific script
         self.command = os.path.join(config['model_path'], "tasks/runGetForecast.py")
+
+        self.exec_cmd = ''   # Run on login node for S3 and R2D2 Database access
+        self.include_header = ''
+        self.login_node_limit = 'True'

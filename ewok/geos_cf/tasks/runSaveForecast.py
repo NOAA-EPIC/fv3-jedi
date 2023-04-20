@@ -8,7 +8,7 @@
 import sys
 import os
 import yamltools
-import r2d2
+from r2d2 import R2D2Data
 
 conf = yamltools.configure_runtime(sys.argv[1])
 
@@ -19,25 +19,22 @@ os.chdir(conf['workdir'])
 
 # Date
 fcdate = conf['fc']['date']
-base = conf['experiment']['expid'] + '.fc.' + fcdate + "."
+base = conf['experiment']['expid'] + '.fc.'
 
 # Loop over steps
 for sstep in conf['fc']['fcout']:
-    print("saveForecastRun step = ", sstep)
 
-    filename = base + sstep + '.$(file_type).nc'
-
-    print("saveForecastRun filename = ", filename)
-
-    r2d2.store(
+    fcstep = yamltools.parse_timedelta(sstep)
+    forecast_date = yamltools.parse_datetime(fcdate) + fcstep
+    file_date = yamltools.jedifnformat(forecast_date)
+    R2D2Data.store(
         model=conf['experiment']['model'],
-        type='fc',
+        item='forecast',
+        step=sstep,
         experiment=conf['experiment']['expid'],
         resolution=conf['resolution'],
         date=fcdate,
-        step=sstep,
-        source_file=filename,
-        file_format='netcdf',
-        file_type=['bkg'],
-        fc_date_rendering='analysis',
+        source_file=f'{base}{file_date}.bkg.nc',
+        file_extension='nc',
+        file_type='bkg',
     )

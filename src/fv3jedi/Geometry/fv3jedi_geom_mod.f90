@@ -1,4 +1,4 @@
-! (C) Copyright 2017-2021 UCAR
+! (C) Copyright 2017-2023 UCAR
 !
 ! This software is licensed under the terms of the Apache Licence Version 2.0
 ! which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -32,13 +32,14 @@ use fv_arrays_mod,              only: fv_atmos_type, deallocate_fv_atmos_type
 
 ! fv3jedi uses
 use fields_metadata_mod,         only: fields_metadata, field_metadata
-use fv3jedi_constants_mod,       only: ps, rad2deg, kap1, kapr
+use fv3jedi_constants_mod,       only: constant
 use fv3jedi_kinds_mod,           only: kind_int, kind_real
 use fv3jedi_netcdf_utils_mod,    only: nccheck
 use fv_init_mod,                 only: fv_init
 use fv3jedi_fmsnamelist_mod,     only: fv3jedi_fmsnamelist
 use fv3jedi_io_fms_mod,          only: fv3jedi_io_fms, read_fields
 use fv3jedi_field_mod,           only: fv3jedi_field
+!use fv3jedi_geom_iter_mod
 
 implicit none
 private
@@ -73,6 +74,8 @@ type :: fv3jedi_geom
   type(fckit_mpi_comm) :: f_comm
   type(fields_metadata) :: fields
   type(atlas_fieldset) :: extra_fields
+  ! Vertical Coordinate
+  real(kind=kind_real), allocatable, dimension(:)       :: vCoord                   !Model vertical coordinate
   ! For D to (A to) C grid
   real(kind=kind_real), allocatable, dimension(:,:)     :: rarea
   real(kind=kind_real), allocatable, dimension(:,:,:)   :: sin_sg
@@ -102,6 +105,7 @@ type :: fv3jedi_geom
     procedure, public :: ngrid_including_halo
     procedure, public :: trim_fv3_grid_to_jedi_interp_grid
     procedure, public :: trim_fv3_grid_to_jedi_interp_grid_ad
+    procedure, public :: get_data
 end type fv3jedi_geom
 
 ! --------------------------------------------------------------------------------------------------
@@ -349,6 +353,8 @@ self%sw_corner = Atm(1)%gridstruct%sw_corner
 self%nw_corner = Atm(1)%gridstruct%nw_corner
 self%nested    = Atm(1)%gridstruct%nested
 self%bounded_domain =  Atm(1)%gridstruct%bounded_domain
+
+allocate(self%vCoord(self%npz))
 
 call conf%get_or_die("logp",logp)
 self%logp = logp
@@ -606,8 +612,8 @@ ngrid = self%ngrid
 ! Create lon/lat field
 afield = atlas_field(name="lonlat", kind=atlas_real(kind_real), shape=(/2,ngrid/))
 call afield%data(real_ptr)
-real_ptr(1,:) = rad2deg*reshape(self%grid_lon(self%isc:self%iec, self%jsc:self%jec),(/ngrid/))
-real_ptr(2,:) = rad2deg*reshape(self%grid_lat(self%isc:self%iec, self%jsc:self%jec),(/ngrid/))
+real_ptr(1,:) = constant('rad2deg')*reshape(self%grid_lon(self%isc:self%iec, self%jsc:self%jec),(/ngrid/))
+real_ptr(2,:) = constant('rad2deg')*reshape(self%grid_lat(self%isc:self%iec, self%jsc:self%jec),(/ngrid/))
 call afieldset%add(afield)
 
 if (include_halo) then
@@ -621,7 +627,7 @@ if (include_halo) then
   call trim_fv3_grid_to_jedi_interp_grid(self, self%grid_lon, real_ptr(1,:))
   call trim_fv3_grid_to_jedi_interp_grid(self, self%grid_lat, real_ptr(2,:))
   ! Convert rad -> degree
-  real_ptr(:,:) = rad2deg * real_ptr(:,:)
+  real_ptr(:,:) = constant('rad2deg') * real_ptr(:,:)
   call afieldset%add(afield_incl_halo)
 endif
 
@@ -638,7 +644,7 @@ type(atlas_fieldset), intent(inout) :: afieldset
 !Locals
 integer :: jl, ngrid
 integer, pointer :: int_ptr(:,:)
-real(kind=kind_real) :: sigmaup, sigmadn
+real(kind=kind_real) :: sigmaup, sigmadn, ps
 real(kind=kind_real), pointer :: real_ptr(:,:)
 real(kind=kind_real), allocatable :: hmask_1(:), hmask_2(:,:)
 type(atlas_field) :: afield
@@ -677,6 +683,7 @@ call afieldset%add(afield)
 call afield%final()
 
 ! Add vertical unit
+ps = constant('ps')
 afield = self%afunctionspace_incl_halo%create_field(name='vunit', kind=atlas_real(kind_real), levels=self%npz)
 call afield%data(real_ptr)
 if (.not. self%logp) then
@@ -1146,11 +1153,17 @@ end subroutine write_geom
 ! 1d pressure_edge to pressure_mid
 !----------------------------------------------------------------------------
 
-subroutine pedges2pmidlayer(npz,ptype,pe1d,p1d)
+subroutine pedges2pmidlayer(npz,ptype,pe1d,kappa,p1d)
  integer,              intent(in)  :: npz       !number of model layers
  character(len=*),     intent(in)  :: ptype     !midlayer pressure definition: 'average' or 'Philips'
  real(kind=kind_real), intent(in)  :: pe1d(npz+1) !pressure edge
+ real(kind=kind_real), intent(in)  :: kappa
  real(kind=kind_real), intent(out) :: p1d(npz)    !pressure mid
+
+ real(kind=kind_real) :: kap1, kapr
+
+ kap1 = kappa + 1.0_kind_real
+ kapr = 1.0_kind_real/kappa
 
  select case (ptype)
    case('Philips')
@@ -1173,7 +1186,7 @@ subroutine getVerticalCoord(self, vc, npz, psurf)
   real(kind=kind_real), intent(in) :: psurf
   real(kind=kind_real), intent(out) :: vc(npz)
 
-  real(kind=kind_real) :: plevli(npz+1), p(npz)
+  real(kind=kind_real) :: plevli(npz+1), p(npz), kappa
   integer :: k
 
   ! compute interface pressure
@@ -1181,8 +1194,11 @@ subroutine getVerticalCoord(self, vc, npz, psurf)
     plevli(k) = self%ak(k) + self%bk(k)*psurf
   enddo
 
+  ! get kappa
+  kappa = constant('kappa')
+
   ! compute presure at mid level and convert it to logp
-  call pedges2pmidlayer(npz,'Philips',plevli,vc)
+  call pedges2pmidlayer(npz,'Philips',plevli,kappa,vc)
 
 end subroutine getVerticalCoord
 
@@ -1202,6 +1218,24 @@ subroutine getVerticalCoordLogP(self, vc, npz, psurf)
   vc = - log(p)
 
 end subroutine getVerticalCoordLogP
+
+! --------------------------------------------------------------------------------------------------
+
+subroutine get_data(self, ak, bk, ptop)
+
+!Arguments
+class(fv3jedi_geom),  intent(in)  :: self
+real(kind=kind_real), intent(out) :: ak(self%npz+1)
+real(kind=kind_real), intent(out) :: bk(self%npz+1)
+real(kind=kind_real), intent(out) :: ptop
+
+! Set outputs
+ak = self%ak
+bk = self%bk
+ptop = self%ptop
+
+end subroutine get_data
+
 ! --------------------------------------------------------------------------------------------------
 
 end module fv3jedi_geom_mod

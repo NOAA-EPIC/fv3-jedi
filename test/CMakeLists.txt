@@ -10,10 +10,6 @@ else()
   include( ${CMAKE_SOURCE_DIR}/jedicmake/cmake/Functions/git_functions.cmake )
 endif()
 
-# Option not to run with large tests
-# ----------------------------------
-option(BUILD_LARGE_TESTS "build tests with more than 6 processors" ON)
-
 # Create the Data/ directory
 # --------------------------
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data)
@@ -88,7 +84,8 @@ list( APPEND fv3jedi_testinput
   testinput/convertincrement_geos_model2geovals.yaml
   testinput/convertstate_geos_crtm_surface.yaml
   testinput/convertstate_geos_model2geovals.yaml
-  testinput/convertstate_geos_vader_and_model2geovals.yaml
+  testinput/convertstate_geos_vader_for_model2geovals.yaml
+  testinput/convertstate_geos_fv3jedi_for_model2geovals.yaml
   testinput/convertstate_geos.yaml
   testinput/convertstate_geos_cf.yaml
   testinput/convertstate_gchp.yaml
@@ -99,6 +96,7 @@ list( APPEND fv3jedi_testinput
   testinput/convertstate_gfs.yaml
   testinput/convertstate_gfs_c2ll.yaml
   testinput/convertstate_gfs_c2gaussian.yaml
+  #testinput/converttolatlon_gfs.yaml
   testinput/diffstates_geos.yaml
   testinput/diffstates_gfs.yaml
   testinput/diffstates_lam_cmaq.yaml
@@ -148,6 +146,8 @@ list( APPEND fv3jedi_testinput
   testinput/hofx_gfs_aero_aodluts.yaml
   testinput/hofx_gnssro_ropp.yaml
   testinput/hofx_nomodel.yaml
+  testinput/hofx_nomodel_abi_radii.yaml
+  testinput/hofx_nomodel_amsua_radii.yaml
   testinput/hofx_nomodel_lam_cmaq.yaml
   testinput/hofx_nomodel_lam_rrfs.yaml
   testinput/hofx_save_geovals.yaml
@@ -170,6 +170,7 @@ list( APPEND fv3jedi_testinput
   testinput/letkf.yaml
   testinput/lgetkf.yaml
   testinput/letkf_snow.yaml
+  testinput/letkf_observer_soil_moisture.yaml
   testinput/adjointforecast.yaml
   testinput/linearmodel_physics.yaml
   testinput/linearmodel.yaml
@@ -184,6 +185,7 @@ list( APPEND fv3jedi_testinput
   testinput/model_pseudo-gfs.yaml
   testinput/obslocalization.yaml
   testinput/obslocalizations.yaml
+  testinput/obslocalization_vertical.yaml
   testinput/obsop_name_map.yaml
   testinput/state_geos_aerosol_ext.yaml
   testinput/state_geos_aerosol.yaml
@@ -242,7 +244,8 @@ list( APPEND fv3jedi_testoutput
   testoutput/convertincrement_geos_model2geovals.ref
   testoutput/convertstate_geos_crtm_surface.ref
   testoutput/convertstate_geos_model2geovals.ref
-  testoutput/convertstate_geos_vader_and_model2geovals.ref
+  testoutput/convertstate_geos_vader_for_model2geovals.ref
+  testoutput/convertstate_geos_fv3jedi_for_model2geovals.ref
   testoutput/convertstate_geos.ref
   testoutput/convertstate_geos_cf.ref
   testoutput/convertstate_gchp.ref
@@ -253,6 +256,7 @@ list( APPEND fv3jedi_testoutput
   testoutput/convertstate_gfs.ref
   testoutput/convertstate_gfs_c2ll.ref
   testoutput/convertstate_gfs_c2gaussian.ref
+  #testoutput/converttolatlon_gfs.ref
   testoutput/diffstates_geos.ref
   testoutput/diffstates_gfs.ref
   testoutput/diffstates_lam_cmaq.ref
@@ -276,9 +280,11 @@ list( APPEND fv3jedi_testoutput
   testoutput/hofx_gfs_aero.ref
   testoutput/hofx_gfs_aero_aodluts.ref
   testoutput/hofx_gnssro_ropp.ref
+  testoutput/hofx_nomodel.ref
+  testoutput/hofx_nomodel_abi_radii.ref
+  testoutput/hofx_nomodel_amsua_radii.ref
   testoutput/hofx_nomodel_lam_cmaq.ref
   testoutput/hofx_nomodel_lam_rrfs.ref
-  testoutput/hofx_nomodel.ref
   testoutput/hofx_save_geovals.ref
   testoutput/hyb-3dvar_fsoi_backward.ref
   testoutput/hyb-3dvar_fsoi_forward.ref
@@ -296,6 +302,7 @@ list( APPEND fv3jedi_testoutput
   testoutput/hyb-fgat_gfs_aero.ref
   testoutput/letkf.ref
   testoutput/letkf_snow.ref
+  testoutput/letkf_observer_soil_moisture.ref
   testoutput/lgetkf.ref
   testoutput/adjointforecast.ref
   testoutput/staticb_cor_gfs.ref
@@ -357,6 +364,7 @@ Data/fieldmetadata/gchp.yaml
 Data/fieldmetadata/geos.yaml
 Data/fieldmetadata/geos_cf.yaml
 Data/fieldmetadata/gfs-aerosol.yaml
+Data/fieldmetadata/ufs-aerosol.yaml
 Data/fieldmetadata/gfs-history.yaml
 Data/fieldmetadata/gfs-land.yaml
 Data/fieldmetadata/gfs-restart.yaml
@@ -489,6 +497,7 @@ message(STATUS "Running fv3jedi tests for tiers up to and including tier " ${FV3
 # Repo wide configuration for getting test data
 # ---------------------------------------------
 set( CRTM_COEFFS_BRANCH "2.4.0_skylab_3.0" )
+#set( CRTM_COEFFS_BRANCH "3.0.0_skylab_4.0" )
 
 function(ADD_DOWNLOAD_TEST repo test_files_dirname output_data_path)
   # If REPO branch is being built set GIT_BRANCH_FUNC to REPO's current branch.
@@ -597,7 +606,7 @@ endfunction()
 #############################################
 # add tests to download fv3-jedi & crtm data
 
-ADD_DOWNLOAD_TEST( "fv3-jedi" fv3-jedi_testinput_tier_1_1.4.0.tar.gz FV3JEDI_FV3JEDI_TESTFILES_PATH )
+ADD_DOWNLOAD_TEST( "fv3-jedi" fv3-jedi_testinput_tier_1_1.5.0.tar.gz FV3JEDI_FV3JEDI_TESTFILES_PATH )
 ADD_DOWNLOAD_TEST( "crtm" crtm_coefficients_${CRTM_COEFFS_BRANCH}.tar.gz CRTM_FV3JEDI_TESTFILES_PATH )
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/obs)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/crtm)
@@ -972,9 +981,14 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_convertstate_geos_model2geovals
                   ARGS     testinput/convertstate_geos_model2geovals.yaml
                   COMMAND  fv3jedi_convertstate.x )
 
-ecbuild_add_test( TARGET   fv3jedi_test_tier1_convertstate_geos_vader_and_model2geovals
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_convertstate_geos_vader_for_model2geovals
                   MPI      6
-                  ARGS     testinput/convertstate_geos_vader_and_model2geovals.yaml
+                  ARGS     testinput/convertstate_geos_vader_for_model2geovals.yaml
+                  COMMAND  fv3jedi_convertstate.x )
+
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_convertstate_geos_fv3jedi_for_model2geovals
+                  MPI      6
+                  ARGS     testinput/convertstate_geos_fv3jedi_for_model2geovals.yaml
                   COMMAND  fv3jedi_convertstate.x )
 
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_convertincrement_geos_model2geovals
@@ -982,6 +996,11 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_convertincrement_geos_model2geoval
                   ARGS     testinput/convertincrement_geos_model2geovals.yaml
                   COMMAND  fv3jedi_convertincrement.x )
 
+#ecbuild_add_test( TARGET   fv3jedi_test_tier1_converttolatlon_gfs
+#                  MPI      6
+#                  ARGS     testinput/converttolatlon_gfs.yaml
+#                  COMMAND  fv3jedi_converttolatlon.x )
+                  
 # Remaining interface tests
 # -------------------------
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_variablechange_gfs
@@ -1021,7 +1040,7 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_model_fv3lm
                   COMMAND  test_fv3jedi_model.x )
 
 
-if( FV3_FORECAST_MODEL MATCHES "UFS" AND BUILD_LARGE_TESTS )
+if( FV3_FORECAST_MODEL MATCHES "UFS")
   ecbuild_add_test( TARGET   fv3jedi_test_tier1_model_ufs_warmstart
                     MPI      6
                     ARGS     testinput/model_ufs_c48_warmstart.yaml
@@ -1033,6 +1052,12 @@ if( FV3_FORECAST_MODEL MATCHES "UFS" AND BUILD_LARGE_TESTS )
                     ARGS     testinput/model_ufs_c48_coldstart.yaml
                     COMMAND  test_fv3jedi_model.x
                     TEST_DEPENDS fv3jedi_setup_ufs_rundir_coldstart )
+endif()
+if( FV3_FORECAST_MODEL MATCHES "GEOS")
+  ecbuild_add_test( TARGET   fv3jedi_test_tier1_model_geos
+                    MPI      6
+                    ARGS     testinput/model_geos.yaml
+                    COMMAND  test_fv3jedi_model.x )
 endif()
 
 # Disabled until setup of GEOS model rundir is added (e.g., see fv3jedi_setup_ufs_rundir_warmstart)
@@ -1052,7 +1077,7 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_linearmodel_physics
                   MPI      6
                   ARGS     testinput/linearmodel_physics.yaml
                   COMMAND  test_fv3jedi_linearmodel.x )
-
+                  
 
 # Forecast tests
 # --------------
@@ -1061,7 +1086,7 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_forecast_fv3lm
                   ARGS     testinput/forecast_fv3lm.yaml
                   COMMAND  fv3jedi_forecast.x )
 
-if( FV3_FORECAST_MODEL MATCHES "UFS" AND BUILD_LARGE_TESTS )
+if( FV3_FORECAST_MODEL MATCHES "UFS")
   ecbuild_add_test( TARGET   fv3jedi_test_tier1_forecast_ufs_warmstart
                     MPI      6
                     ARGS     testinput/forecast_ufs_c48_warmstart.yaml
@@ -1082,6 +1107,13 @@ endif()
 #                    ARGS     testinput/forecast_geos.yaml
 #                    COMMAND  fv3jedi_forecast.x )
 #endif()
+
+if( FV3_FORECAST_MODEL MATCHES "GEOS")
+  ecbuild_add_test( TARGET   fv3jedi_test_tier1_forecast_geos
+                    MPI      6
+                    ARGS     testinput/forecast_geos.yaml
+                    COMMAND  fv3jedi_forecast.x )
+endif()
 
 # H(x)
 # ----
@@ -1126,6 +1158,16 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_hofx_nomodel_lam_cmaq
                   ARGS     testinput/hofx_nomodel_lam_cmaq.yaml
                   COMMAND  fv3jedi_hofx_nomodel.x )
 
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_hofx_nomodel_amsua_radii
+                  MPI      6
+                  ARGS     testinput/hofx_nomodel_amsua_radii.yaml
+                  COMMAND  fv3jedi_hofx_nomodel.x )
+
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_hofx_nomodel_abi_radii
+                  MPI      6
+                  ARGS     testinput/hofx_nomodel_abi_radii.yaml
+                  COMMAND  fv3jedi_hofx_nomodel.x )
+
 # Test to save GeoVaLs to file
 # ----------------------------
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_hofx_save_geovals
@@ -1165,18 +1207,19 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_bumpparameters_nicas_lam_cmaq
                   ARGS     testinput/bumpparameters_nicas_lam_cmaq.yaml
                   COMMAND  fv3jedi_error_covariance_training.x )
 
-if (BUILD_LARGE_TESTS)
-  ecbuild_add_test( TARGET   fv3jedi_test_tier1_bumpparameters_nicas_geos_p12
+
+if (FV3JEDI_TEST_TIER GREATER_EQUAL 2)
+  ecbuild_add_test( TARGET   fv3jedi_test_tier2_bumpparameters_nicas_geos_p12
                     MPI      12
                     ARGS     testinput/bumpparameters_nicas_geos_p12.yaml
                     COMMAND  fv3jedi_error_covariance_training.x )
 
-  ecbuild_add_test( TARGET   fv3jedi_test_tier1_bumpparameters_nicas_gfs_p12
+  ecbuild_add_test( TARGET   fv3jedi_test_tier2_bumpparameters_nicas_gfs_p12
                     MPI      12
                     ARGS     testinput/bumpparameters_nicas_gfs_p12.yaml
                     COMMAND  fv3jedi_error_covariance_training.x )
 
-  ecbuild_add_test( TARGET   fv3jedi_test_tier1_bumpparameters_nicas_gfs_aero_p12
+  ecbuild_add_test( TARGET   fv3jedi_test_tier2_bumpparameters_nicas_gfs_aero_p12
                     MPI      12
                     ARGS     testinput/bumpparameters_nicas_gfs_aero_p12.yaml
                     COMMAND  fv3jedi_error_covariance_training.x )
@@ -1268,12 +1311,12 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_hyb-3dvar
                   COMMAND  fv3jedi_var.x
                   TEST_DEPENDS fv3jedi_test_tier1_bumpparameters_nicas_gfs )
 
-if (BUILD_LARGE_TESTS)
-  ecbuild_add_test( TARGET   fv3jedi_test_tier1_hyb-3dvar_p12_validate
+if (FV3JEDI_TEST_TIER GREATER_EQUAL 2)
+  ecbuild_add_test( TARGET   fv3jedi_test_tier2_hyb-3dvar_p12_validate
                     ARGS     --validate-only testinput/hyb-3dvar_p12.yaml
                     COMMAND  fv3jedi_var.x)
 
-  ecbuild_add_test( TARGET   fv3jedi_test_tier1_hyb-3dvar_p12
+  ecbuild_add_test( TARGET   fv3jedi_test_tier2_hyb-3dvar_p12
                     MPI      12
                     ARGS     --no-validate testinput/hyb-3dvar_p12.yaml
                     COMMAND  fv3jedi_var.x
@@ -1302,11 +1345,11 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_hyb-3dvar_gfs_0obs_inoneobsspace
                   TEST_DEPENDS fv3jedi_test_tier1_bumpparameters_nicas_gfs )
 
 if( ${ropp-ufo_FOUND} )
-#  ecbuild_add_test( TARGET   fv3jedi_test_tier1_hyb-3dvar_gfs_gnssro_ropp
-#                    MPI      6
-#                    ARGS     testinput/hyb-3dvar_gfs_gnssro_ropp.yaml
-#                    COMMAND  fv3jedi_var.x
-#                    TEST_DEPENDS fv3jedi_test_tier1_bumpparameters_nicas_gfs )
+  ecbuild_add_test( TARGET   fv3jedi_test_tier1_hyb-3dvar_gfs_gnssro_ropp
+                    MPI      6
+                    ARGS     testinput/hyb-3dvar_gfs_gnssro_ropp.yaml
+                    COMMAND  fv3jedi_var.x
+                    TEST_DEPENDS fv3jedi_test_tier1_bumpparameters_nicas_gfs )
 endif()
 
 # Chemistry / AQ Variational Tests
@@ -1449,8 +1492,8 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_addincrement_gfs
                   COMMAND  fv3jedi_addincrement.x
                   TEST_DEPENDS fv3jedi_test_tier1_diffstates_gfs )
 
-if (BUILD_LARGE_TESTS)
-  ecbuild_add_test( TARGET   fv3jedi_test_tier1_addincrement_geos
+if (FV3JEDI_TEST_TIER GREATER_EQUAL 2)
+  ecbuild_add_test( TARGET   fv3jedi_test_tier2_addincrement_geos
                     MPI      12
                     ARGS     testinput/addincrement_geos.yaml
                     COMMAND  fv3jedi_addincrement.x
@@ -1480,11 +1523,21 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_letkf_snow
                   ARGS     testinput/letkf_snow.yaml
                   COMMAND  fv3jedi_letkf.x )
 
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_letkf_observer_soil_moisture
+                  MPI      6
+                  ARGS     testinput/letkf_observer_soil_moisture.yaml
+                  COMMAND  fv3jedi_letkf.x )
+
 # Obs Localizaton Tests
 # ---------------------
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_obslocalization
                   MPI      6
                   ARGS     testinput/obslocalization.yaml
+                  COMMAND  test_fv3jedi_obslocalization.x )
+
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_obslocalization_vertical
+                  MPI      6
+                  ARGS     testinput/obslocalization_vertical.yaml
                   COMMAND  test_fv3jedi_obslocalization.x )
 
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_obslocalizations
@@ -1494,27 +1547,23 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_obslocalizations
 
 # EnsHofx tests
 # -------------
-if (BUILD_LARGE_TESTS)
-  ecbuild_add_test( TARGET   fv3jedi_test_tier1_enshofx_fv3lm
-                    MPI      12
-                    ARGS     testinput/enshofx_fv3lm.yaml
-                    COMMAND  fv3jedi_enshofx.x )
-endif()
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_enshofx_fv3lm
+                  MPI      12
+                  ARGS     testinput/enshofx_fv3lm.yaml
+                  COMMAND  fv3jedi_enshofx.x )
 
 # Ensemble data assimilation tests
 # --------------------------------
-if (BUILD_LARGE_TESTS)
-  # 3DVar
-  ecbuild_add_test( TARGET   fv3jedi_test_tier1_eda_3dvar_validate
-                    ARGS     --validate-only testinput/eda_3dvar.yaml
-                    COMMAND  fv3jedi_eda.x )
+# 3DVar
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_eda_3dvar_validate
+                  ARGS     --validate-only testinput/eda_3dvar.yaml
+                  COMMAND  fv3jedi_eda.x )
 
-  ecbuild_add_test( TARGET   fv3jedi_test_tier1_eda_3dvar
-                    MPI      12
-                    ARGS     --no-validate testinput/eda_3dvar.yaml
-                    COMMAND  fv3jedi_eda.x
-                    TEST_DEPENDS fv3jedi_test_tier1_bumpparameters_nicas_gfs )
-endif()
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_eda_3dvar
+                  MPI      12
+                  ARGS     --no-validate testinput/eda_3dvar.yaml
+                  COMMAND  fv3jedi_eda.x
+                  TEST_DEPENDS fv3jedi_test_tier1_bumpparameters_nicas_gfs )
 
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_eda_block_3dvar_validate
                   ARGS     --validate-only testinput/eda_block_3dvar.yaml
@@ -1529,7 +1578,7 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_eda_block_3dvar
 # Tier 2 tests
 # ------------
 
-if (FV3JEDI_TEST_TIER GREATER_EQUAL 2 AND BUILD_LARGE_TESTS)
+if (FV3JEDI_TEST_TIER GREATER_EQUAL 2)
 
   # Full BUMP static covariance setup
   # ----------------------------------
