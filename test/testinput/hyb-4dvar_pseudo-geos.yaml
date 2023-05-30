@@ -1,5 +1,5 @@
 cost function:
-  analysis variables: &anavars [eastward_wind,northward_wind,air_temperature,surface_pressure,q,qi,ql,o3ppmv]
+  analysis variables: &anavars [eastward_wind,northward_wind,air_temperature,surface_pressure,specific_humidity,cloud_liquid_ice,cloud_liquid_water,mole_fraction_of_ozone_in_air]
   background:
     datetime: 2020-12-14T21:00:00Z
     filetype: cube sphere history
@@ -17,8 +17,9 @@ cost function:
         covariance model: SABER
         saber central block:
           saber block name: BUMP_NICAS
-          bump:
+          read:
             io:
+              files prefix: Data/bump/fv3jedi_bumpparameters_nicas_geos
               alias:
               - in code: eastward_wind
                 in file: fixed_2500km_0.3
@@ -49,13 +50,9 @@ cost function:
                 - cloud_liquid_ice
                 - cloud_liquid_water
                 - mole_fraction_of_ozone_in_air
-              io:
-                files prefix: Data/bump/fv3jedi_bumpparameters_nicas_3D_geos
             - model:
                 variables:
                 - surface_pressure
-              io:
-                files prefix: Data/bump/fv3jedi_bumpparameters_nicas_2D_geos
       weight:
         value: 0.1
     - covariance:
@@ -76,9 +73,9 @@ cost function:
           saber central block:
             saber block name: BUMP_NICAS
             active variables: [eastward_wind,northward_wind,air_temperature,surface_pressure,specific_humidity,cloud_liquid_ice,cloud_liquid_water,mole_fraction_of_ozone_in_air]
-            bump:
+            read:
               io:
-                files prefix: Data/bump/fv3jedi_bumpparameters_nicas_3D_geos
+                files prefix: Data/bump/fv3jedi_bumpparameters_nicas_geos
                 alias:
                 - in code: common
                   in file: fixed_2500km_0.3
@@ -113,6 +110,10 @@ cost function:
         derived variables: [airTemperature]
       obs operator:
         name: VertInterp
+        vertical coordinate: air_pressure
+        observation vertical coordinate: pressure
+        observation vertical coordinate group: MetaData
+        interpolation method: log-linear
       obs error:
         covariance model: diagonal
       obs filters:
