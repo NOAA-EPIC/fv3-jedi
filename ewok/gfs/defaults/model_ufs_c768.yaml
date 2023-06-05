@@ -5,6 +5,7 @@
 
 name: UFS
 tstep: PT1H
+forecast length: $(forecast_length)
 ufs_run_directory: $(fcworkdir)
 model variables: $(MODEL_VARIABLES)
 _list_static_files: filesUFS_c768.yaml

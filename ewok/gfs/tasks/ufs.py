@@ -4,6 +4,7 @@
 # which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
 import gfs
 
+import forecastUFS
 import getAnalysisUFS
 import getBackgroundUFS
 import getExpInitUFS
@@ -16,6 +17,7 @@ class ModelTasks(gfs.ModelTasks):
     def __init__(self):
         gfs.ModelTasks.__init__(self)
 
+        self.forecast = forecastUFS.forecastUFS
         self.getAnalysis = getAnalysisUFS.getAnalysisUFS
         self.getBackground = getBackgroundUFS.getBackgroundUFS
         self.getExpInit = getExpInitUFS.getExpInitUFS

@@ -17,8 +17,12 @@ class saveForecastUFS(generic.saveForecast):
 
         self.walltime = '00:10:00'
 
-#       Copy the 6hrs forecast
-        self.RUNTIME_YAML['fc']['fcout']['PT6H RESTART'] = self.RUNTIME_YAML['fc']['fcout']['PT6H']
+#       Copy the 3hrs and 6hrs forecasts
+        if 'PT3H' in self.RUNTIME_YAML['fc']['fcout']:
+            self.RUNTIME_YAML['fc']['fcout']['PT3H RESTART'] = self.RUNTIME_YAML['fc']['fcout']['PT3H']
+
+        if 'PT6H' in self.RUNTIME_YAML['fc']['fcout']:
+            self.RUNTIME_YAML['fc']['fcout']['PT6H RESTART'] = self.RUNTIME_YAML['fc']['fcout']['PT6H']
 
         # Use GFS specific script
         self.command = os.path.join(config['model_path'], "tasks/runSaveForecastUFS.py")

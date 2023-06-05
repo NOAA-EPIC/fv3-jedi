@@ -17,13 +17,18 @@ class getFcInitUFS(generic.getFcInit):
         if 'hack_step_bg' in config and config['hack_step_bg'] == True:
             self.RUNTIME_YAML['hack_step_bg'] = True
 
+        yamltools.print_template("config is: ", config)
+
         # Remove extra info in names of files so it is readable by FMS
-        self.output['fcout']['PT6H']['datapath'] = os.path.join(self.output['fcout']['PT6H']['datapath'], 'RESTART')
-        self.output['fcout']['PT6H']['filename_core'] = '{{ufs_current_cycle}}.fv_core.res.nc'
-        self.output['fcout']['PT6H']['filename_trcr'] = '{{ufs_current_cycle}}.fv_tracer.res.nc'
-        self.output['fcout']['PT6H']['filename_sfcd'] = '{{ufs_current_cycle}}.sfc_data.nc'
-        self.output['fcout']['PT6H']['filename_sfcw'] = '{{ufs_current_cycle}}.fv_srf_wnd.res.nc'
-        self.output['fcout']['PT6H']['filename_cplr'] = '{{ufs_current_cycle}}.coupler.res'
+        if 'PT6H' in self.output['fcout']: step = 'PT6H'
+        if 'PT3H' in self.output['fcout']: step = 'PT3H'
+
+        self.output['fcout'][step]['datapath'] = os.path.join(self.output['fcout'][step]['datapath'], 'RESTART')
+        self.output['fcout'][step]['filename_core'] = '{{ufs_current_cycle}}.fv_core.res.nc'
+        self.output['fcout'][step]['filename_trcr'] = '{{ufs_current_cycle}}.fv_tracer.res.nc'
+        self.output['fcout'][step]['filename_sfcd'] = '{{ufs_current_cycle}}.sfc_data.nc'
+        self.output['fcout'][step]['filename_sfcw'] = '{{ufs_current_cycle}}.fv_srf_wnd.res.nc'
+        self.output['fcout'][step]['filename_cplr'] = '{{ufs_current_cycle}}.coupler.res'
 
         # Use specific script
         self.command = os.path.join(config['model_path'], "tasks/runGetForecastUFS.py")

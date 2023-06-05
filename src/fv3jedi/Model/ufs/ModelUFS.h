@@ -46,6 +46,7 @@ namespace fv3jedi {
     oops::RequiredParameter<oops::Variables> modelVariables{ "model variables", this};
     oops::RequiredParameter<util::Duration> tstep{ "tstep", this};
     oops::RequiredParameter<std::string> ufsRunDirectory{ "ufs_run_directory", this};
+    oops::Parameter<util::Duration> fclength{"forecast length", "PT6H", this}
   };
 
 // -------------------------------------------------------------------------------------------------
@@ -74,6 +75,7 @@ class ModelUFS: public oops::interface::ModelBase<Traits>,
   void print(std::ostream &) const;
   F90model keyConfig_;
   util::Duration tstep_;
+  util::duration fclength_;
   const Geometry geom_;
   const oops::Variables vars_;
   char jedidir_[10000];
