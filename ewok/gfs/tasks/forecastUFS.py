@@ -14,8 +14,10 @@ class forecastUFS(generic.forecast):
 
         # Get generic defaults
         generic.forecast.setup(self, config, execs, fix, ic)
-
-        self.RUNTIME_ENV['COSTFUNCTION'] = config['cost_function']
+        if 'cost_function' in config:
+            self.RUNTIME_ENV['COSTFUNCTION'] = config['cost_function']
+        else
+            self.RUNTIME_ENV['COSTFUNCTION'] = 'None'
         self.RUNTIME_ENV['INPUTDIR'] = os.path.join(self.workdir['wdir'], 'INPUT')
         self.RUNTIME_ENV['RESTARTDIR'] = os.path.join(self.workdir['wdir'], 'RESTART')
         self.RUNTIME_ENV['PREFIX'] = '{{ufs_current_cycle}}'

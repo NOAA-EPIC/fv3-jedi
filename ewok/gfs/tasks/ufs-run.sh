@@ -15,22 +15,25 @@ echo $INPUTDIR
 echo $PREFIX
 
 # Move files from RESTART to INPUT + rename if 3dfgat cost function
-if [ -d  $RESTARTDIR ] && [ $COSTFUNCTION == "3D-FGAT" ]
-then
-  echo "3D-FGAT cost function, moving 3hrs forecast files to $INPUTDIR"
-  list_files=("fv_core.res" "fv_srf_wnd.res" "fv_tracer.res" "phy_data" "sfc_data")
-  for file in ${list_files[@]}; do
-    for tile in {1..6}; do
-      filerestart="$RESTARTDIR/${PREFIX}.${file}.tile${tile}.nc"
-      fileinput="$INPUTDIR/${file}.tile${tile}.nc"
-      cp $filerestart $fileinput
+if [ -d  $RESTARTDIR ] && [ $COSTFUNCTION == "3D-FGAT" ]; then
+  if [ -z "$(ls -A $RESTARTDIR)" ]; then
+    echo "No need to move files"
+  else
+    echo "3D-FGAT cost function, in 'an' loop"
+    list_files=("fv_core.res" "fv_srf_wnd.res" "fv_tracer.res" "phy_data" "sfc_data")
+    for file in ${list_files[@]}; do
+      for tile in {1..6}; do
+        filerestart="$RESTARTDIR/${PREFIX}.${file}.tile${tile}.nc"
+        fileinput="$INPUTDIR/${file}.tile${tile}.nc"
+        cp $filerestart $fileinput
+      done
     done
-  done
-  couplerrestart="$RESTARTDIR/${PREFIX}.coupler.res"
-  couplerinput="$INPUTDIR/coupler.res"
-  cp $couplerrestart $couplerinput
+    couplerrestart="$RESTARTDIR/${PREFIX}.coupler.res"
+    couplerinput="$INPUTDIR/coupler.res"
+    cp $couplerrestart $couplerinput
+    rm $RESTARTDIR/*
+  fi
 fi
-rm $RESTARTDIR/*
 
 set +e
 $MPICMD $JEDIEXEC --no-validate $1 2> stderr.$$.log 1> stdout.$$.log
