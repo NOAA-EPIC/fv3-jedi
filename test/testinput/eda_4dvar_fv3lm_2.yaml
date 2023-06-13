@@ -18,8 +18,9 @@ cost function:
         covariance model: SABER
         saber central block:
           saber block name: BUMP_NICAS
-          bump:
+          read:
             io:
+              files prefix: Data/bump/fv3jedi_bumpparameters_nicas_gfs
               alias:
               - in code: eastward_wind
                 in file: fixed_2500km_0.3
@@ -50,13 +51,9 @@ cost function:
                 - cloud_liquid_ice
                 - cloud_liquid_water
                 - ozone_mass_mixing_ratio
-              io:
-                files prefix: Data/bump/fv3jedi_bumpparameters_nicas_3D_gfs
             - model:
                 variables:
                 - surface_pressure
-              io:
-                files prefix: Data/bump/fv3jedi_bumpparameters_nicas_2D_gfs
       weight:
         value: 0.1
     - covariance:
@@ -80,9 +77,9 @@ cost function:
           saber central block:
             saber block name: BUMP_NICAS
             active variables: *incvars
-            bump:
+            read:
               io:
-                files prefix: Data/bump/fv3jedi_bumpparameters_nicas_3D_gfs
+                files prefix: Data/bump/fv3jedi_bumpparameters_nicas_gfs
                 alias:
                 - in code: common
                   in file: fixed_2500km_0.3
@@ -108,6 +105,9 @@ cost function:
         obs perturbations seed: 2
       obs operator:
         name: VertInterp
+        vertical coordinate: air_pressure
+        observation vertical coordinate: pressure
+        interpolation method: log-linear
       obs error:
         covariance model: diagonal
         obs perturbations amplitude: 0.4
@@ -138,6 +138,9 @@ cost function:
         obs perturbations seed: 2
       obs operator:
         name: VertInterp
+        vertical coordinate: air_pressure
+        observation vertical coordinate: pressure
+        interpolation method: log-linear
       obs error:
         covariance model: diagonal
         obs perturbations amplitude: 0.2
