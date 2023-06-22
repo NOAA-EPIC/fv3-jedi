@@ -87,6 +87,8 @@ list( APPEND fv3jedi_testinput
   testinput/convertstate_geos.yaml
   testinput/convertstate_geos_cf.yaml
   testinput/convertstate_gchp.yaml
+  testinput/convertstate_gchp_to_stretched_grid.yaml
+  testinput/convertstate_gchp_from_stretched_grid.yaml
   testinput/convertstate_gfs_ana2bvars.yaml
   testinput/convertstate_gfs_coldstartwinds.yaml
   testinput/convertstate_gfs_vertremap.yaml
@@ -116,6 +118,7 @@ list( APPEND fv3jedi_testinput
   testinput/enshofx_fv3lm.yaml
   testinput/ensmeanvariance_geos.yaml
   testinput/ensmeanvariance_gfs.yaml
+  testinput/ensrecenter_gfs.yaml
   testinput/errorcovariance_bump.yaml
   testinput/errorcovariance_gfs_gsi_global.yaml
   testinput/errorcovariance.yaml
@@ -189,6 +192,7 @@ list( APPEND fv3jedi_testinput
   testinput/state_geos.yaml
   testinput/state_geos_cf.yaml
   testinput/state_gchp.yaml
+  testinput/state_gchp_stretched_grid.yaml
   testinput/state_gfs.yaml
   testinput/state_gfs_history.yaml
   testinput/state_lam_cmaq.yaml
@@ -257,7 +261,13 @@ list( APPEND fv3jedi_testoutput
   testoutput/convertstate_gfs.ref
   testoutput/convertstate_gfs_c2ll.ref
   testoutput/convertstate_gfs_c2gaussian.ref
+<<<<<<< HEAD
   #testoutput/converttolatlon_gfs.ref
+=======
+  testoutput/convertstate_gchp_from_stretched_grid.ref
+  testoutput/convertstate_gchp_to_stretched_grid.ref
+  testoutput/converttolatlon_gfs.ref
+>>>>>>> develop
   testoutput/diffstates_geos.ref
   testoutput/diffstates_gfs.ref
   testoutput/diffstates_lam_cmaq.ref
@@ -270,6 +280,7 @@ list( APPEND fv3jedi_testoutput
   testoutput/eda_block_3dvar.ref
   testoutput/ensmeanvariance_geos.ref
   testoutput/ensmeanvariance_gfs.ref
+  testoutput/ensrecenter_gfs.ref
   testoutput/forecast_fv3-geos.ref
   testoutput/forecast_fv3-gfs.ref
   testoutput/forecast_fv3lm.ref
@@ -926,6 +937,12 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_state_gchp
                   ARGS     testinput/state_gchp.yaml
                   COMMAND  test_fv3jedi_state.x )
 
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_state_gchp_stretched_grid
+                  MPI      6
+                  ARGS     testinput/state_gchp_stretched_grid.yaml
+                  COMMAND  test_fv3jedi_state.x )
+
+
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_state_lam_cmaq
                   MPI      6
                   ARGS     testinput/state_lam_cmaq.yaml
@@ -977,6 +994,17 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_convertstate_gchp
                   MPI      6
                   ARGS     testinput/convertstate_gchp.yaml
                   COMMAND  fv3jedi_convertstate.x )
+
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_convertstate_gchp_to_stretched_grid
+                  MPI      6
+                  ARGS     testinput/convertstate_gchp_to_stretched_grid.yaml
+                  COMMAND  fv3jedi_convertstate.x )
+
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_convertstate_gchp_from_stretched_grid
+                  MPI      6
+                  ARGS     testinput/convertstate_gchp_from_stretched_grid.yaml
+                  COMMAND  fv3jedi_convertstate.x
+                  TEST_DEPENDS fv3jedi_test_tier1_convertstate_gchp_to_stretched_grid )
 
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_convertstate_geos_crtm_surface
                   MPI      6
@@ -1339,6 +1367,13 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_ensmeanvariance_geos
                   MPI      6
                   ARGS     testinput/ensmeanvariance_geos.yaml
                   COMMAND  fv3jedi_ensmeanvariance.x )
+
+# Ensemble recentering
+# -------------------------------
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_ensrecenter_gfs
+                  MPI      6
+                  ARGS     testinput/ensrecenter_gfs.yaml
+                  COMMAND  fv3jedi_ensrecenter.x )
 
 # hybrid 3DVar
 # -------------------------------
