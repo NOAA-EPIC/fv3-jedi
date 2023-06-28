@@ -233,7 +233,7 @@ endif()
 ################################################################################
 
 # prepares a tar.gz of the sources and/or binaries
-# ecbuild_install_project( NAME fv3jedi )
+#ecbuild_install_project( NAME fv3jedi )
 
 # print the summary of the configuration
 ecbuild_print_summary()
