@@ -23,18 +23,18 @@ namespace fv3jedi {
 // -------------------------------------------------------------------------------------------------
 static oops::interface::ModelMaker<Traits, ModelUFS> makermodel_("UFS");
 // -------------------------------------------------------------------------------------------------
-ModelUFS::ModelUFS(const Geometry & resol, const Parameters_ & params)
-  : keyConfig_(0), tstep_(0), fclength_(0), geom_(resol),
-    vars_(geom_.fieldsMetaData().getLongNameFromAnyName(params.modelVariables))
+ModelUFS::ModelUFS(const Geometry & resol, const eckit::Configuration & modelConf)
+  : keyConfig_(0), tstep_(modelConf.getString("tstep")),
+    fclength_(modelConf.getString("forecast length")), geom_(resol),
+    vars_(geom_.fieldsMetaData().getLongNameFromAnyName(oops::Variables(modelConf,
+                                                                        "model variables")))
 {
   char tmpdir_[10000];
   oops::Log::trace() << "ModelUFS::ModelUFS starting" << std::endl;
   getcwd(tmpdir_, 10000);
-  tstep_ = params.tstep;
-  fclength_ = params.fclength;
-  strcpy(ufsdir_, params.ufsRunDirectory.value().c_str());
+  strcpy(ufsdir_, modelConf.getString("ufs_run_directory").c_str());
   chdir(ufsdir_);
-  fv3jedi_ufs_create_f90(keyConfig_, params.toConfiguration(), geom_.toFortran());
+  fv3jedi_ufs_create_f90(keyConfig_, modelConf, geom_.toFortran());
   oops::Log::trace() << "ModelUFS::ModelUFS done" << std::endl;
   chdir(tmpdir_);
 }
