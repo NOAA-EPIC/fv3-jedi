@@ -96,7 +96,7 @@ list( APPEND fv3jedi_testinput
   testinput/convertstate_gfs.yaml
   testinput/convertstate_gfs_c2ll.yaml
   testinput/convertstate_gfs_c2gaussian.yaml
-  #testinput/converttolatlon_gfs.yaml
+  testinput/converttolatlon_gfs.yaml
   testinput/diffstates_geos.yaml
   testinput/diffstates_gfs.yaml
   testinput/diffstates_lam_cmaq.yaml

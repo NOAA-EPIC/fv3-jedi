@@ -210,7 +210,7 @@ endforeach()
 # ufs
 if (FV3_FORECAST_MODEL MATCHES UFS)
   # Building with the UFS is now accomplished only via the ufs-jedi-bundle
-  # which will also build the UFS as an external library with a prescribed configuration 
+  # which will also build the UFS as an external library with a prescribed configuration
   # Because the linkage to UFS requires a newer version of FMS, the FMS library is
   # also built as an external project, so neither need to be "found" here.
   find_package(bacio REQUIRED )
@@ -233,7 +233,7 @@ endif()
 ################################################################################
 
 # prepares a tar.gz of the sources and/or binaries
-ecbuild_install_project( NAME fv3jedi )
+#ecbuild_install_project( NAME fv3jedi )
 
 # print the summary of the configuration
 ecbuild_print_summary()

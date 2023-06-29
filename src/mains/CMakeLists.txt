@@ -2,7 +2,7 @@
 ecbuild_add_executable( TARGET  fv3jedi_addincrement.x
                         SOURCES fv3jediAddIncrement.cc
                         LIBS	${FV3JEDI_LIBRARIES}
-                                esmf 
+                                esmf
                       )
 oops_output_json_schema(fv3jedi_addincrement.x)
 

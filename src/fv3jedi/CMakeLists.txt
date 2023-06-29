@@ -238,9 +238,17 @@ if( FV3_FORECAST_MODEL MATCHES "UFS" )
      string(REGEX REPLACE "-L" "" ITEM "${ITEM}")
      list(APPEND tmp ${ITEM})
   endforeach()
+  # Bug fix for ESMF link paths missing MPI library path
+  foreach(ITEM ${MPI_Fortran_LIBRARIES})
+      get_filename_component(itemdir ${ITEM} DIRECTORY)
+     list(APPEND tmp ${itemdir})
+  endforeach()
+  list(REMOVE_DUPLICATES tmp)
+  message(STATUS "Additonal link paths added for ESMF: ${tmp}")
   set(ESMF_F90LINKPATHS ${tmp})
-  find_package(HDF5 REQUIRED COMPONENTS C HL )
+
   # Link all the libraries
+  find_package(HDF5 REQUIRED COMPONENTS C HL )
   target_link_libraries( fv3jedi PUBLIC fv3atm)
   target_link_libraries( fv3jedi PUBLIC fv3)
   target_link_libraries( fv3jedi PUBLIC ccpp_physics)
