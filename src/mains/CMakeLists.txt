@@ -45,7 +45,7 @@ ecbuild_add_executable( TARGET  fv3jedi_enshofx.x
 
 ecbuild_add_executable( TARGET  fv3jedi_ensrecenter.x
                         SOURCES fv3jediEnsRecenter.cc
-                        LIBS    ${FV3JEDI_LIBRARIES} 
+                        LIBS    ${FV3JEDI_LIBRARIES}
                         )
 oops_output_json_schema(fv3jedi_ensrecenter.x)
 
@@ -87,7 +87,11 @@ oops_output_json_schema(fv3jedi_letkf.x)
 
 ecbuild_add_executable( TARGET  fv3jedi_error_covariance_toolbox.x
                         SOURCES fv3jediErrorCovarianceToolbox.cc
+<<<<<<< HEAD
                         LIBS    ${FV3JEDI_LIBRARIES} 
+=======
+                        LIBS    ${FV3JEDI_LIBRARIES}
+>>>>>>> feature/dev_june_13
                                 saber
                       )
 
