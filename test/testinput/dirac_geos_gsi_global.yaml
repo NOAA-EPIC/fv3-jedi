@@ -9,7 +9,7 @@ geometry:
   npy: 13
   npz: 72
   field metadata override: Data/fieldmetadata/geos.yaml
-initial condition:
+background:
   datetime: 2020-12-14T21:00:00Z
   filetype: cube sphere history
   provider: geos
@@ -20,13 +20,14 @@ background error:
   covariance model: SABER
   saber central block:
     saber block name: gsi covariance
-    gsi akbk: Data/fv3files/akbk72.nc4
-    gsi error covariance file: Data/inputs/nmcbalance/gsi-coeffs-geos-global-l72x72y46.nc4
-    gsi berror namelist file: Data/gsibec/geos_gsi_global_72x46x72.nml
-    processor layout x direction: 3
-    processor layout y direction: 2
-#   debugging bypass gsi: true
-    debugging mode: false
+    read:
+      gsi akbk: Data/fv3files/akbk72.nc4
+      gsi error covariance file: Data/inputs/nmcbalance/gsi-coeffs-geos-global-l72x72y46.nc4
+      gsi berror namelist file: Data/gsibec/geos_gsi_global_72x46x72.nml
+      processor layout x direction: 3
+      processor layout y direction: 2
+  #   debugging bypass gsi: true
+      debugging mode: false
   saber outer blocks:
   - saber block name: gsi interpolation to model grid
     gsi akbk: Data/fv3files/akbk72.nc4
@@ -56,6 +57,7 @@ output dirac:
   provider: geos
   datapath: Data/
   filename: gsi_dirac_%id%_.%yyyy%mm%dd_%hh%MM%ssz.nc4
+
 test:
   reference filename: testoutput/dirac_geos_gsi_global.ref
   test output filename: testoutput/dirac_gfs_gsi_global.test.out

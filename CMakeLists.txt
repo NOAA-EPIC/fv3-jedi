@@ -9,7 +9,7 @@
 
 cmake_minimum_required( VERSION 3.3.2 FATAL_ERROR )
 
-project( fv3jedi VERSION 1.5.0 LANGUAGES C CXX Fortran )
+project( fv3jedi VERSION 1.6.0 LANGUAGES C CXX Fortran )
 
 option(OPENMP "Build fv3-jedi with OpenMP support" ON)
 
@@ -62,13 +62,13 @@ find_package( jedicmake QUIET )
 find_package( NetCDF REQUIRED COMPONENTS C Fortran )
 
 # atlas
-find_package( atlas 0.27.0 REQUIRED )
+find_package( atlas 0.33.0 REQUIRED )
 
 # oops
-find_package( oops 1.3.0 REQUIRED )
+find_package( oops 1.7.0 REQUIRED )
 
 # saber
-find_package( saber 1.3.0 REQUIRED )
+find_package( saber 1.7.0 REQUIRED )
 
 # crtm
 find_package( crtm 2.2.3 REQUIRED )
@@ -80,7 +80,7 @@ find_package( ropp-ufo QUIET )
 find_package( geos-aero QUIET )
 
 # gsibec
-find_package( gsibec 1.0.6 QUIET )
+find_package( gsibec 1.1.2 QUIET )
 if( gsibec_FOUND )
     message( STATUS "FV3-SABER block GSI is enabled" )
     add_definitions(-DENABLE_GSIBEC=1)
@@ -90,13 +90,13 @@ endif()
 find_package( sp QUIET )
 
 # ufo
-find_package( ufo 1.3.0 REQUIRED )
+find_package( ufo 1.7.0 REQUIRED )
 
 # femps
 find_package( femps 1.0.0 REQUIRED )
 
 # vader
-find_package( vader 1.0.0 REQUIRED )
+find_package( vader 1.4.0 REQUIRED )
 
 #OpenMP
 if(OPENMP)
@@ -210,7 +210,7 @@ endforeach()
 # ufs
 if (FV3_FORECAST_MODEL MATCHES UFS)
   # Building with the UFS is now accomplished only via the ufs-jedi-bundle
-  # which will also build the UFS as an external library with a prescribed configuration 
+  # which will also build the UFS as an external library with a prescribed configuration
   # Because the linkage to UFS requires a newer version of FMS, the FMS library is
   # also built as an external project, so neither need to be "found" here.
   find_package(bacio REQUIRED )
