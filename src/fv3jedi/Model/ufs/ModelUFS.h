@@ -49,6 +49,7 @@ class ModelUFS: public oops::interface::ModelBase<Traits>,
   int saveTrajectory(State &, const ModelBias &) const;
 
   const util::Duration & timeResolution() const {return tstep_;}
+  const oops::Variables & variables() const {return vars_;}
 
  private:
   void print(std::ostream &) const;
