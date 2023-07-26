@@ -10,7 +10,6 @@
 #include <ostream>
 #include <string>
 
-#include "oops/base/ParameterTraitsVariables.h"
 #include "oops/base/Variables.h"
 #include "oops/generic/ModelBase.h"
 #include "oops/interface/ModelBase.h"
@@ -33,7 +32,6 @@ namespace fv3jedi {
   class State;
 
 // -------------------------------------------------------------------------------------------------
-// -------------------------------------------------------------------------------------------------
 
 class ModelUFS: public oops::interface::ModelBase<Traits>,
                 private util::ObjectCounter<ModelUFS> {
@@ -51,7 +49,6 @@ class ModelUFS: public oops::interface::ModelBase<Traits>,
   int saveTrajectory(State &, const ModelBias &) const;
 
   const util::Duration & timeResolution() const {return tstep_;}
-  const oops::Variables & variables() const {return vars_;}
 
  private:
   void print(std::ostream &) const;
@@ -59,7 +56,11 @@ class ModelUFS: public oops::interface::ModelBase<Traits>,
   util::Duration tstep_;
   util::Duration fclength_;
   const Geometry geom_;
+<<<<<<< HEAD
   const oops::Variables vars_;
+=======
+  char jedidir_[10000];
+>>>>>>> develop
   char ufsdir_[10000];
 };
 // -----------------------------------------------------------------------------

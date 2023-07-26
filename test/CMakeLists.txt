@@ -175,6 +175,7 @@ list( APPEND fv3jedi_testinput
   testinput/linearmodel_physics.yaml
   testinput/linearmodel.yaml
   testinput/linearmodel_htlm.yaml
+  testinput/linearmodel_htlm_physics.yaml
   testinput/linearvariablechange_geos.yaml
   testinput/linearvariablechange_gfs.yaml
   testinput/localization_bump.yaml
@@ -547,8 +548,11 @@ message(STATUS "Running fv3jedi tests for tiers up to and including tier " ${FV3
 
 # Repo wide configuration for getting test data
 # ---------------------------------------------
-set( CRTM_COEFFS_BRANCH "2.4.1_skylab_4.0" )
-#set( CRTM_COEFFS_BRANCH "3.0.0_skylab_4.0" )
+if( crtm_VERSION VERSION_GREATER_EQUAL 3.0.0 )
+    set( CRTM_COEFFS_BRANCH "3.0.0_skylab_4.0" )
+else()
+    set( CRTM_COEFFS_BRANCH "2.4.0_skylab_3.0" )
+endif()
 
 function(ADD_DOWNLOAD_TEST repo test_files_dirname output_data_path)
   # If REPO branch is being built set GIT_BRANCH_FUNC to REPO's current branch.
@@ -599,7 +603,8 @@ function(ADD_DOWNLOAD_TEST repo test_files_dirname output_data_path)
       set( ECBUILD_DOWNLOAD_BASE_URL "$ENV{ECBUILD_DOWNLOAD_BASE_URL}/${repo}/${GIT_TAG_FUNC}" )
     else()
 #      set( ECBUILD_DOWNLOAD_BASE_URL https://gdex.ucar.edu/dataset/jedi-skylab/file )
-      set( ECBUILD_DOWNLOAD_BASE_URL https://ftp.ssec.wisc.edu/pub/s4/CRTM/file )
+#      set( ECBUILD_DOWNLOAD_BASE_URL https://ftp.ssec.wisc.edu/pub/s4/CRTM/file )
+      set( ECBUILD_DOWNLOAD_BASE_URL https://bin.ssec.wisc.edu/pub/s4/CRTM/file )
     endif()
 
     set( DIRNAME ${GIT_TAG_FUNC} )
@@ -658,7 +663,7 @@ endfunction()
 #############################################
 # add tests to download fv3-jedi & crtm data
 
-ADD_DOWNLOAD_TEST( "fv3-jedi" fv3-jedi_testinput_tier_1_1.5.0.tar.gz FV3JEDI_FV3JEDI_TESTFILES_PATH )
+ADD_DOWNLOAD_TEST( "fv3-jedi" fv3-jedi_testinput_tier_1_1.6.0.tar.gz FV3JEDI_FV3JEDI_TESTFILES_PATH )
 ADD_DOWNLOAD_TEST( "crtm" crtm_coefficients_${CRTM_COEFFS_BRANCH}.tar.gz CRTM_FV3JEDI_TESTFILES_PATH )
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/obs)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/crtm)
@@ -1145,6 +1150,11 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_linearmodel_physics
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_linearmodel_htlm
                   MPI      6
                   ARGS     testinput/linearmodel_htlm.yaml
+                  COMMAND  test_fv3jedi_linearmodel.x )
+
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_linearmodel_htlm_physics
+                  MPI      6
+                  ARGS     testinput/linearmodel_htlm_physics.yaml
                   COMMAND  test_fv3jedi_linearmodel.x )
 
 
