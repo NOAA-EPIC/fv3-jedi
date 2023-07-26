@@ -56,11 +56,7 @@ class ModelUFS: public oops::interface::ModelBase<Traits>,
   util::Duration tstep_;
   util::Duration fclength_;
   const Geometry geom_;
-<<<<<<< HEAD
   const oops::Variables vars_;
-=======
-  char jedidir_[10000];
->>>>>>> develop
   char ufsdir_[10000];
 };
 // -----------------------------------------------------------------------------
