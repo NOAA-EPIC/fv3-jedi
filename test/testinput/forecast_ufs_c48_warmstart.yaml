@@ -1,4 +1,4 @@
-forecast length: PT2H
+forecast length: &fclength PT3H
 geometry:
   fms initialization:
     namelist filename: Data/ModelRunDirs/UFS_warmstart/input.nml
@@ -14,8 +14,9 @@ geometry:
 model:
   name: UFS
   tstep: PT1H
+  forecast length: *fclength
   ufs_run_directory: Data/ModelRunDirs/UFS_warmstart
-  model variables: [T, delp, sphum, ice_wat, liq_wat, o3mr, phis, slmsk,
+  model variables: [u, v, ua, va, T, delp, sphum, ice_wat, liq_wat, o3mr, phis, slmsk,
                     sheleg, tsea, vtype, stype, vfrac, stc, smc, snwdph, u_srf, v_srf,
                     f10m]
 initial condition:

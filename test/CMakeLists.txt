@@ -69,7 +69,6 @@ list( APPEND fv3jedi_testinput
   testinput/3dvar_gfs_aero.yaml
   testinput/3dvar_lam_cmaq.yaml
   testinput/4denvar.yaml
-  testinput/4dvar_htlm_fv3lm.yaml
   testinput/addincrement_geos.yaml
   testinput/addincrement_gfs.yaml
   testinput/bumpparameters_nicas_geos_p12.yaml
@@ -96,6 +95,8 @@ list( APPEND fv3jedi_testinput
   testinput/convertstate_gfs.yaml
   testinput/convertstate_gfs_c2ll.yaml
   testinput/convertstate_gfs_c2gaussian.yaml
+  testinput/convertstate_gfs_restart2history.yaml
+  testinput/convertstate_gfs_history2restart.yaml
   testinput/converttolatlon_gfs.yaml
   testinput/diffstates_geos.yaml
   testinput/diffstates_gfs.yaml
@@ -151,6 +152,7 @@ list( APPEND fv3jedi_testinput
   testinput/hofx_nomodel_lam_cmaq.yaml
   testinput/hofx_nomodel_lam_rrfs.yaml
   testinput/hofx_save_geovals.yaml
+  testinput/htlm_4dvar_fv3lm.yaml
   testinput/hyb-3dvar_fsoi_backward.yaml
   testinput/hyb-3dvar_fsoi_forward.yaml
   testinput/hyb-3dvar_geos.yaml
@@ -168,6 +170,7 @@ list( APPEND fv3jedi_testinput
   testinput/increment_geos.yaml
   testinput/increment_gfs.yaml
   testinput/letkf.yaml
+  testinput/letkf3d.yaml
   testinput/lgetkf.yaml
   testinput/letkf_snow.yaml
   testinput/letkf_observer_soil_moisture.yaml
@@ -175,6 +178,7 @@ list( APPEND fv3jedi_testinput
   testinput/linearmodel_physics.yaml
   testinput/linearmodel.yaml
   testinput/linearmodel_htlm.yaml
+  testinput/linearmodel_htlm_physics.yaml
   testinput/linearvariablechange_geos.yaml
   testinput/linearvariablechange_gfs.yaml
   testinput/localization_bump.yaml
@@ -238,7 +242,6 @@ list( APPEND fv3jedi_testoutput
   testoutput/3dvar_gfs_0obs.ref
   testoutput/3dvar_gfs_aero.ref
   testoutput/4denvar.ref
-  testoutput/4dvar_htlm_fv3lm.ref
   testoutput/addincrement_geos.ref
   testoutput/addincrement_gfs.ref
   testoutput/bumpparameters_nicas_geos.ref
@@ -261,6 +264,7 @@ list( APPEND fv3jedi_testoutput
   testoutput/convertstate_gfs.ref
   testoutput/convertstate_gfs_c2ll.ref
   testoutput/convertstate_gfs_c2gaussian.ref
+  testoutput/convertstate_gfs_restart2history.ref
   testoutput/convertstate_gchp_from_stretched_grid.ref
   testoutput/convertstate_gchp_to_stretched_grid.ref
   testoutput/converttolatlon_gfs.ref
@@ -293,6 +297,7 @@ list( APPEND fv3jedi_testoutput
   testoutput/hofx_nomodel_lam_cmaq.ref
   testoutput/hofx_nomodel_lam_rrfs.ref
   testoutput/hofx_save_geovals.ref
+  testoutput/htlm_4dvar_fv3lm.ref
   testoutput/hyb-3dvar_fsoi_backward.ref
   testoutput/hyb-3dvar_fsoi_forward.ref
   testoutput/hyb-3dvar_geos.ref
@@ -308,6 +313,7 @@ list( APPEND fv3jedi_testoutput
   testoutput/hyb-fgat_fv3lm.ref
   testoutput/hyb-fgat_gfs_aero.ref
   testoutput/letkf.ref
+  testoutput/letkf3d.ref
   testoutput/letkf_snow.ref
   testoutput/letkf_observer_soil_moisture.ref
   testoutput/lgetkf.ref
@@ -547,8 +553,11 @@ message(STATUS "Running fv3jedi tests for tiers up to and including tier " ${FV3
 
 # Repo wide configuration for getting test data
 # ---------------------------------------------
-set( CRTM_COEFFS_BRANCH "2.4.1_skylab_4.0" )
-#set( CRTM_COEFFS_BRANCH "3.0.0_skylab_4.0" )
+if( crtm_VERSION VERSION_GREATER_EQUAL 3.0.0 )
+    set( CRTM_COEFFS_BRANCH "3.0.0_skylab_4.0" )
+else()
+    set( CRTM_COEFFS_BRANCH "2.4.0_skylab_3.0" )
+endif()
 
 function(ADD_DOWNLOAD_TEST repo test_files_dirname output_data_path)
   # If REPO branch is being built set GIT_BRANCH_FUNC to REPO's current branch.
@@ -599,7 +608,8 @@ function(ADD_DOWNLOAD_TEST repo test_files_dirname output_data_path)
       set( ECBUILD_DOWNLOAD_BASE_URL "$ENV{ECBUILD_DOWNLOAD_BASE_URL}/${repo}/${GIT_TAG_FUNC}" )
     else()
 #      set( ECBUILD_DOWNLOAD_BASE_URL https://gdex.ucar.edu/dataset/jedi-skylab/file )
-      set( ECBUILD_DOWNLOAD_BASE_URL https://ftp.ssec.wisc.edu/pub/s4/CRTM/file )
+#      set( ECBUILD_DOWNLOAD_BASE_URL https://ftp.ssec.wisc.edu/pub/s4/CRTM/file )
+      set( ECBUILD_DOWNLOAD_BASE_URL https://bin.ssec.wisc.edu/pub/s4/CRTM/file )
     endif()
 
     set( DIRNAME ${GIT_TAG_FUNC} )
@@ -658,7 +668,7 @@ endfunction()
 #############################################
 # add tests to download fv3-jedi & crtm data
 
-ADD_DOWNLOAD_TEST( "fv3-jedi" fv3-jedi_testinput_tier_1_1.5.0.tar.gz FV3JEDI_FV3JEDI_TESTFILES_PATH )
+ADD_DOWNLOAD_TEST( "fv3-jedi" fv3-jedi_testinput_tier_1_1.6.0.tar.gz FV3JEDI_FV3JEDI_TESTFILES_PATH )
 ADD_DOWNLOAD_TEST( "crtm" crtm_coefficients_${CRTM_COEFFS_BRANCH}.tar.gz CRTM_FV3JEDI_TESTFILES_PATH )
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/obs)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/crtm)
@@ -1017,6 +1027,17 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_convertstate_gfs_c2gaussian
                   ARGS     testinput/convertstate_gfs_c2gaussian.yaml
                   COMMAND  fv3jedi_convertstate.x )
 
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_convertstate_gfs_restart2history
+                  MPI      6
+                  ARGS     testinput/convertstate_gfs_restart2history.yaml
+                  COMMAND  fv3jedi_convertstate.x )
+
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_convertstate_gfs_history2restart
+                  MPI      6
+                  ARGS     testinput/convertstate_gfs_history2restart.yaml
+                  COMMAND  fv3jedi_convertstate.x
+                  TEST_DEPENDS fv3jedi_test_tier1_restart2history )	
+
 if( FV3_FORECAST_MODEL MATCHES "FV3CORE" )
   ecbuild_add_test( TARGET   fv3jedi_test_tier1_convertstate_gfs_coldstartwinds
                     MPI      6
@@ -1145,6 +1166,11 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_linearmodel_physics
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_linearmodel_htlm
                   MPI      6
                   ARGS     testinput/linearmodel_htlm.yaml
+                  COMMAND  test_fv3jedi_linearmodel.x )
+
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_linearmodel_htlm_physics
+                  MPI      6
+                  ARGS     testinput/linearmodel_htlm_physics.yaml
                   COMMAND  test_fv3jedi_linearmodel.x )
 
 
@@ -1509,7 +1535,7 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_hyb-4dvar_pseudo-geos
 
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_htlm_4dvar_fv3lm
                   MPI      6
-                  ARGS     --no-validate testinput/4dvar_htlm_fv3lm.yaml
+                  ARGS     --no-validate testinput/htlm_4dvar_fv3lm.yaml
                   COMMAND  fv3jedi_var.x )
 
 # FSOI
@@ -1575,6 +1601,11 @@ endif()
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_letkf
                   MPI      6
                   ARGS     testinput/letkf.yaml
+                  COMMAND  fv3jedi_letkf.x )
+
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_letkf3d_vertloc
+                  MPI      6
+                  ARGS     testinput/letkf3d.yaml
                   COMMAND  fv3jedi_letkf.x )
 
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_lgetkf_validate
