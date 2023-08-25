@@ -29,8 +29,6 @@ ModelUFS::ModelUFS(const Geometry & resol, const eckit::Configuration & modelCon
     vars_(geom_.fieldsMetaData().getLongNameFromAnyName(oops::Variables(modelConf,
                                                                         "model variables")))
 {
-  tstep_ = util::Duration(modelConf.getString("tstep"));
-
   char tmpdir_[10000];
   oops::Log::trace() << "ModelUFS::ModelUFS starting" << std::endl;
   getcwd(tmpdir_, 10000);
