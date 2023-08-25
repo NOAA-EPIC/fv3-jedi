@@ -126,7 +126,8 @@ list( APPEND fv3jedi_testinput
   testinput/errorcovariance.yaml
   testinput/forecast_fv3lm.yaml
   testinput/forecast_geos.yaml
-  testinput/forecast_ufs.yaml
+  testinput/forecast_ufs_c48_coldstart.yaml
+  testinput/forecast_ufs_c48_warmstart.yaml
   testinput/gen_hybrid_linear_model_coeffs.yaml
   testinput/geometry_2d.yaml
   testinput/geometry_geos.yaml
