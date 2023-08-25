@@ -11,7 +11,6 @@
 #include <string>
 
 #include "oops/base/Variables.h"
-#include "oops/generic/ModelBase.h"
 #include "oops/interface/ModelBase.h"
 #include "oops/util/Duration.h"
 #include "oops/util/ObjectCounter.h"
