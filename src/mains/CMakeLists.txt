@@ -1,7 +1,7 @@
 #message("HEY!!!! libs are ${FV3JEDI_LIBRARIES} ")
 ecbuild_add_executable( TARGET  fv3jedi_addincrement.x
                         SOURCES fv3jediAddIncrement.cc
-                        LIBS	${FV3JEDI_LIBRARIES}
+                        LIBS	  ${FV3JEDI_LIBRARIES}
                                 esmf
                       )
 oops_output_json_schema(fv3jedi_addincrement.x)
@@ -69,7 +69,7 @@ oops_output_json_schema(fv3jedi_forecast.x)
 
 ecbuild_add_executable( TARGET  fv3jedi_gen_hybrid_linear_model_coeffs.x
                         SOURCES fv3jediGenHybridLinearModelCoeffs.cc
-                        LIBS    fv3jedi
+                        LIBS    ${FV3JEDI_LIBRARIES}
                        )
 oops_output_json_schema(fv3jedi_gen_hybrid_linear_model_coeffs.x)
 
