@@ -110,7 +110,7 @@ ecbuild_add_executable( TARGET  fv3jedi_adjointforecast.x
 
 ecbuild_add_executable( TARGET  fv3jedi_genenspertB.x
                         SOURCES fv3jediGenEnsPertB.cc
-                        LIBS    fv3jedi
+                        LIBS    ${FV3JEDI_LIBRARIES}
                                 saber
                       )
 
