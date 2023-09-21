@@ -824,6 +824,10 @@ if (FV3_FORECAST_MODEL MATCHES "UFS")
     set(FV3_FORECAST_MODEL_TESTDIR_WARMSTART ${CMAKE_CURRENT_BINARY_DIR}/Data/ModelRunDirs/${FV3_FORECAST_MODEL}_warmstart/)
     file(MAKE_DIRECTORY ${FV3_FORECAST_MODEL_TESTDIR_WARMSTART})
 
+    set(FV3_FORECAST_MODEL_RUNDIR_WARMSTART_2 ${CMAKE_SOURCE_DIR}/fv3-jedi-data/testinput_tier_1/inputs/ufs_c48_warmstart)
+    set(FV3_FORECAST_MODEL_TESTDIR_WARMSTART_2 ${CMAKE_CURRENT_BINARY_DIR}/Data/ModelRunDirs/${FV3_FORECAST_MODEL}_warmstart_2/)
+    file(MAKE_DIRECTORY ${FV3_FORECAST_MODEL_TESTDIR_WARMSTART_2})
+
     set(FV3_FORECAST_MODEL_RUNDIR_COLDSTART ${CMAKE_SOURCE_DIR}/fv3-jedi-data/testinput_tier_1/inputs/ufs_c48_coldstart)
     set(FV3_FORECAST_MODEL_TESTDIR_COLDSTART ${CMAKE_CURRENT_BINARY_DIR}/Data/ModelRunDirs/${FV3_FORECAST_MODEL}_coldstart/)
     file(MAKE_DIRECTORY ${FV3_FORECAST_MODEL_TESTDIR_COLDSTART})
@@ -835,6 +839,11 @@ if (FV3_FORECAST_MODEL MATCHES "UFS")
                       TYPE    SCRIPT
                       COMMAND ${CMAKE_BINARY_DIR}/bin/${FV3_SETUP_UFS_RUNDIR_SCRIPT}
                       ARGS    ${FV3_FORECAST_MODEL_RUNDIR_WARMSTART} ${FV3_FORECAST_MODEL_TESTDIR_WARMSTART} )
+
+    ecbuild_add_test( TARGET  fv3jedi_setup_ufs_rundir_warmstart_2
+                      TYPE    SCRIPT
+                      COMMAND ${CMAKE_BINARY_DIR}/bin/${FV3_SETUP_UFS_RUNDIR_SCRIPT}
+                      ARGS    ${FV3_FORECAST_MODEL_RUNDIR_WARMSTART_2} ${FV3_FORECAST_MODEL_TESTDIR_WARMSTART_2} )
 
     ecbuild_add_test( TARGET  fv3jedi_setup_ufs_rundir_coldstart
                       TYPE    SCRIPT
@@ -1202,6 +1211,12 @@ if( FV3_FORECAST_MODEL MATCHES "UFS")
                     ARGS     testinput/forecast_ufs_c48_coldstart.yaml
                     COMMAND  fv3jedi_forecast.x
                     TEST_DEPENDS fv3jedi_setup_ufs_rundir_coldstart )
+
+  ecbuild_add_test( TARGET   ufsjedi_test_tier1_Ensforecast_ufs_warmstart
+                    MPI      12
+                    ARGS     testinput/ensfc_ufs.yaml
+                    COMMAND  ufsjedi_Ensforecast.x
+                    TEST_DEPENDS fv3jedi_setup_ufs_rundir_warmstart )
 endif()
 
 # Disabled until setup of GEOS model rundir is added (e.g., see fv3jedi_setup_ufs_rundir_warmstart)
