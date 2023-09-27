@@ -168,7 +168,8 @@ if (FV3_FORECAST_MODEL MATCHES UFS)
                            ccpp_framework
                            ccpp_physics )
   elseif( UFS_APP MATCHES "^(ATMAERO)$" )
-    find_package(GFTL_SHARED REQUIRED)
+    find_package (GFTL_SHARED QUIET)
+    find_package (FARGPARSE QUIET)
     find_package (MAPL REQUIRED)
     set( FV3JEDI_LIBRARIES fv3jedi
                            ufs_aerosols
