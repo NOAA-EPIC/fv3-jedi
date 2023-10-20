@@ -18,6 +18,7 @@ module fv3jedi_ufs_mod
   use fv3jedi_geom_mod,      only: fv3jedi_geom
   use fv3jedi_state_mod,     only: fv3jedi_state
   use fv3jedi_field_mod,     only: fv3jedi_field, field_clen
+  use fckit_mpi_module,           only: fckit_mpi_comm
 
   ! ufs
   use ESMF
@@ -25,7 +26,6 @@ module fv3jedi_ufs_mod
   use NUOPC_Driver
   use UFSDriver, only: esmSS => UFSDriver_SS
   use mpp_mod,            only: read_input_nml,mpp_pe
-
 
   implicit none
   private
@@ -39,6 +39,7 @@ module fv3jedi_ufs_mod
      integer :: isc, iec, jsc, jec, npz
      type(esmf_Clock) :: clock
      type(esmf_config) :: cf_main !<-- the configure object
+     type(fckit_mpi_comm) :: comm
      logical :: initialized
    contains
      procedure :: create
@@ -67,6 +68,7 @@ contains
     character(len=128) :: msg
     integer :: rc
 
+    self%comm = geom%f_comm
     ! Initialize ESMF
     call ESMF_Initialize(logkindflag=esmf_LOGKIND_MULTI, &
          defaultCalkind=esmf_CALKIND_GREGORIAN, &
@@ -508,6 +510,7 @@ contains
     esmf_err_abort(rc)
 
     call ESMF_LogWrite("Exit "//subname, ESMF_LOGMSG_INFO)
+!   call self%comm%barrier()
 
   end subroutine finalize
 

@@ -45,6 +45,7 @@ class ModelUFS: public oops::interface::ModelBase<Traits>,
 
 /// Finish model integration
   void finalize(State &) const;
+  State getState(void) const;
   int saveTrajectory(State &, const ModelBias &) const;
 
   const util::Duration & timeResolution() const {return tstep_;}
