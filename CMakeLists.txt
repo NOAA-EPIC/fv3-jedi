@@ -9,7 +9,7 @@
 
 cmake_minimum_required( VERSION 3.3.2 FATAL_ERROR )
 
-project( fv3jedi VERSION 1.6.0 LANGUAGES C CXX Fortran )
+project( fv3jedi VERSION 1.7.0 LANGUAGES C CXX Fortran )
 
 option(OPENMP "Build fv3-jedi with OpenMP support" ON)
 
@@ -213,6 +213,25 @@ foreach( _tpl ${FV3JEDI_TPLS} )
   list( APPEND FV3JEDI_EXTRA_INCLUDE_DIRS  ${${TPL}_INCLUDE_DIRS} ${${TPL}_TPL_INCLUDE_DIRS} )
   list( APPEND FV3JEDI_EXTRA_LIBRARIES     ${${TPL}_LIBRARIES}    ${${TPL}_TPL_LIBRARIES}    )
 endforeach()
+
+################################################################################
+# Test data
+################################################################################
+
+# DH 2023/10/06 - this is unfortunately still true ...
+### The fv3-jedi-data package is problematic in bundles because it has some special CMake logic
+### at the root bundle location. So, we cannot find the fv3-jedi-data while in fv3-jedi!
+### Basically, with the current logic we hack fv3-jedi-data_FOUND to match ENABLE_FV3_JEDI_DATA
+#find_package( fv3-jedi-data QUIET )
+if (ENABLE_FV3_JEDI_DATA)
+  set (fv3-jedi-data_FOUND TRUE)
+else()
+  # Set values for downloading fv3-jedi test data from tarball
+  set (fv3-jedi_data_download_url "https://bin.ssec.wisc.edu/pub/s4/CRTM/file")
+  set (fv3-jedi_data_tag "1.7.0")
+  set (fv3-jedi_data_tarball_name "fv3-jedi_testinput_tier_1_${fv3-jedi_data_tag}.tar.gz")
+  set (fv3-jedi_data_tarball_hash "c94cc6f939eb1a345ea9fe2b2c2dc8bf")
+endif()
 
 ################################################################################
 # Sources
