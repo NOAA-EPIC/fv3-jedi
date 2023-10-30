@@ -54,7 +54,6 @@ contains
 
 subroutine create(self, geom, conf)
 
-implicit none
 class(fv3jedi_tlm),        intent(inout) :: self
 type(fv3jedi_geom),        intent(in)    :: geom
 type(fckit_configuration), intent(in)    :: conf
@@ -104,7 +103,6 @@ end subroutine create
 
 subroutine delete(self)
 
-implicit none
 class(fv3jedi_tlm), intent(inout) :: self
 
 !Delete the model
@@ -115,11 +113,16 @@ end subroutine delete
 
 ! --------------------------------------------------------------------------------------------------
 
-subroutine initialize_ad(self, inc)
+subroutine initialize_ad(self, inc, traj)
 
-implicit none
 class(fv3jedi_tlm),      intent(inout) :: self
 type(fv3jedi_increment), intent(inout) :: inc
+type(fv3jedi_traj),      intent(in)    :: traj
+
+! Make sure the tracers are allocated (true => both traj and pert tracers)
+call self%fv3jedi_lm%allocate_tracers(inc%isc, inc%iec, inc%jsc, inc%jec, &
+                                      inc%npz, inc%ntracers, .true.)
+call traj_to_traj(traj, self%fv3jedi_lm)
 
 call inc_to_lm(inc,self%fv3jedi_lm)
 call self%fv3jedi_lm%init_ad()
@@ -129,11 +132,16 @@ end subroutine initialize_ad
 
 ! --------------------------------------------------------------------------------------------------
 
-subroutine initialize_tl(self, inc)
+subroutine initialize_tl(self, inc, traj)
 
-implicit none
 class(fv3jedi_tlm),      intent(inout) :: self
 type(fv3jedi_increment), intent(inout) :: inc
+type(fv3jedi_traj),      intent(in)    :: traj
+
+! Make sure the tracers are allocated (true => both traj and pert tracers)
+call self%fv3jedi_lm%allocate_tracers(inc%isc, inc%iec, inc%jsc, inc%jec, &
+                                      inc%npz, inc%ntracers, .true.)
+call traj_to_traj(traj, self%fv3jedi_lm)
 
 call inc_to_lm(inc,self%fv3jedi_lm)
 call self%fv3jedi_lm%init_tl()
@@ -145,12 +153,11 @@ end subroutine initialize_tl
 
 subroutine step_ad(self, inc, traj)
 
-implicit none
 class(fv3jedi_tlm),      intent(inout) :: self
 type(fv3jedi_increment), intent(inout) :: inc
 type(fv3jedi_traj),      intent(in)    :: traj
 
-call traj_to_traj(traj,self%fv3jedi_lm)
+call traj_to_traj(traj, self%fv3jedi_lm)
 
 call inc_to_lm(inc,self%fv3jedi_lm)
 call self%fv3jedi_lm%step_ad()
@@ -162,12 +169,11 @@ end subroutine step_ad
 
 subroutine step_tl(self, inc, traj)
 
-implicit none
 class(fv3jedi_tlm),      intent(inout) :: self
 type(fv3jedi_increment), intent(inout) :: inc
 type(fv3jedi_traj),      intent(in)    :: traj
 
-call traj_to_traj(traj,self%fv3jedi_lm)
+call traj_to_traj(traj, self%fv3jedi_lm)
 
 call inc_to_lm(inc,self%fv3jedi_lm)
 call self%fv3jedi_lm%step_tl()
@@ -179,7 +185,6 @@ end subroutine step_tl
 
 subroutine finalize_ad(self, inc)
 
-implicit none
 class(fv3jedi_tlm),      intent(inout) :: self
 type(fv3jedi_increment), intent(inout) :: inc
 
@@ -193,7 +198,6 @@ end subroutine finalize_ad
 
 subroutine finalize_tl(self, inc)
 
-implicit none
 class(fv3jedi_tlm),      intent(inout) :: self
 type(fv3jedi_increment), intent(inout) :: inc
 
@@ -207,10 +211,11 @@ end subroutine finalize_tl
 
 subroutine inc_to_lm(inc, lm)
 
-implicit none
 type(fv3jedi_increment), intent(in)    :: inc
 type(fv3jedi_lm_type),   intent(inout) :: lm
+logical :: sphum_found = .false.
 
+integer :: ft, f, index
 real(kind=kind_real), pointer, dimension(:,:,:) :: ud
 real(kind=kind_real), pointer, dimension(:,:,:) :: vd
 
@@ -222,13 +227,28 @@ lm%pert%v = vd(inc%isc:inc%iec,inc%jsc:inc%jec,1:inc%npz)
 
 call inc%get_field('t'      , lm%pert%t   )
 call inc%get_field('delp'   , lm%pert%delp)
-call inc%get_field('sphum'  , lm%pert%qv  )
-call inc%get_field('ice_wat', lm%pert%qi  )
-call inc%get_field('liq_wat', lm%pert%ql  )
+
+! Tracers
+ft = 1
+do f = 1, inc%nf
+  if (inc%fields(f)%tracer) then
+    if (trim(inc%fields(f)%short_name) == 'sphum') then
+      index = 1
+      sphum_found = .true.
+    else
+      ft = ft + 1
+      index = ft
+    end if
+    lm%pert%tracers(:,:,:,index) = inc%fields(f)%array
+    lm%pert%tracer_names(index) = inc%fields(f)%long_name
+  end if
+end do
+
+if(.not.sphum_found) then
+  call abor1_ftn("inc_to_lm: sphum is not listed in 'state variables'")
+end if
 
 ! Optional fields
-if (inc%has_field('o3mr'   )) call inc%get_field('o3mr'   , lm%pert%o3  )
-if (inc%has_field('o3ppmv' )) call inc%get_field('o3ppmv' , lm%pert%o3  )
 if (inc%has_field('w'      )) call inc%get_field('w'      , lm%pert%w   )
 if (inc%has_field('delz'   )) call inc%get_field('delz'   , lm%pert%delz)
 
@@ -238,9 +258,11 @@ end subroutine inc_to_lm
 
 subroutine lm_to_inc(lm, inc)
 
-implicit none
 type(fv3jedi_lm_type),   intent(in)    :: lm
 type(fv3jedi_increment), intent(inout) :: inc
+
+integer :: ft, f, index
+logical :: sphum_found = .false.
 
 real(kind=kind_real), pointer, dimension(:,:,:) :: ud
 real(kind=kind_real), pointer, dimension(:,:,:) :: vd
@@ -253,15 +275,32 @@ vd(inc%isc:inc%iec,inc%jsc:inc%jec,1:inc%npz)   = lm%pert%v
 
 call inc%put_field('t'      , lm%pert%t   )
 call inc%put_field('delp'   , lm%pert%delp)
-call inc%put_field('sphum'  , lm%pert%qv  )
-call inc%put_field('ice_wat', lm%pert%qi  )
-call inc%put_field('liq_wat', lm%pert%ql  )
+
+! Tracers
+ft = 1
+do f = 1, inc%nf
+  if (inc%fields(f)%tracer) then
+    if (trim(inc%fields(f)%short_name) == 'sphum') then
+      index = 1
+      sphum_found = .true.
+    else
+      ft = ft + 1
+      index = ft
+    endif
+    inc%fields(f)%array = lm%pert%tracers(:,:,:,index)
+    if (inc%fields(f)%long_name .ne. lm%pert%tracer_names(index)) then
+      call abor1_ftn("lm_to_inc: Tracer names do not match")
+    end if
+  end if
+end do
+
+if(.not.sphum_found) then
+  call abor1_ftn("lm_to_inc: sphum is not listed in 'state variables'")
+end if
 
 ! Optional fields
-if (inc%has_field('o3mr'   )) call inc%put_field('o3mr'   , lm%pert%o3  )
-if (inc%has_field('o3ppmv' )) call inc%put_field('o3ppmv' , lm%pert%o3  )
-if (inc%has_field('w'      )) call inc%put_field('w'      , lm%pert%w   )
-if (inc%has_field('delz'   )) call inc%put_field('delz'   , lm%pert%delz)
+if (inc%has_field('w'   )) call inc%put_field('w'   , lm%pert%w   )
+if (inc%has_field('delz')) call inc%put_field('delz', lm%pert%delz)
 
 end subroutine lm_to_inc
 
@@ -269,7 +308,6 @@ end subroutine lm_to_inc
 
 subroutine traj_to_traj( traj, lm )
 
-implicit none
 type(fv3jedi_traj),    intent(in)    :: traj
 type(fv3jedi_lm_type), intent(inout) :: lm
 
@@ -278,11 +316,12 @@ lm%traj%v    = traj%v
 lm%traj%ua   = traj%ua
 lm%traj%va   = traj%va
 lm%traj%t    = traj%t
+
 lm%traj%delp = traj%delp
-lm%traj%qv   = traj%qv
-lm%traj%ql   = traj%ql
-lm%traj%qi   = traj%qi
-lm%traj%o3   = traj%o3
+
+! Copy the tracers
+lm%traj%tracers = traj%tracers
+lm%traj%tracer_names  = traj%tracer_names
 
 if (.not. lm%conf%hydrostatic) then
   lm%traj%w    = traj%w

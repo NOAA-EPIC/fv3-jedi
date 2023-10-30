@@ -41,6 +41,7 @@ type :: fv3jedi_fields
   type(fckit_mpi_comm) :: f_comm                               ! Communicator
   type(fv3jedi_field), allocatable :: fields(:)                ! Array of fields
   type(datetime) :: time
+  integer :: ntracers
 
   contains
 
@@ -97,6 +98,7 @@ subroutine create(self, geom, vars)
   ! Loop through and allocate actual fields
   ! ---------------------------------------
   fc = 0
+  self%ntracers = 0
   do var = 1, vars%nvars()
 
     ! Uptick counter
@@ -109,8 +111,13 @@ subroutine create(self, geom, vars)
     self%fields(fc)%jec = geom%jec
 
     ! Set this fields meta data
-    call create_field(self%fields(fc), geom%fields%get_field(trim(vars%variable(var))), geom%f_comm)
+    call create_field(self%fields(fc), geom%fmd%get_field_metadata(trim(vars%variable(var))), &
+                      geom%f_comm)
 
+    ! count number of tracers using tracer flag
+    if (self%fields(fc)%tracer) then
+      self%ntracers = self%ntracers + 1
+    end if
   enddo
 
   ! Check field count
@@ -159,6 +166,7 @@ do var = 1, size(self%fields)
   if (self%fields(var)%lalloc) deallocate(self%fields(var)%array)
 enddo
 deallocate(self%fields)
+
 end subroutine delete
 
 ! --------------------------------------------------------------------------------------------------
@@ -175,6 +183,8 @@ call checksame(self%fields, other%fields, "fv3jedi_fields_mod.copy")
 do var = 1, self%nf
   self%fields(var)%array = other%fields(var)%array
 enddo
+
+self%ntracers = other%ntracers
 
 end subroutine copy
 
@@ -619,7 +629,7 @@ do f = 1, new_vars%nvars()
   fields_tmp(f)%jsc = geom%jsc
   fields_tmp(f)%jec = geom%jec
 
-  fmd = geom%fields%get_field(trim(new_vars%variable(f)))
+  fmd = geom%fmd%get_field_metadata(trim(new_vars%variable(f)))
 
   if (self%has_field(trim(fmd%short_name), findex)) then
 
