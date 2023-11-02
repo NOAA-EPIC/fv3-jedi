@@ -49,12 +49,6 @@ ecbuild_add_executable( TARGET  fv3jedi_ensrecenter.x
                         )
 oops_output_json_schema(fv3jedi_ensrecenter.x)
 
-ecbuild_add_executable( TARGET  fv3jedi_ensvariance.x
-                        SOURCES fv3jediEnsVariance.cc
-                        LIBS    ${FV3JEDI_LIBRARIES}
-                        )
-oops_output_json_schema(fv3jedi_ensvariance.x)
-
 ecbuild_add_executable( TARGET  fv3jedi_ensmeanvariance.x
                         SOURCES fv3jediEnsMeanVariance.cc
                         LIBS    ${FV3JEDI_LIBRARIES}

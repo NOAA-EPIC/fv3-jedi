@@ -66,6 +66,7 @@ Data/fv3files/field_table_lam_rrfs
 Data/fv3files/fmsmpp.nml
 Data/fv3files/input_gfs_c12.nml
 Data/fv3files/input_gfs_c12_p12.nml
+Data/fv3files/input_gfs_c12_z64_1x1.nml
 Data/fv3files/input_gfs_c24.nml
 Data/fv3files/input_gfs_c24_p12.nml
 Data/fv3files/input_geos_c12.nml
@@ -105,6 +106,8 @@ list( APPEND fv3jedi_testinput
   testinput/3dvar_gfs_0obs.yaml
   testinput/3dvar_gfs_aero.yaml
   testinput/3dvar_lam_cmaq.yaml
+  testinput/4dvar_geos_aero.yaml
+  testinput/4dvar_geos_cf.yaml
   testinput/4denvar.yaml
   testinput/4denvar_seq.yaml
   testinput/addincrement_geos.yaml
@@ -160,6 +163,7 @@ list( APPEND fv3jedi_testinput
   testinput/errorcovariance_gfs_gsi_global.yaml
   testinput/errorcovariance.yaml
   testinput/forecast_fv3lm.yaml
+  testinput/forecast_fv3lm_tracers.yaml
   testinput/forecast_geos.yaml
   testinput/forecast_ufs_c48_coldstart.yaml
   testinput/forecast_ufs_c48_warmstart.yaml
@@ -220,6 +224,7 @@ list( APPEND fv3jedi_testinput
   testinput/linearvariablechange_gfs.yaml
   testinput/localization_bump.yaml
   testinput/model_fv3lm.yaml
+  testinput/model_fv3lm_tracers.yaml
   testinput/model_geos.yaml
   testinput/model_ufs_c48_warmstart.yaml
   testinput/model_ufs_c48_coldstart.yaml
@@ -278,6 +283,8 @@ list( APPEND fv3jedi_testoutput
   testoutput/3dvar_gfs_0obs.ref
   testoutput/3dvar_gfs_aero.ref
   testoutput/4denvar.ref
+  testoutput/4dvar_geos_aero.ref
+  testoutput/4dvar_geos_cf.ref
   testoutput/addincrement_geos.ref
   testoutput/addincrement_gfs.ref
   testoutput/bumpparameters_nicas_geos.ref
@@ -320,6 +327,7 @@ list( APPEND fv3jedi_testoutput
   testoutput/forecast_fv3-geos.ref
   testoutput/forecast_fv3-gfs.ref
   testoutput/forecast_fv3lm.ref
+  testoutput/forecast_fv3lm_tracers.ref
   testoutput/gen_hybrid_linear_model_coeffs.ref
   testoutput/hofx_fv3-geos.ref
   testoutput/hofx_fv3-geos_cf.ref
@@ -424,10 +432,11 @@ list( APPEND fv3jedi_field_metadata
 Data/fieldmetadata/gchp.yaml
 Data/fieldmetadata/geos.yaml
 Data/fieldmetadata/geos_cf.yaml
+Data/fieldmetadata/geoscf_jedi.yaml
 Data/fieldmetadata/gfs-aerosol.yaml
 Data/fieldmetadata/ufs-aerosol.yaml
 Data/fieldmetadata/gfs-history.yaml
-Data/fieldmetadata/gfs-land.yaml
+Data/fieldmetadata/gfs_v17-land.yaml
 Data/fieldmetadata/gfs-restart.yaml
 Data/fieldmetadata/lam_cmaq.yaml
 Data/fieldmetadata/ufs.yaml
@@ -1034,6 +1043,10 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_model_fv3lm
                   ARGS     testinput/model_fv3lm.yaml
                   COMMAND  test_fv3jedi_model.x )
 
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_model_fv3lm_tracers
+                  MPI      6
+                  ARGS     testinput/model_fv3lm_tracers.yaml
+                  COMMAND  test_fv3jedi_model.x )
 
 if( FV3_FORECAST_MODEL MATCHES "UFS")
   ecbuild_add_test( TARGET   fv3jedi_test_tier1_model_ufs_warmstart
@@ -1090,6 +1103,12 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_forecast_fv3lm
                   MPI      6
                   ARGS     testinput/forecast_fv3lm.yaml
                   COMMAND  fv3jedi_forecast.x )
+
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_forecast_fv3lm_tracers
+                  MPI      6
+                  ARGS     testinput/forecast_fv3lm_tracers.yaml
+                  COMMAND  fv3jedi_forecast.x )
+
 
 if( FV3_FORECAST_MODEL MATCHES "UFS")
   ecbuild_add_test( TARGET   fv3jedi_test_tier1_forecast_ufs_warmstart
@@ -1940,5 +1959,16 @@ if (FV3JEDI_TEST_TIER GREATER_EQUAL 2)
                     ARGS     --no-validate testinput/eda_4dvar_fv3lm.yaml
                     COMMAND  fv3jedi_eda.x
                     TEST_DEPENDS fv3jedi_test_tier1_bumpparameters_nicas_gfs )
+
+
+  ecbuild_add_test( TARGET   fv3jedi_test_tier2_4dvar_geos_aero_p12
+                    MPI      12
+                    ARGS     testinput/4dvar_geos_aero.yaml
+                    COMMAND  fv3jedi_var.x)
+
+  ecbuild_add_test( TARGET   fv3jedi_test_tier2_4dvar_geos_cf_p12
+                    MPI      12
+                    ARGS     testinput/4dvar_geos_cf.yaml
+                    COMMAND  fv3jedi_var.x)
 
 endif()
