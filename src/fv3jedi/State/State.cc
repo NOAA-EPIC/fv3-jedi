@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "boost/none_t.hpp"
+#include "boost/optional/optional_io.hpp"
 
 #include "atlas/field.h"
 
@@ -56,7 +57,8 @@ State::State(const Geometry & geom, const eckit::Configuration & config)
   time_ = util::DateTime(*params.datetime.value());
 
   // Set up time and vars
-  if (params.analytic.value() != boost::none) {
+//  if (params.analytic.value() != boost::none) {
+  if (params.stateVariables.value() == boost::none) {
     // Variables are hard coded for analytic initial condition (must not be provided)
     ASSERT(params.stateVariables.value() == boost::none);
     vars_ = oops::Variables({"ua", "va", "t", "delp", "p", "sphum", "ice_wat", "liq_wat", "phis",

@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "eckit/config/Configuration.h"
+#include "eckit/config/YAMLConfiguration.h"   
 
 #include "oops/util/DateTime.h"
 #include "oops/util/Logger.h"
@@ -18,6 +19,7 @@
 #include "fv3jedi/Model/ufs/ModelUFS.h"
 #include "fv3jedi/ModelBias/ModelBias.h"
 #include "fv3jedi/State/State.h"
+#include <ostream>
 
 namespace fv3jedi {
 // -------------------------------------------------------------------------------------------------
@@ -30,9 +32,12 @@ ModelUFS::ModelUFS(const Geometry & resol, const eckit::Configuration & modelCon
                                                                         "model variables")))
 {
   char tmpdir_[10000];
+  std::cout << "HEY model config is " << modelConf << std::endl;
+  const eckit::LocalConfiguration confcopy(modelConf);
   oops::Log::trace() << "ModelUFS::ModelUFS starting" << std::endl;
   getcwd(tmpdir_, 10000);
   strcpy(ufsdir_, modelConf.getString("ufs_run_directory").c_str());
+  std::cout << "HEY setting ufsdir to be " << ufsdir_ << std::endl;
   chdir(ufsdir_);
   fv3jedi_ufs_create_f90(keyConfig_, modelConf, geom_.toFortran());
   oops::Log::trace() << "ModelUFS::ModelUFS done" << std::endl;
@@ -48,6 +53,7 @@ ModelUFS::~ModelUFS() {
 void ModelUFS::initialize(State & xx) const {
   oops::Log::trace() << "ModelUFS::initialize starting" << std::endl;
   oops::Log::trace() << "ModelUFS::cd to " << ufsdir_ << std::endl;
+  std::cout << "ModelUFS::cd to " << ufsdir_ << std::endl;
   chdir(ufsdir_);
 
   util::DateTime start = xx.validTime();
@@ -64,7 +70,7 @@ void ModelUFS::initialize(State & xx) const {
 void ModelUFS::step(State & xx, const ModelBias &) const
 {
   oops::Log::trace() << "ModelUFS::step starting" << std::endl;
-  oops::Log::trace() << "ModelUFS::cd to " << ufsdir_ << std::endl;
+  std::cout << "ModelUFS::cd to " << ufsdir_ << std::endl;
   chdir(ufsdir_);
 
   util::DateTime start = xx.validTime();
@@ -73,7 +79,11 @@ void ModelUFS::step(State & xx, const ModelBias &) const
   oops::Log::trace() << "Forecast time step is " << tstep_ << std::endl;
   xx.validTime() += tstep_;
   util::DateTime * dtp2 = &xx.validTime();
-
+//  eckit::PathName confPath("/home/mpotts/jedi/ufs-bundle/build/fv3-jedi/test/testinput/model_ufs_c48_warmstart.yaml");
+//  eckit::YAMLConfiguration Conf(confPath);
+//  xx.write(Conf);
+  std::cout << "starting print \n";
+  xx.print(std::cout);
   fv3jedi_ufs_step_f90(keyConfig_, xx.toFortran(), &dtp1, &dtp2);
   oops::Log::trace() << "ModelUFS::step done" << std::endl;
 }
