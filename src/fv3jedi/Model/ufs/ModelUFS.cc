@@ -60,8 +60,8 @@ void ModelUFS::initialize(State & xx) const {
   util::DateTime * dtp1 = &start;
   util::DateTime stop = xx.validTime() + fclength_;
   util::DateTime * dtp2 = &stop;
-  oops::Log::trace() << "Forecast start time is " << start << std::endl;
-  oops::Log::trace() << "Forecast stop time is " << stop << std::endl;
+  oops::Log::trace() << "initialize Forecast start time is " << start << std::endl;
+  oops::Log::trace() << "initialize Forecast stop time is " << stop << std::endl;
 
   fv3jedi_ufs_initialize_f90(keyConfig_, xx.toFortran(), &dtp1, &dtp2);
   oops::Log::trace() << "ModelUFS::initialize done" << std::endl;
@@ -75,15 +75,10 @@ void ModelUFS::step(State & xx, const ModelBias &) const
 
   util::DateTime start = xx.validTime();
   util::DateTime * dtp1 = &start;
-  oops::Log::trace() << "Model start time is " << xx.validTime() << std::endl;
-  oops::Log::trace() << "Forecast time step is " << tstep_ << std::endl;
+  oops::Log::trace() << "step Model start time is " << xx.validTime() << std::endl;
+  oops::Log::trace() << "step Forecast time step is " << tstep_ << std::endl;
   xx.validTime() += tstep_;
   util::DateTime * dtp2 = &xx.validTime();
-//  eckit::PathName confPath("/home/mpotts/jedi/ufs-bundle/build/fv3-jedi/test/testinput/model_ufs_c48_warmstart.yaml");
-//  eckit::YAMLConfiguration Conf(confPath);
-//  xx.write(Conf);
-  std::cout << "starting print \n";
-  xx.print(std::cout);
   fv3jedi_ufs_step_f90(keyConfig_, xx.toFortran(), &dtp1, &dtp2);
   oops::Log::trace() << "ModelUFS::step done" << std::endl;
 }
