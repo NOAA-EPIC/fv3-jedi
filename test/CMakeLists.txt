@@ -727,11 +727,11 @@ file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/randomization/)
 
 if (FV3_FORECAST_MODEL MATCHES "UFS")
   if( UFS_APP MATCHES "^(ATM)$" )
-    set(FV3_FORECAST_MODEL_RUNDIR_WARMSTART ${CMAKE_SOURCE_DIR}/fv3-jedi-data/testinput_tier_1/inputs/control_c48_intel)
+    set(FV3_FORECAST_MODEL_RUNDIR_WARMSTART ${CMAKE_SOURCE_DIR}/fv3-jedi-data/testinput_tier_1/inputs/control_c48_intel/)
     set(FV3_FORECAST_MODEL_TESTDIR_WARMSTART ${CMAKE_CURRENT_BINARY_DIR}/Data/ModelRunDirs/${FV3_FORECAST_MODEL}_warmstart/)
     file(MAKE_DIRECTORY ${FV3_FORECAST_MODEL_TESTDIR_WARMSTART})
 
-    set(FV3_FORECAST_MODEL_RUNDIR_WARMSTART_2 ${CMAKE_SOURCE_DIR}/fv3-jedi-data/testinput_tier_1/inputs/control_c48_intel)
+    set(FV3_FORECAST_MODEL_RUNDIR_WARMSTART_2 ${CMAKE_SOURCE_DIR}/fv3-jedi-data/testinput_tier_1/inputs/control_c48_intel/)
     set(FV3_FORECAST_MODEL_TESTDIR_WARMSTART_2 ${CMAKE_CURRENT_BINARY_DIR}/Data/ModelRunDirs/${FV3_FORECAST_MODEL}_warmstart_2/)
     file(MAKE_DIRECTORY ${FV3_FORECAST_MODEL_TESTDIR_WARMSTART_2})
 

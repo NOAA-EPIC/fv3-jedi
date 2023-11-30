@@ -47,30 +47,36 @@ source vars
 ./run_test.sh $PWD $fv3jedidata control_c48 001 001
 
 cd $fv3jedidata/control_c48_intel
-#sed -i 's/24/2/g' model_configure
-#sed -i 's/6 -1/2 -1/g' model_configure
-sed -i 's/quilting:                .true./quilting:                .false./g' model_configure 
-sed -i 's/start_day:               22/start_day:               23/g' model_configure 
-sed -i '/quilting_restart/d' model_configure 
+
 cp $INPUTDATA_ROOT/RESTART/* INPUT
 cd INPUT
 for file in 20210323.060000.*; do new=$(echo $file | cut -c 17-) && mv -v -- "$file" "$new" ; done
 sed -i 's/3    22/3    23/g' coupler.res 
 cd ..
+
+# update model_configure file
+sed -i 's/quilting:                .true./quilting:                .false./g' model_configure 
+sed -i 's/start_day:               22/start_day:               23/g' model_configure 
+sed -i '/quilting_restart/d' model_configure 
+
+#change ufs.configure to use only 6 cores
 sed -i 's/0 7/0 5/g' ufs.configure
+sed -i '/ATM_omp/d' ufs.configure
+
+#switch to warm_start and turn off checksum comparisons
 sed -i 's/warm_start = .false./warm_start = .true./g' input.nml
 sed -i 's/make_nh = .true./make_nh = .false./g' input.nml
 sed -i 's/na_init = 1/na_init = 0/g' input.nml
 sed -i 's/external_ic = .true./external_ic = .false./g' input.nml
 sed -i 's/nggps_ic = .true./nggps_ic = .false./g' input.nml
 sed -i 's/mountain = .false./mountain = .true./g' input.nml
+sed -i '/atmos_model_nml/a\  ignore_rst_cksum = .true.' input.nml
 sed -i '/fv_core_nml/a\  ignore_rst_cksum = .true.' input.nml
 sed -i '/&fms_nml/i \
 &fms_io_nml\
   checksum_required = .false.\
 /' input.nml
 
-#mpiexec -n 6 $builddir/ufs-weather-model/src/ufs-weather-model-build/ufs_model
-#cd $builddir/ufs-weather-model/src/ufs-weather-model-build/ufs_model
+
 
 
