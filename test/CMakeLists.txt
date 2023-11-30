@@ -153,6 +153,7 @@ list( APPEND fv3jedi_testinput
   testinput/eda_block_3dvar_1.yaml
   testinput/eda_block_3dvar_2.yaml
   testinput/eda_block_3dvar.yaml
+  testinput/ensfc_ufs.yaml 
   testinput/enshofx_fv3lm_1.yaml
   testinput/enshofx_fv3lm_2.yaml
   testinput/enshofx_fv3lm.yaml
@@ -166,6 +167,8 @@ list( APPEND fv3jedi_testinput
   testinput/forecast_fv3lm.yaml
   testinput/forecast_fv3lm_tracers.yaml
   testinput/forecast_geos.yaml
+  testinput/forecast_ufs_1.yaml
+  testinput/forecast_ufs_2.yaml
   testinput/forecast_ufs_c48_warmstart.yaml
   testinput/gen_hybrid_linear_model_coeffs.yaml
   testinput/geometry_2d.yaml
