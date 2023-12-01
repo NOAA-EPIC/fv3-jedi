@@ -6,11 +6,11 @@
  */
 
 #include "fv3jedi/Utilities/Traits.h"
-#include "oops/runs/EnsembleForecastApplication.h"
+#include "oops/base/State.h"
 #include "oops/generic/instantiateModelFactory.h"
+#include "oops/runs/EnsembleForecastApplication.h"
 #include "oops/runs/Forecast.h"
 #include "oops/runs/Run.h"
-#include "oops/base/State.h"
 
 int main(int argc,  char ** argv) {
 //  oops::RunState<fv3jedi::Traits()> run(argc, argv);

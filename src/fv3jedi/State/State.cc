@@ -13,7 +13,6 @@
 #include <vector>
 
 #include "boost/none_t.hpp"
-#include "boost/optional/optional_io.hpp"
 
 #include "atlas/field.h"
 

@@ -124,9 +124,9 @@ class State : public util::Printable, private util::ObjectCounter<State> {
   int & toFortran() {return keyState_;}
   const int & toFortran() const {return keyState_;}
 
-  void print(std::ostream &) const;
 // Private methods and variables
  private:
+  void print(std::ostream &) const;
   F90state keyState_;
   const Geometry & geom_;
   oops::Variables vars_;

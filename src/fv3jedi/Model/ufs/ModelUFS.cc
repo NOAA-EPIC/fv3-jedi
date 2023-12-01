@@ -5,10 +5,12 @@
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
  */
 
+#include "fv3jedi/Model/ufs/ModelUFS.h"
+
+#include <ostream>
 #include <vector>
 
 #include "eckit/config/Configuration.h"
-#include "eckit/config/YAMLConfiguration.h"   
 
 #include "oops/util/DateTime.h"
 #include "oops/util/Logger.h"
@@ -16,10 +18,8 @@
 #include "ModelUFS.interface.h"
 
 #include "fv3jedi/Geometry/Geometry.h"
-#include "fv3jedi/Model/ufs/ModelUFS.h"
 #include "fv3jedi/ModelBias/ModelBias.h"
 #include "fv3jedi/State/State.h"
-#include <ostream>
 
 namespace fv3jedi {
 // -------------------------------------------------------------------------------------------------
@@ -32,12 +32,10 @@ ModelUFS::ModelUFS(const Geometry & resol, const eckit::Configuration & modelCon
                                                                         "model variables")))
 {
   char tmpdir_[10000];
-  std::cout << "HEY model config is " << modelConf << std::endl;
   const eckit::LocalConfiguration confcopy(modelConf);
   oops::Log::trace() << "ModelUFS::ModelUFS starting" << std::endl;
   getcwd(tmpdir_, 10000);
   strcpy(ufsdir_, modelConf.getString("ufs_run_directory").c_str());
-  std::cout << "HEY setting ufsdir to be " << ufsdir_ << std::endl;
   chdir(ufsdir_);
   fv3jedi_ufs_create_f90(keyConfig_, modelConf, geom_.toFortran());
   oops::Log::trace() << "ModelUFS::ModelUFS done" << std::endl;
@@ -53,7 +51,6 @@ ModelUFS::~ModelUFS() {
 void ModelUFS::initialize(State & xx) const {
   oops::Log::trace() << "ModelUFS::initialize starting" << std::endl;
   oops::Log::trace() << "ModelUFS::cd to " << ufsdir_ << std::endl;
-  std::cout << "ModelUFS::cd to " << ufsdir_ << std::endl;
   chdir(ufsdir_);
 
   util::DateTime start = xx.validTime();
@@ -70,7 +67,6 @@ void ModelUFS::initialize(State & xx) const {
 void ModelUFS::step(State & xx, const ModelBias &) const
 {
   oops::Log::trace() << "ModelUFS::step starting" << std::endl;
-  std::cout << "ModelUFS::cd to " << ufsdir_ << std::endl;
   chdir(ufsdir_);
 
   util::DateTime start = xx.validTime();
