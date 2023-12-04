@@ -408,7 +408,7 @@ contains
 
     call ESMF_TimeSet(stopTime, timeString=strStopTime, rc=rc)
     esmf_err_abort(rc)
-    call ESMF_TimeIntervalSet(timeStep, h=1, rc=rc)
+    call ESMF_TimeIntervalSet(timeStep, s=300, rc=rc)
 !   timeStep = stopTime - currTime
 
     call ESMF_ClockSet(self%clock, &
@@ -908,7 +908,7 @@ contains
 
     ! Set any time interval here, it will be overwritten later
     
-    call ESMF_TimeIntervalSet(timeStep, h=1, rc=rc)
+    call ESMF_TimeIntervalSet(timeStep, s=300, rc=rc)
 
     self%clock = ESMF_ClockCreate(name="main_clock", &
          timeStep=timestep, startTime=date_start, stopTime=date_final, rc=rc)
