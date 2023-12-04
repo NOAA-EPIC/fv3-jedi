@@ -66,7 +66,6 @@ type(fv3jedi_state), pointer :: self
 type(fv3jedi_geom),  pointer :: geom
 type(oops_variables)         :: vars
 
-write(6,*) 'HEYYY calling fv3_geom_registry'
 call fv3jedi_geom_registry%get(c_key_geom, geom)
 call fv3jedi_state_registry%init()
 call fv3jedi_state_registry%add(c_key_self)

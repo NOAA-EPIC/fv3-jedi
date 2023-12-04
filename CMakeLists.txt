@@ -167,36 +167,6 @@ if (FV3_FORECAST_MODEL MATCHES UFS)
     set( FV3JEDI_LIBRARIES fv3jedi
                            ccpp_framework
                            ccpp_physics )
-  elseif( UFS_APP MATCHES "^(ATMAERO)$" )
-    find_package(GFTL_SHARED REQUIRED)
-    find_package (MAPL REQUIRED)
-    set( FV3JEDI_LIBRARIES fv3jedi
-                           ufs_aerosols
-                           aerosols_gridcomp
-                           gocart_gridcomp
-                           ca2g_gridcomp
-                           chem_shared
-                           gocart_process
-                           du2g_gridcomp
-                           ni2g_gridcomp
-                           ss2g_gridcomp
-                           su2g_gridcomp
-                           ga_environment
-                           MAPL
-                           ccpp_framework
-                           ccpp_physics
-                           GFTL_SHARED::gftl-shared )
-  elseif( UFS_APP MATCHES "^(S2S)$" )
-    find_package( PIO 2.5.3 REQUIRED COMPONENTS C Fortran)
-    set( FV3JEDI_LIBRARIES fv3jedi
-                           gsw
-                           mom6
-                           cice
-                           cmeps
-                           PIO::PIO_Fortran
-                           PIO::PIO_C
-                           ccpp_framework
-                           ccpp_physics )
   else()
     message(FATAL_ERROR "fv3jedi FV3JEDI_LIBRARIES not configured for UFS_APP ${UFS_APP}")
   endif()
@@ -238,10 +208,10 @@ endif()
 
 # ufs
 if (FV3_FORECAST_MODEL MATCHES UFS)
-  # Building with the UFS is now accomplished only via the ufs-jedi-bundle
+  # Building with the UFS is now accomplished only via the ufs-bundle
   # which will also build the UFS as an external library with a prescribed configuration
-  # Because the linkage to UFS requires a newer version of FMS, the FMS library is
-  # also built as an external project, so neither need to be "found" here.
+  # There is now a unit test which will pull data from an s3 bucket and convert it
+  # into a run directory to be used with ctests involving UFS coupling (ATM-only) 
   find_package(bacio REQUIRED )
   find_package(sigio REQUIRED )
   find_package(sp REQUIRED )

@@ -6,14 +6,14 @@
 # If CRTM is found then we know that UFO must be configured with CRTM as well
 # and will have taken care of the data (whether it is provided locally or downloaded);
 # in particular it will have set UFO_CRTM_TESTFILES_PATH at parent scope.
-#if (crtm_FOUND)
-#  if (NOT UFO_CRTM_TESTFILES_PATH)
-#    message(FATAL_ERROR "Found crtm but UFO_CRTM_TESTFILES_PATH was not set by ufo")
-#  elseif (NOT EXISTS ${UFO_CRTM_TESTFILES_PATH})
-#    message(FATAL_ERROR "Found crtm but ${UFO_CRTM_TESTFILES_PATH}, set by ufo, does not exist")
-#  endif()
-#  message(STATUS "Use crtm test data provided by ufo in ${UFO_CRTM_TESTFILES_PATH}")
-#endif()
+if (crtm_FOUND)
+  if (NOT UFO_CRTM_TESTFILES_PATH)
+    message(FATAL_ERROR "Found crtm but UFO_CRTM_TESTFILES_PATH was not set by ufo")
+  elseif (NOT EXISTS ${UFO_CRTM_TESTFILES_PATH})
+    message(FATAL_ERROR "Found crtm but ${UFO_CRTM_TESTFILES_PATH}, set by ufo, does not exist")
+  endif()
+  message(STATUS "Use crtm test data provided by ufo in ${UFO_CRTM_TESTFILES_PATH}")
+endif()
 
 # FV3-JEDI test data - from fv3-jedi-data repo if found, from local directory, or from tarball
 if (fv3-jedi-data_FOUND)
