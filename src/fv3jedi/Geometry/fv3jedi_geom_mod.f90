@@ -1028,9 +1028,7 @@ subroutine setup_domain(domain, nx, ny, ntiles, layout_in, io_layout, halo)
                          symmetry=is_symmetry, tile_id=tile_id, &
                          name='cubic_grid')
 
-  ! The corresponding section in (the new?) FMS does this even for io_layout=1,1
-  !if (io_layout(1) /= 1 .or. io_layout(2) /= 1) call mpp_define_io_domain(domain, io_layout)
-  call mpp_define_io_domain(domain, io_layout)
+  if (io_layout(1) /= 1 .or. io_layout(2) /= 1) call mpp_define_io_domain(domain, io_layout)
 
   deallocate(pe_start, pe_end)
   deallocate(layout2D, global_indices)
