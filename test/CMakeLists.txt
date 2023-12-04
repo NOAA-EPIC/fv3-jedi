@@ -747,7 +747,7 @@ if (FV3_FORECAST_MODEL MATCHES "UFS")
     ecbuild_add_test( TARGET  fv3jedi_setup_ufs_c48_data
                       TYPE    SCRIPT
                       COMMAND ${CMAKE_BINARY_DIR}/bin/${FV3_SETUP_UFS_DATA_SCRIPT}
-                      ARGS    ${CMAKE_BINARY_DIR} ${UFS_SOURCE_DIR} ${FV3_FORECAST_MODEL_RUNDIR_WARMSTART} )
+                      ARGS    ${CMAKE_BINARY_DIR} ${UFS_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/fv3-jedi-data/testinput_tier_1/inputs )
 
     ecbuild_add_test( TARGET  fv3jedi_setup_ufs_rundir_warmstart
                       TYPE    SCRIPT
