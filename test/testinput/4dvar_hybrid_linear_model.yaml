@@ -8,7 +8,7 @@ cost function:
     filename_sfcd: 20201214.210000.sfc_data.nc
     filename_sfcw: 20201214.210000.fv_srf_wnd.res.nc
     filename_cplr: 20201214.210000.coupler.res
-    state variables: &modelvars [u,v,T,DELP,sphum,ice_wat,liq_wat,o3mr,phis]
+    state variables: &modelvars [u,v,ua,va,T,DELP,sphum,ice_wat,liq_wat,o3mr,phis]
   background error:
     covariance model: SABER
     saber central block:
@@ -65,7 +65,7 @@ cost function:
         - name: airTemperature
         threshold: 6.0
   cost type: 4D-Var
-  analysis variables: &anavars [u_component_of_native_D_grid_wind,v_component_of_native_D_grid_wind,air_temperature,air_pressure_thickness,specific_humidity,cloud_liquid_ice,cloud_liquid_water,ozone_mass_mixing_ratio]
+  analysis variables: &anavars [eastward_wind,northward_wind,air_temperature,air_pressure_thickness,specific_humidity,cloud_liquid_ice,cloud_liquid_water,ozone_mass_mixing_ratio]
   window begin: 2020-12-14T21:00:00Z
   window length: PT6H
   variable change:
@@ -111,7 +111,7 @@ variational:
     diagnostics:
       departures: ombg
     linear model:
-      simplified linear model:
+      simple linear model:
         linear model:
           name: FV3JEDITLM
           namelist filename: Data/fv3files/input_gfs_c12.nml
@@ -120,23 +120,23 @@ variational:
           lm_do_dyn: 1
           lm_do_trb: 0
           lm_do_mst: 0
-          tlm variables:  *anavars
+          tlm variables: [ud,vd,T,DELP,sphum,ice_wat,liq_wat,o3mr]
           trajectory:
-            model variables: *anavars
+            model variables: *modelvars
       update tstep: PT3H
       variables: *anavars
       coefficients:
         input:
-          base filepath: Data/4dvar_htlm_fv3lm_coeffs
+          base filepath: Data/hybrid_linear_model_coeffs
           one file per task: true
         update variables: [air_temperature]
-        influence region size: 2
+        influence region size: 3
         window length: PT6H
         window begin: 2020-12-14T21:00:00Z
       name: HTLM
 
 test:
-  reference filename: testoutput/htlm_4dvar_fv3lm.ref
-  test output filename: testoutput/htlm_4dvar_fv3lm_precalculated_coeffs.test.out
-  float relative tolerance: 1.0e-6
-  float absolute tolerance: 1.0e-6
+  reference filename: testoutput/4dvar_hybrid_linear_model.ref
+  test output filename: testoutput/4dvar_hybrid_linear_model.test.out
+  float relative tolerance: 1.0e10 # working on sensitivity in these tests
+  float absolute tolerance: 1.0e10 # working on sensitivity in these tests

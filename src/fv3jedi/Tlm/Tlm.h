@@ -8,6 +8,7 @@
 #pragma once
 
 #include <map>
+#include <memory>
 #include <ostream>
 #include <string>
 
@@ -16,6 +17,7 @@
 #include "oops/util/ObjectCounter.h"
 #include "oops/util/Printable.h"
 
+#include "fv3jedi/LinearVariableChange/Base/LinearVariableChangeBase.h"
 #include "fv3jedi/Utilities/Traits.h"
 
 // Forward declarations
@@ -49,7 +51,7 @@ namespace fv3jedi {
 // Linear model definition.
 
 class Tlm: public oops::interface::LinearModelBase<Traits>,
-                private util::ObjectCounter<Tlm> {
+           private util::ObjectCounter<Tlm> {
  public:
   static const std::string classname() {return "fv3jedi::Tlm";}
 
@@ -71,7 +73,6 @@ class Tlm: public oops::interface::LinearModelBase<Traits>,
 
   // Accessor functions
   const util::Duration & timeResolution() const override {return tstep_;}
-  const oops::Variables & variables() const override {return linvars_;}
 
  private:
   void print(std::ostream &) const override;
@@ -81,8 +82,10 @@ class Tlm: public oops::interface::LinearModelBase<Traits>,
 // Data
   F90model keySelf_;
   util::Duration tstep_;
-  std::map< util::DateTime, F90traj> trajmap_;
+  std::map<util::DateTime, F90traj> trajmap_;
   oops::Variables linvars_;
+  std::unique_ptr<LinearVariableChange> an2model_;
+  mutable std::unique_ptr<const oops::Variables> finalVars_;
 };
 // -------------------------------------------------------------------------------------------------
 

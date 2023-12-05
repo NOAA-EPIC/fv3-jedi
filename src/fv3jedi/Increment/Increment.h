@@ -87,7 +87,7 @@ class Increment : public util::Printable,
 
 /// Constructor, destructor
   Increment(const Geometry &, const oops::Variables &, const util::DateTime &);
-  Increment(const Geometry &, const Increment &);
+  Increment(const Geometry &, const Increment &, const bool ad = false);
   Increment(const Increment &, const bool);
   virtual ~Increment();
 
@@ -137,7 +137,6 @@ class Increment : public util::Printable,
 // Utilities
   const Geometry & geometry() const {return geom_;}
   const oops::Variables & variables() const {return vars_;}
-  const oops::Variables & variablesLongName() const {return varsLongName_;}
 
   const util::DateTime & time() const {return time_;}
   util::DateTime & time() {return time_;}
@@ -157,7 +156,6 @@ class Increment : public util::Printable,
   F90inc keyInc_;
   const Geometry & geom_;
   oops::Variables vars_;
-  oops::Variables varsLongName_;
   util::DateTime time_;
 };
 // -------------------------------------------------------------------------------------------------

@@ -93,8 +93,16 @@ do index_mod = 1, xmod%nf
   failed = .true.
 
   !Check analysis for presence of field
+  !(But if field is D-grid wind, check analysis does NOT contain it)
   do index_ana = 1, xana%nf
     if (xmod%fields(index_mod)%short_name == xana%fields(index_ana)%short_name) then
+
+      if (xmod%fields(index_mod)%short_name == 'ud' .or. &
+          & xmod%fields(index_mod)%short_name == 'vd') then
+        call abor1_ftn("fv3jedi_linvarcha_a2m_mod.multiply: &
+                       &Analysis vars should not contain D-grid winds")
+      end if
+
       index_ana_found = index_ana
       exit
     endif
@@ -191,7 +199,13 @@ do index_ana = 1, xana%nf
   index_mod_found = -1
   failed = .true.
 
-  !Check analysis for presence of field
+  if (xana%fields(index_ana)%short_name == 'ud' .or. &
+      & xana%fields(index_ana)%short_name == 'vd') then
+    call abor1_ftn("fv3jedi_linvarcha_a2m_mod.multiplyadjoint: &
+                   &Analysis vars should not contain D-grid winds")
+  end if
+
+  !Check model for presence of field
   do index_mod = 1, xmod%nf
     if (xana%fields(index_ana)%short_name == xmod%fields(index_mod)%short_name) then
       index_mod_found = index_mod
@@ -199,7 +213,9 @@ do index_ana = 1, xana%nf
     endif
   enddo
 
-  if (index_mod_found >= 0) then
+  if (index_mod_found >= 0 .and. &
+      xana%fields(index_ana)%short_name /= 'ua' .and. &
+      xana%fields(index_ana)%short_name /= 'va') then
 
     !OK, direct copy
     xana%fields(index_ana)%array = xmod%fields(index_mod_found)%array
@@ -284,7 +300,13 @@ do index_ana = 1, xana%nf
   index_mod_found = -1
   failed = .true.
 
-  !Check analysis for presence of field
+  if (xana%fields(index_ana)%short_name == 'ud' .or. &
+      & xana%fields(index_ana)%short_name == 'vd') then
+    call abor1_ftn("fv3jedi_linvarcha_a2m_mod.multiplyinverse: &
+                   &Analysis vars should not contain D-grid winds")
+  end if
+
+  !Check model for presence of field
   do index_mod = 1, xmod%nf
     if (xana%fields(index_ana)%short_name == xmod%fields(index_mod)%short_name) then
       index_mod_found = index_mod
@@ -292,7 +314,9 @@ do index_ana = 1, xana%nf
     endif
   enddo
 
-  if (index_mod_found >= 0) then
+  if (index_mod_found >= 0 .and. &
+      xana%fields(index_ana)%short_name /= 'ua' .and. &
+      xana%fields(index_ana)%short_name /= 'va') then
 
     !OK, direct copy
     failed = .false.
@@ -376,8 +400,16 @@ do index_mod = 1, xmod%nf
   failed = .true.
 
   !Check analysis for presence of field
+  !(But if field is D-grid wind, check analysis does NOT contain it)
   do index_ana = 1, xana%nf
     if (xmod%fields(index_mod)%short_name == xana%fields(index_ana)%short_name) then
+
+      if (xmod%fields(index_mod)%short_name == 'ud' .or. &
+          & xmod%fields(index_mod)%short_name == 'vd') then
+        call abor1_ftn("fv3jedi_linvarcha_a2m_mod.multiplyinverseadjoint: &
+                       &Analysis vars should not contain D-grid winds")
+      end if
+
       index_ana_found = index_ana
       exit
     endif
