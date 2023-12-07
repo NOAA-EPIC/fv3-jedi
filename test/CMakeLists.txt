@@ -729,7 +729,7 @@ file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/randomization/)
 # -------------------------------------------------------
 
 if (FV3_FORECAST_MODEL MATCHES "UFS")
-  if( UFS_APP MATCHES "^(ATM)$" )
+  if( UFS_APP MATCHES "^(ATM)$" OR UFS_APP MATCHES "^(S2S)$" )
     set(FV3_FORECAST_MODEL_RUNDIR_WARMSTART ${CMAKE_SOURCE_DIR}/fv3-jedi-data/testinput_tier_1/inputs/control_c48_intel/)
     set(FV3_FORECAST_MODEL_TESTDIR_WARMSTART ${CMAKE_CURRENT_BINARY_DIR}/Data/ModelRunDirs/${FV3_FORECAST_MODEL}_warmstart/)
     file(MAKE_DIRECTORY ${FV3_FORECAST_MODEL_TESTDIR_WARMSTART})
