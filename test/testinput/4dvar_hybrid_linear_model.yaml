@@ -66,8 +66,9 @@ cost function:
         threshold: 6.0
   cost type: 4D-Var
   analysis variables: &anavars [eastward_wind,northward_wind,air_temperature,air_pressure_thickness,specific_humidity,cloud_liquid_ice,cloud_liquid_water,ozone_mass_mixing_ratio]
-  window begin: 2020-12-14T21:00:00Z
-  window length: PT6H
+  time window:
+    begin: 2020-12-14T21:00:00Z
+    length: PT6H
   variable change:
     variable change name: Analysis2Model
   model:
@@ -76,7 +77,7 @@ cost function:
     lm_do_dyn: 1
     lm_do_trb: 0
     lm_do_mst: 0
-    tstep: PT3H
+    tstep: PT1H
     model variables: *modelvars
   geometry:
     fms initialization:
@@ -116,11 +117,11 @@ variational:
           name: FV3JEDITLM
           namelist filename: Data/fv3files/input_gfs_c12.nml
           linear model namelist filename: Data/fv3files/inputpert_4dvar.nml
-          tstep: PT3H
+          tstep: PT1H
           lm_do_dyn: 1
           lm_do_trb: 0
           lm_do_mst: 0
-          tlm variables: [ud,vd,T,DELP,sphum,ice_wat,liq_wat,o3mr]
+          tlm variables: [u,v,T,DELP,sphum,ice_wat,liq_wat,o3mr]
           trajectory:
             model variables: *modelvars
       update tstep: PT3H
@@ -129,14 +130,14 @@ variational:
         input:
           base filepath: Data/hybrid_linear_model_coeffs
           one file per task: true
-        update variables: [air_temperature]
+        update variables: [eastward_wind,northward_wind]
         influence region size: 3
-        window length: PT6H
-        window begin: 2020-12-14T21:00:00Z
+        time window:
+          begin: 2020-12-14T21:00:00Z
+          length: PT6H
       name: HTLM
 
 test:
   reference filename: testoutput/4dvar_hybrid_linear_model.ref
   test output filename: testoutput/4dvar_hybrid_linear_model.test.out
-  float relative tolerance: 1.0e10 # working on sensitivity in these tests
-  float absolute tolerance: 1.0e10 # working on sensitivity in these tests
+  float relative tolerance: 1.0e-3
