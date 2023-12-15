@@ -1,7 +1,8 @@
 cost function:
   cost type: 3D-Var
-  window begin: 2020-12-14T21:00:00Z
-  window length: PT6H
+  time window:
+    begin: 2020-12-14T21:00:00Z
+    length: PT6H
   analysis variables: &3dvars [eastward_wind,northward_wind,air_temperature,air_pressure_thickness,specific_humidity,cloud_liquid_ice,cloud_liquid_water,ozone_mass_mixing_ratio]
   geometry:
     fms initialization:
@@ -132,13 +133,14 @@ variational:
     online diagnostics:
       write increment: true
       increment:
-        filetype: fms restart
-        datapath: Data/analysis
-        filename_core: iter1.hyb-3dvar_fsoi_forward.c24.fv_core.res.nc
-        filename_trcr: iter1.hyb-3dvar_fsoi_forward.c24.fv_tracer.res.nc
-        filename_sfcd: iter1.hyb-3dvar_fsoi_forward.c24.sfc_data.nc
-        filename_sfcw: iter1.hyb-3dvar_fsoi_forward.c24.fv_srf_wnd.res.nc
-        filename_cplr: iter1.hyb-3dvar_fsoi_forward.c24.coupler.res
+        state component:
+          filetype: fms restart
+          datapath: Data/analysis
+          filename_core: iter1.hyb-3dvar_fsoi_forward.c24.fv_core.res.nc
+          filename_trcr: iter1.hyb-3dvar_fsoi_forward.c24.fv_tracer.res.nc
+          filename_sfcd: iter1.hyb-3dvar_fsoi_forward.c24.sfc_data.nc
+          filename_sfcw: iter1.hyb-3dvar_fsoi_forward.c24.fv_srf_wnd.res.nc
+          filename_cplr: iter1.hyb-3dvar_fsoi_forward.c24.coupler.res
 final:
   diagnostics:
     departures: oman

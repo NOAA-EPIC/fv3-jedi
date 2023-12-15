@@ -1,8 +1,9 @@
 cost function:
   cost type: 4D-Ens-Var
   analysis variables: &vars [eastward_wind,northward_wind,air_temperature,air_pressure_thickness,specific_humidity,cloud_liquid_ice,cloud_liquid_water,ozone_mass_mixing_ratio]
-  window begin: 2020-12-14T21:00:00Z
-  window length: PT6H
+  time window:
+    begin: 2020-12-14T21:00:00Z
+    length: PT6H
   subwindow: PT6H
   parallel subwindows: false
   background:
@@ -174,27 +175,30 @@ final:
   increment:
     geometry: *geom
     output:
-      states:
-      - filetype: fms restart
-        datapath: Data/analysis
-        prefix: 20201214.210000.4denvar-gfs-seq.inc
-      - filetype: fms restart
-        datapath: Data/analysis
-        prefix: 20201215.030000.4denvar-gfs-seq.inc
+      state component:
+        states:
+        - filetype: fms restart
+          datapath: Data/analysis
+          prefix: 20201214.210000.4denvar-gfs-seq.inc
+        - filetype: fms restart
+          datapath: Data/analysis
+          prefix: 20201215.030000.4denvar-gfs-seq.inc
   increment to latlon:
     local interpolator type: oops unstructured grid interpolator
     resolution in degrees: 15.0  # low resolution for testing
     variables to output: [air_temperature]
     pressure levels in hPa: [250]
     datapath: Data/analysis
-    filename prefix: 4denvar-gfs-seq.latlon.inc
+    type: inc
+    exp: 4denvar-gfs-seq
   analysis to latlon:
     local interpolator type: oops unstructured grid interpolator
     resolution in degrees: 15.0  # low resolution for testing
     variables to output: [air_temperature, eastward_wind, northward_wind]
     pressure levels in hPa: [850, 500, 250]
     datapath: Data/analysis
-    filename prefix: 4denvar-gfs-seq.latlon
+    type: an
+    exp: 4denvar-gfs-seq
 
 test:
   reference filename: testoutput/4denvar.ref
