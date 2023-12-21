@@ -44,6 +44,7 @@ cd $ufsdir/tests
 touch fv3_001.exe
 touch modules.fv3_001.lua
 source vars
+sed -i "/submit_and_wait/a exit 0" rt_utils.sh 
 ./run_test.sh $PWD $fv3jedidata control_c48 001 001
 
 cd $fv3jedidata/control_c48_intel
