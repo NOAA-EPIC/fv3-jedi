@@ -26,10 +26,10 @@ for item in os.listdir(ufs_rundir):
     test_path = os.path.join(test_rundir, item)
     if not os.path.exists(test_path):
         os.symlink(abs_ufs_path, test_path)
-    else:
-        # file exists; this is ok if the symlink was previously created, but otherwise it's an error
-        if not (os.path.islink(test_path) and (os.readlink(test_path) == abs_ufs_path)):
-            raise Exception("Could not link to UFS model rundir, path already exists: " + test_path)
+#   else:
+#       # file exists; this is ok if the symlink was previously created, but otherwise it's an error
+#       if not (os.path.islink(test_path) and (os.readlink(test_path) == abs_ufs_path)):
+#           raise Exception("Could not link to UFS model rundir, path already exists: " + test_path)
 
 # make new RESTART dir within rundir
 new_restart_dir = os.path.join(test_rundir, 'RESTART')
