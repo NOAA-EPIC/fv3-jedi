@@ -1131,11 +1131,11 @@ if( FV3_FORECAST_MODEL MATCHES "UFS")
                     TEST_DEPENDS fv3jedi_setup_ufs_rundir_warmstart )
 
 # disabled until ensemble PR is merged into oops
-# ecbuild_add_test( TARGET   ufsjedi_test_tier1_Ensforecast_ufs_warmstart
-#                   MPI      12
-#                   ARGS     testinput/ensfc_ufs.yaml
-#                   COMMAND  ufsjedi_Ensforecast.x
-#                   TEST_DEPENDS fv3jedi_setup_ufs_rundir_warmstart )
+ecbuild_add_test( TARGET   ufsjedi_test_tier1_Ensforecast_ufs_warmstart
+                  MPI      12
+                  ARGS     testinput/ensfc_ufs.yaml
+                  COMMAND  ufsjedi_Ensforecast.x
+                  TEST_DEPENDS fv3jedi_setup_ufs_rundir_warmstart )
 endif()
 
 # Disabled until setup of GEOS model rundir is added (e.g., see fv3jedi_setup_ufs_rundir_warmstart)
