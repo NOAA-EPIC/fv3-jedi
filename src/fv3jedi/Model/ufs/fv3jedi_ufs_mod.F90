@@ -308,19 +308,6 @@ contains
          compList=connectors, rc=rc)
     esmf_err_abort(rc)
 
-    !call ESMF_LogWrite("About to set connector verbosity", ESMF_LOGMSG_INFO)
-    !do cnt=lbound(connectors,1), ubound(connectors,1)
-    !   call ESMF_CplCompGet(connectors(cnt), name=name, rc=rc)
-    !   esmf_err_abort(rc)
-    !
-    !   call NUOPC_CompAttributeSet(connectors(cnt), name="Verbosity", &
-    !        value="max", rc=rc)
-    !   esmf_err_abort(rc)
-    !
-    !   call ESMF_LogWrite(" --> Set verbosity on connector: "//trim(name), &
-    !        ESMF_LOGMSG_INFO)
-    !enddo
-
     deallocate(connectors)
 
     ! call ExternalRealize phase
@@ -589,19 +576,25 @@ contains
         field_fv3(self%isc:self%iec,self%jsc:self%jec,1) = farrayPtr2(lb(1):ub(1),lb(2):ub(2))
 
         write(msg, "(4i6)") lb(1), ub(1), lb(2), ub(2)
-        call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", UFS 2D dims: " // trim(msg))
+        call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", UFS 2D dims: " // trim(msg),&
+           ESMF_LOGMSG_INFO)
         write(msg, "(6i6)") self%isc, self%iec, self%jsc, self%jec, 1, fnpz
-        call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", JEDI 2D dims: " // trim(msg))
+        call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", JEDI 2D dims: " // trim(msg),&
+           ESMF_LOGMSG_INFO)
 
         write(msg, "(e16.7)") minval(farrayPtr2(lb(1):ub(1),lb(2):ub(2)))
-        call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", UFS 2D minval 1=" // trim(msg))
+        call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", UFS 2D minval 1=" // trim(msg),&
+           ESMF_LOGMSG_INFO)
         write(msg, "(e16.7)") maxval(farrayPtr2(lb(1):ub(1),lb(2):ub(2)))
-        call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", UFS 2D maxval 1=" // trim(msg))
+        call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", UFS 2D maxval 1=" // trim(msg),&
+           ESMF_LOGMSG_INFO)
 
         write(msg, "(e16.7)") minval(field_fv3(self%isc:self%iec,self%jsc:self%jec,1:fnpz))
-        call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", UFS 2D minval 2=" // trim(msg))
+        call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", UFS 2D minval 2=" // trim(msg),&
+           ESMF_LOGMSG_INFO)
         write(msg, "(e16.7)") maxval(field_fv3(self%isc:self%iec,self%jsc:self%jec,1:fnpz))
-        call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", UFS 2D maxval 2=" // trim(msg))
+        call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", UFS 2D maxval 2=" // trim(msg),&
+           ESMF_LOGMSG_INFO)
 
         nullify(farrayPtr2)
 
@@ -613,19 +606,25 @@ contains
         field_fv3(self%isc:self%iec,self%jsc:self%jec,1:fnpz) = farrayPtr3(lb(1):ub(1),lb(2):ub(2),lb(3):ub(3))
 
         write(msg, "(6i6)") lb(1), ub(1), lb(2), ub(2), lb(3), ub(3)
-        call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", UFS 3D dims: " // trim(msg))
+        call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", UFS 3D dims: " // trim(msg),&
+           ESMF_LOGMSG_INFO)
         write(msg, "(6i6)") self%isc, self%iec, self%jsc, self%jec, 1, fnpz
-        call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", JEDI 3D dims: " // trim(msg))
+        call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", JEDI 3D dims: " // trim(msg),&
+           ESMF_LOGMSG_INFO)
 
         write(msg, "(e16.7)") minval(farrayPtr3(lb(1):ub(1),lb(2):ub(2),lb(3):ub(3)))
-        call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", UFS 3D minval 1=" // trim(msg))
+        call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", UFS 3D minval 1=" // trim(msg),&
+           ESMF_LOGMSG_INFO)
         write(msg, "(e16.7)") maxval(farrayPtr3(lb(1):ub(1),lb(2):ub(2),lb(3):ub(3)))
-        call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", UFS 3D maxval 1=" // trim(msg))
+        call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", UFS 3D maxval 1=" // trim(msg),&
+           ESMF_LOGMSG_INFO)
 
         write(msg, "(e16.7)") minval(field_fv3(self%isc:self%iec,self%jsc:self%jec,1:fnpz))
-        call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", UFS 3D minval 2=" // trim(msg))
+        call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", UFS 3D minval 2=" // trim(msg),&
+           ESMF_LOGMSG_INFO)
         write(msg, "(e16.7)") maxval(field_fv3(self%isc:self%iec,self%jsc:self%jec,1:fnpz))
-        call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", UFS 3D maxval 2=" // trim(msg))
+        call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", UFS 3D maxval 2=" // trim(msg),&
+           ESMF_LOGMSG_INFO)
 
         nullify(farrayPtr3)
 
@@ -644,31 +643,37 @@ contains
       call state%get_field(trim(short_name), field_ptr)
 
       write(msg, "(3i6)") lbound(field_ptr%array)
-      call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", REAL JEDI 3D lbounds: " // trim(msg))
+      call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", REAL JEDI 3D lbounds: " // trim(msg),&
+           ESMF_LOGMSG_INFO)
       write(msg, "(3i6)") ubound(field_ptr%array)
-      call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", REAL JEDI 3D ubounds: " // trim(msg))
+      call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", REAL JEDI 3D ubounds: " // trim(msg),&
+           ESMF_LOGMSG_INFO)
 
       if (field_ptr%npz .ne. fnpz) &
         call abor1_ftn("fv3_to_state: dimension mismatch between JEDI and UFS vertical grid")
 
       write(msg, "(e16.7)") minval(field_ptr%array(self%isc:self%iec,self%jsc:self%jec,1:fnpz))
-      call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", JEDI minval=" // trim(msg))
+      call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", JEDI minval=" // trim(msg),&
+           ESMF_LOGMSG_INFO)
       write(msg, "(e16.7)") maxval(field_ptr%array(self%isc:self%iec,self%jsc:self%jec,1:fnpz))
-      call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", JEDI maxval=" // trim(msg))
+      call ESMF_LogWrite("Before updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", JEDI maxval=" // trim(msg),&
+           ESMF_LOGMSG_INFO)
       !
       ! Copy from UFS to fv3-jedi
       field_ptr%array(self%isc:self%iec,self%jsc:self%jec,1:fnpz) = field_fv3(self%isc:self%iec,self%jsc:self%jec,1:fnpz)
       !
       write(msg, "(e16.7)") minval(field_ptr%array(self%isc:self%iec,self%jsc:self%jec,1:fnpz))
-      call ESMF_LogWrite("After updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", minval=" // trim(msg))
+      call ESMF_LogWrite("After updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", minval=" // trim(msg), &
+           ESMF_LOGMSG_INFO)
       write(msg, "(e16.7)") maxval(field_ptr%array(self%isc:self%iec,self%jsc:self%jec,1:fnpz))
-      call ESMF_LogWrite("After updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", maxval=" // trim(msg))
+      call ESMF_LogWrite("After updating field "// trim(short_name) // " in JEDI from UFS at " // trim(strCurrTime) // ", maxval=" // trim(msg), &
+           ESMF_LOGMSG_INFO)
       !
       if (abs(minval(field_ptr%array(self%isc:self%iec,self%jsc:self%jec,1:fnpz)))>1.0E30 .or. abs(maxval(field_ptr%array(self%isc:self%iec,self%jsc:self%jec,1:fnpz)))>1.0E30) then
         write(msg, "(a,6i5,1x,e16.7,1x,3i6)") trim(short_name), self%isc, self%iec, self%jsc, self%jec, 1, fnpz, minval(field_ptr%array(self%isc:self%iec,self%jsc:self%jec,1:fnpz)), minloc(field_ptr%array(self%isc:self%iec,self%jsc:self%jec,1:fnpz))
-        call ESMF_LogWrite("DOM-ERROR MIN: " // trim(msg))
+        call ESMF_LogWrite("DOM-ERROR MIN: " // trim(msg),ESMF_LOGMSG_INFO)
         write(msg, "(a,6i5,1x,e16.7,1x,3i6)") trim(short_name), self%isc, self%iec, self%jsc, self%jec, 1, fnpz, maxval(field_ptr%array(self%isc:self%iec,self%jsc:self%jec,1:fnpz)), maxloc(field_ptr%array(self%isc:self%iec,self%jsc:self%jec,1:fnpz))
-        call ESMF_LogWrite("DOM-ERROR MAX: " // trim(msg))
+        call ESMF_LogWrite("DOM-ERROR MAX: " // trim(msg),ESMF_LOGMSG_INFO)
       end if
     else
       call ESMF_LogWrite("Not needed by JEDI is "//short_name, ESMF_LOGMSG_INFO)

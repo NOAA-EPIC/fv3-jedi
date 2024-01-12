@@ -55,7 +55,6 @@ endif()
 # FV3 config files
 # ----------------
 list( APPEND fv3jedi_test_fv3files
-Data/fv3files/akbk27.nc4
 Data/fv3files/akbk64.nc4
 Data/fv3files/akbk72.nc4
 Data/fv3files/akbk127.nc4
