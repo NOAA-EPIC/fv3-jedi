@@ -99,15 +99,14 @@ type(datetime) :: fdate1
 type(datetime) :: fdate2
 character(len=20) :: vdatestrz
 
+type(datetime) :: fdate1
+type(datetime) :: fdate2
+
 call fv3jedi_state_registry%get(c_key_state,state)
 call fv3jedi_ufs_registry%get(c_key_self, self)
 vars = oops_variables(c_vars)
 
 call c_f_datetime(c_dt1, fdate1)
-call datetime_to_string(fdate1, vdatestrz)
-call c_f_datetime(c_dt2, fdate2)
-call datetime_to_string(fdate2, vdatestrz)
-
 call self%initialize(state, vars, fdate1, fdate2)
 
 end subroutine c_fv3jedi_ufs_initialize
@@ -127,15 +126,12 @@ type(fv3jedi_state), pointer :: state
 
 type(datetime) :: fdate1
 type(datetime) :: fdate2
-character(len=20) :: vdatestrz
 
 call fv3jedi_ufs_registry%get(c_key_self, self)
 call fv3jedi_state_registry%get(c_key_state,state)
 
 call c_f_datetime(c_dt1, fdate1)
-call datetime_to_string(fdate1, vdatestrz)
 call c_f_datetime(c_dt2, fdate2)
-call datetime_to_string(fdate2, vdatestrz)
 call self%step(state, fdate1, fdate2)
 
 end subroutine c_fv3jedi_ufs_step

@@ -140,6 +140,7 @@ contains
         return
     end if
 
+    ! Do only for very first initialization
 
     ! This may seem confusing. In the UFS, the model cold start time (ESMF lingo: startTime)
     ! never changes. Instead, the model warmstart/restart time (ESMF lingo: currTime) is
@@ -221,7 +222,7 @@ contains
     esmf_err_abort(rc)
 
     write(msg, "(I2)") cnt
-    call ESMF_LogWrite("After filling advertise toJedi state has "//trim(msg)//" items.", &
+    call ESMF_LogWrite("After filling advertise fromJedi state has "//trim(msg)//" items.", &
          ESMF_LOGMSG_INFO)
 
     call ESMF_LogWrite("Advertising imports to ESM", ESMF_LOGMSG_INFO)
