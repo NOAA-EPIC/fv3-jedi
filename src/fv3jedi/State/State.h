@@ -110,6 +110,7 @@ class State : public util::Printable, private util::ObjectCounter<State> {
 // Utilities
   const Geometry & geometry() const {return geom_;}
   const oops::Variables & variables() const {return varsJedi_;}
+  const oops::Variables & stdvariables() const {return stdvars_;}
 
   const util::DateTime & time() const {return time_;}
   util::DateTime & time() {return time_;}
@@ -135,6 +136,7 @@ class State : public util::Printable, private util::ObjectCounter<State> {
   void print(std::ostream &) const;
   F90state keyState_;
   const Geometry & geom_;
+  oops::Variables stdvars_;
   oops::Variables vars_;
   oops::Variables varsJedi_;  // subset of vars_; excluding interface-specific variables
   util::DateTime time_;
