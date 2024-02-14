@@ -97,16 +97,13 @@ type(oops_variables)         :: vars
 
 type(datetime) :: fdate1
 type(datetime) :: fdate2
-character(len=20) :: vdatestrz
-
-type(datetime) :: fdate1
-type(datetime) :: fdate2
 
 call fv3jedi_state_registry%get(c_key_state,state)
 call fv3jedi_ufs_registry%get(c_key_self, self)
 vars = oops_variables(c_vars)
 
 call c_f_datetime(c_dt1, fdate1)
+call c_f_datetime(c_dt2, fdate2)
 call self%initialize(state, vars, fdate1, fdate2)
 
 end subroutine c_fv3jedi_ufs_initialize
