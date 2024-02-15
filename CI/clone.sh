@@ -36,15 +36,8 @@ else
   # if fallback doesn't exist then clone default branch
 
   if test "${exit_code}" == "0"; then
-    # DH* disable dark magic for other repos than fv3-jedi
-    if test "${repo_name}" == "fv3-jedi"; then
-      echo "${branch_name} branch found in ${org_repo_name}"
-      branch_name_clone=${branch_name}
-    else
-      echo "Override dark magic and use branch ${default_branch} for ${org_repo_name}"
-      branch_name_clone=${default_branch}
-    fi
-    # *DH
+    echo "${branch_name} branch found in ${org_repo_name}"
+    branch_name_clone=${branch_name}
   else
     git ls-remote --heads --exit-code https://github.com/$org_name/$repo_name $fallback_branch
     exit_code_fallback=$?
