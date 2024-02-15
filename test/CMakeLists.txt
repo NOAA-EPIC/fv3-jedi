@@ -154,7 +154,7 @@ list( APPEND fv3jedi_testinput
   testinput/eda_block_3dvar_1.yaml
   testinput/eda_block_3dvar_2.yaml
   testinput/eda_block_3dvar.yaml
-  testinput/ensfc_ufs.yaml 
+  testinput/ensemble_ufs_forecast.yaml 
   testinput/enshofx_fv3lm_1.yaml
   testinput/enshofx_fv3lm_2.yaml
   testinput/enshofx_fv3lm.yaml
@@ -1152,7 +1152,7 @@ if( FV3_FORECAST_MODEL MATCHES "UFS")
 # disabled until ensemble PR is merged into oops
 ecbuild_add_test( TARGET   ufsjedi_test_tier1_Ensforecast_ufs_warmstart
                   MPI      12
-                  ARGS     testinput/ensfc_ufs.yaml
+                  ARGS     testinput/ensemble_ufs_forecast.yaml
                   COMMAND  ufsjedi_Ensforecast.x
                   TEST_DEPENDS fv3jedi_setup_ufs_rundir_warmstart )
 endif()
