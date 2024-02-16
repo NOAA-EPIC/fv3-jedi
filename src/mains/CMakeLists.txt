@@ -67,7 +67,7 @@ oops_output_json_schema(fv3jedi_forecast.x)
 
 #Comment out until ensemble PR is complete in oops
 ecbuild_add_executable( TARGET  ufsjedi_Ensforecast.x
-                        SOURCES ufsjediEnsForecast.cc
+                        SOURCES fv3jediLETKF.cc
                         LIBS    ${FV3JEDI_LIBRARIES}
                        )
 oops_output_json_schema(ufsjedi_Ensforecast.x)
