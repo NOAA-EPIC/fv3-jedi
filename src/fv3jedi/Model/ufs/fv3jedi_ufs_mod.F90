@@ -20,7 +20,6 @@ module fv3jedi_ufs_mod
   use fv3jedi_state_mod,     only: fv3jedi_state
   use fv3jedi_field_mod,     only: fv3jedi_field, field_clen
   use fckit_mpi_module,           only: fckit_mpi_comm
-  
   ! ufs
   use ESMF
   use NUOPC
