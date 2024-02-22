@@ -65,7 +65,6 @@ ecbuild_add_executable( TARGET  fv3jedi_forecast.x
                        )
 oops_output_json_schema(fv3jedi_forecast.x)
 
-#Comment out until ensemble PR is complete in oops
 ecbuild_add_executable( TARGET  fv3jedi_EnsGETKF.x
                         SOURCES fv3jediEnsGETKF.cc
                         LIBS    ${FV3JEDI_LIBRARIES}

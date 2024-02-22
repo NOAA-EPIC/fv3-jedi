@@ -1106,14 +1106,6 @@ endif()
 #                  COMMAND  test_fv3jedi_model.x )
 #endif()
 
-# Disabled until setup of GEOS model rundir is added (e.g., see fv3jedi_setup_ufs_rundir_warmstart)
-#if( FV3_FORECAST_MODEL MATCHES "GEOS" AND BUILD_LARGE_TESTS)
-#ecbuild_add_test( TARGET   fv3jedi_test_tier1_model_geos
-#                  MPI      6
-#                  ARGS     testinput/model_geos.yaml
-#                  COMMAND  test_fv3jedi_model.x )
-#endif()
-
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_linearmodel
                   MPI      6
                   ARGS     testinput/linearmodel.yaml
