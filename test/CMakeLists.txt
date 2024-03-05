@@ -1136,13 +1136,12 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_forecast_fv3lm_tracers
 
 
 if( FV3_FORECAST_MODEL MATCHES "UFS")
-  ecbuild_add_test( TARGET   fv3jedi_test_tier1_forecast_ufs_warmstart
-                    MPI      6
-                    ARGS     testinput/forecast_ufs_c48_warmstart.yaml
-                    COMMAND  fv3jedi_forecast.x
-                    TEST_DEPENDS fv3jedi_setup_ufs_rundir_warmstart )
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_forecast_ufs_warmstart
+                  MPI      6
+                  ARGS     testinput/forecast_ufs_c48_warmstart.yaml
+                  COMMAND  fv3jedi_forecast.x
+                  TEST_DEPENDS fv3jedi_setup_ufs_rundir_warmstart )
 
-# disabled until ensemble PR is merged into oops
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_EnsGETKF_ufs_warmstart
                   MPI      12
                   ARGS     testinput/ensemble_ufs_forecast.yaml
