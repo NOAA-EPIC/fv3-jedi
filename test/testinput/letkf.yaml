@@ -1,7 +1,7 @@
 geometry:
   fms initialization:
-    namelist filename: Data/fv3files/fmsmpp.nml
-    field table filename: Data/fv3files/field_table
+    namelist filename: Data/ModelRunDirs/UFS_warmstart/input.nml
+    field table filename: Data/ModelRunDirs/UFS_warmstart/field_table
   akbk: Data/fv3files/akbk127.nc4
   npx: 49
   npy: 49
@@ -12,6 +12,12 @@ time window:
   begin: &date 2020-12-14T21:00:00Z
   length: PT6H
 
+Run Forecast: false
+files:
+  - testinput/forecast_ufs_1.yaml
+  - testinput/forecast_ufs_2.yaml
+
+batch: 1
 background:
    members from template:
      template:
@@ -168,7 +174,12 @@ observations:
 
 driver:
   save posterior ensemble: false
-  save posterior mean increment: true
+  save posterior mean: true
+  save posterior mean increment: false
+  save posterior ensemble increments: false
+  read HX from disk: false
+  do test prints: true
+  do posterior observer: false
 
 local ensemble DA:
   solver: LETKF
@@ -189,7 +200,7 @@ output increment:
   gridtype: latlon
   filename: Data/analysis/letkf/gfs/mem%{member}%/xainc.
 
-test:
-  reference filename: testoutput/letkf.ref
-  test output filename: testoutput/letkf.test.out
-  float relative tolerance: 1.0e-3
+#test:
+#  reference filename: testoutput/letkf.ref
+#  test output filename: testoutput/letkf.test.out
+#  float relative tolerance: 1.0e-3

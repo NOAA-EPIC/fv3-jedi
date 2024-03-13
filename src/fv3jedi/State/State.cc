@@ -219,7 +219,8 @@ void State::print(std::ostream & os) const {
      << "--------------------------------------------------"
         "--------------------------------------------------";
   os << std::endl << "State print | number of fields = " << numberFields
-                  << " | cube sphere face size: C" << cubeSize;
+                  << " | cube sphere face size: C" << cubeSize 
+                  << " | time = " << time_ ;
 
   // Print info field by field
   const int FieldNameLen = 45;
