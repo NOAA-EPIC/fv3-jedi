@@ -52,6 +52,9 @@ observations:
         engine:
           type: H5File
           obsfile: Data/hofx/scatwind_letkf-gfs_2020121500_m.nc4
+      io pool:
+        max pool size: 2
+        write multiple files: true
       simulated variables: [windEastward, windNorthward]
     obs operator:
       name: VertInterp
@@ -78,6 +81,9 @@ observations:
         engine:
           type: H5File
           obsfile: Data/hofx/amsua_n19_letkf-gfs_2020121500_m.nc4
+      io pool:
+        max pool size: 2
+        write multiple files: true
       simulated variables: [brightnessTemperature]
       channels: 4-6,9-14
     obs operator:
@@ -121,6 +127,9 @@ observations:
           type: H5File
           obsfile: Data/hofx/sfc_letkf-gfs_2020121500_m.nc4
       simulated variables: [stationPressure]
+      io pool:
+        max pool size: 2
+        write multiple files: true
     obs operator:
       name: SfcPCorrected
       da_psfc_scheme: UKMO
@@ -149,6 +158,9 @@ observations:
         engine:
           type: H5File
           obsfile: Data/hofx/aircraft_letkf-gfs_2020121500_m.nc4
+      io pool:
+        max pool size: 2
+        write multiple files: true
       simulated variables: [windEastward,windNorthward,airTemperature]
     obs operator:
       name: VertInterp
@@ -172,7 +184,6 @@ observations:
       lengthscale: 5000e3
       max nobs: 50
 
-
 driver:
   save posterior ensemble: false
   save posterior mean: true
@@ -181,6 +192,7 @@ driver:
   read HX from disk: false
   do test prints: true
   do posterior observer: false
+  run as observer only: true
 local ensemble DA:
   solver: LETKF
   inflation:
