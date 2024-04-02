@@ -189,10 +189,10 @@ list( APPEND fv3jedi_testinput
   testinput/hofx_fv3-geos_cf.yaml
   testinput/hofx_fv3-gfs.yaml
   testinput/hofx_fv3lm.yaml
-  testinput/hofx_gfs_aero_aodluts.yaml
   testinput/hofx_gnssro_ropp.yaml
   testinput/hofx_nomodel.yaml
   testinput/hofx_nomodel_abi_radii.yaml
+  testinput/hofx_nomodel_amsua_fov.yaml
   testinput/hofx_nomodel_amsua_radii.yaml
   testinput/hofx_nomodel_lam_cmaq.yaml
   testinput/hofx_nomodel_lam_rrfs.yaml
@@ -203,7 +203,7 @@ list( APPEND fv3jedi_testinput
   testinput/hyb-3dvar_fsoi_forward.yaml
   testinput/hyb-3dvar_geos.yaml
   testinput/hyb-3dvar_geos_sondes_c12.yaml
-  testinput/hyb-3dvar_gfs_aero.yaml
+  testinput/hyb-fgat_gfs_aero.yaml
   testinput/hyb-3dvar_gfs_gnssro_ropp.yaml
   testinput/hyb-3dvar_gfs.yaml
   testinput/hyb-3dvar_p12.yaml
@@ -211,13 +211,13 @@ list( APPEND fv3jedi_testinput
   testinput/hyb-4dvar_pseudo-geos.yaml
   testinput/hyb-4denvar_geos_sondes_c12.yaml
   testinput/hyb-fgat_fv3lm.yaml
-  testinput/hyb-fgat_gfs_aero.yaml
   testinput/increment_geos.yaml
   testinput/increment_gfs.yaml
   testinput/letkf.yaml
   testinput/letkf-inline.yaml
   testinput/letkf3d.yaml
   testinput/lgetkf.yaml
+  testinput/3dvar_snow.yaml
   testinput/letkf_snow.yaml
   testinput/letkf_observer_soil_moisture.yaml
   testinput/adjointforecast.yaml
@@ -337,10 +337,10 @@ list( APPEND fv3jedi_testoutput
   testoutput/hofx_fv3-gfs_gnssro_ropp.ref
   testoutput/hofx_fv3-gfs.ref
   testoutput/hofx_fv3lm.ref
-  testoutput/hofx_gfs_aero_aodluts.ref
   testoutput/hofx_gnssro_ropp.ref
   testoutput/hofx_nomodel.ref
   testoutput/hofx_nomodel_abi_radii.ref
+  testoutput/hofx_nomodel_amsua_fov.ref
   testoutput/hofx_nomodel_amsua_radii.ref
   testoutput/hofx_nomodel_lam_cmaq.ref
   testoutput/hofx_nomodel_lam_rrfs.ref
@@ -350,7 +350,7 @@ list( APPEND fv3jedi_testoutput
   testoutput/hyb-3dvar_fsoi_forward.ref
   testoutput/hyb-3dvar_geos.ref
   testoutput/hyb-3dvar_geos_sondes_c12.ref
-  testoutput/hyb-3dvar_gfs_aero.ref
+  testoutput/hyb-fgat_gfs_aero.ref
   testoutput/hyb-3dvar_gfs_gnssro_ropp.ref
   testoutput/hyb-3dvar_gfs.ref
   testoutput/hyb-3dvar.ref
@@ -358,9 +358,9 @@ list( APPEND fv3jedi_testoutput
   testoutput/hyb-4dvar_pseudo-geos.ref
   testoutput/hyb-4denvar_geos_sondes_c12.ref
   testoutput/hyb-fgat_fv3lm.ref
-  testoutput/hyb-fgat_gfs_aero.ref
   testoutput/letkf.ref
   testoutput/letkf3d.ref
+  testoutput/3dvar_snow.ref
   testoutput/letkf_snow.ref
   testoutput/letkf_observer_soil_moisture.ref
   testoutput/lgetkf.ref
@@ -439,6 +439,7 @@ Data/fieldmetadata/ufs-aerosol.yaml
 Data/fieldmetadata/gfs-history.yaml
 Data/fieldmetadata/gfs_v17-land.yaml
 Data/fieldmetadata/gfs-restart.yaml
+Data/fieldmetadata/gfs-restart-surface-masks.yaml
 Data/fieldmetadata/lam_cmaq.yaml
 Data/fieldmetadata/ufs.yaml
 )
@@ -568,32 +569,6 @@ execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink
                ${CMAKE_CURRENT_BINARY_DIR}/Data/inputs/gfs_c12/bkg
                ${CMAKE_CURRENT_BINARY_DIR}/Data/inputs/gfs_c12/mem000)
 
-# Files needed for GEOS aerosol testing
-if( ${geos-aero_FOUND} )
-  list( APPEND geos-aero_test_data
-  Data/optics_BC.v1_3_.nc
-  Data/optics_BRC.v1_5_.nc
-  Data/optics_DU.v15_3_.nc
-  Data/optics_NI.v2_5_.nc
-  Data/optics_OC.v1_3_.nc
-  Data/optics_SS.v3_3_.nc
-  Data/optics_SU.v1_3_.nc
-  )
-
-  CREATE_SYMLINK_FILENAME( ${geos-aero_SOURCE_DIR}/test/
-                           ${CMAKE_CURRENT_BINARY_DIR}/Data
-                           ${geos-aero_test_data} )
-
-  list( APPEND geos-aero_testinput
-  testinput/geosaod.rc
-  testinput/geosaod_aeronet.rc
-  testinput/Chem_MieRegistry.rc)
-
-  CREATE_SYMLINK_FILENAME( ${geos-aero_SOURCE_DIR}/test/
-                           ${CMAKE_CURRENT_BINARY_DIR}
-                           ${geos-aero_testinput} )
-endif()
-
 # --------------------------------------------------------------------------------------------------
 
 # Set the test tiering
@@ -695,6 +670,7 @@ file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/hofx/eda/gfs)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/forecast)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/adjointforecast)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/analysis)
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/analysis/gfs_land)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/analysis/eda/)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/analysis/eda/geos)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/analysis/eda/gfs)
@@ -1196,6 +1172,11 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_hofx_nomodel_lam_cmaq
                   ARGS     testinput/hofx_nomodel_lam_cmaq.yaml
                   COMMAND  fv3jedi_hofx_nomodel.x )
 
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_hofx_nomodel_amsua_fov
+                  MPI      6
+                  ARGS     testinput/hofx_nomodel_amsua_fov.yaml
+                  COMMAND  fv3jedi_hofx_nomodel.x )
+
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_hofx_nomodel_amsua_radii
                   MPI      6
                   ARGS     testinput/hofx_nomodel_amsua_radii.yaml
@@ -1300,10 +1281,13 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_hyb-3dvar_geos_sondes
                   COMMAND  fv3jedi_var.x )
 
 if (FV3JEDI_TEST_TIER GREATER_EQUAL 2)
-ecbuild_add_test( TARGET   fv3jedi_test_tier2_hyb-4denvar_geos_sondes
-                  MPI      12
-                  ARGS     testinput/hyb-4denvar_geos_sondes_c12.yaml
-                  COMMAND  fv3jedi_var.x )
+# TODO(RT,AS,NC): This test needs to be revisited to use hybrid covariance
+# via GSI block. Once SABER supports GSI covariance as a static component
+# for 4DEnVar, new test can be added with BUMP for localization.
+#ecbuild_add_test( TARGET   fv3jedi_test_tier2_hyb-4denvar_geos_sondes
+#                  MPI      6
+#                  ARGS     testinput/hyb-4denvar_geos_sondes_c12.yaml
+#                  COMMAND  fv3jedi_var.x )
 endif()
 
 if( ${sp_FOUND} )
@@ -1402,22 +1386,15 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_3dvar_geos_cf
                   COMMAND  fv3jedi_var.x
                   TEST_DEPENDS fv3jedi_test_tier1_bumpparameters_nicas_geos_cf )
 
-ecbuild_add_test( TARGET   fv3jedi_test_tier1_hyb-3dvar_gfs_aero_validate
-                  ARGS     --validate-only testinput/hyb-3dvar_gfs_aero.yaml
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_hyb-fgat_gfs_aero_validate
+                  ARGS     --validate-only testinput/hyb-fgat_gfs_aero.yaml
                   COMMAND  fv3jedi_var.x )
 
-ecbuild_add_test( TARGET   fv3jedi_test_tier1_hyb-3dvar_gfs_aero
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_hyb-fgat_gfs_aero
                   MPI      6
-                  ARGS     --no-validate testinput/hyb-3dvar_gfs_aero.yaml
+                  ARGS     --no-validate testinput/hyb-fgat_gfs_aero.yaml
                   COMMAND  fv3jedi_var.x
                   TEST_DEPENDS fv3jedi_test_tier1_bumpparameters_nicas_gfs_aero )
-
-if( ${geos-aero_FOUND} )
-  ecbuild_add_test( TARGET   fv3jedi_test_tier1_hofx_gfs_aero_aodluts
-                    MPI      6
-                    ARGS     testinput/hofx_gfs_aero_aodluts.yaml
-                    COMMAND  fv3jedi_hofx.x )
-endif()
 
 # Hybrid FGAT
 # -----------
@@ -1431,15 +1408,6 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_hyb-fgat_fv3lm
                   COMMAND  fv3jedi_var.x
                   TEST_DEPENDS fv3jedi_test_tier1_bumpparameters_nicas_geos )
 
-ecbuild_add_test( TARGET   fv3jedi_test_tier1_hyb-fgat_gfs_aero_validate
-                  ARGS     --validate-only testinput/hyb-fgat_gfs_aero.yaml
-                  COMMAND  fv3jedi_var.x )
-
-ecbuild_add_test( TARGET   fv3jedi_test_tier1_hyb-fgat_gfs_aero
-                  MPI      6
-                  ARGS     --no-validate testinput/hyb-fgat_gfs_aero.yaml
-                  COMMAND  fv3jedi_var.x
-                  TEST_DEPENDS fv3jedi_test_tier1_bumpparameters_nicas_gfs_aero )
 
 # 3DVar
 # -----
@@ -1580,6 +1548,11 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_lgetkf
 
 # Land DA
 # --------------
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_3dvar_snow
+                  MPI      6
+                  ARGS     testinput/3dvar_snow.yaml
+                  COMMAND  fv3jedi_var.x )
+
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_letkf_snow
                   MPI      6
                   ARGS     testinput/letkf_snow.yaml

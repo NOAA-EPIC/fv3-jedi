@@ -9,13 +9,15 @@
 
 cmake_minimum_required( VERSION 3.3.2 FATAL_ERROR )
 
-project( fv3jedi VERSION 1.8.0 LANGUAGES C CXX Fortran )
+project( fv3jedi VERSION 1.9.0 LANGUAGES C CXX Fortran )
 
 option(OPENMP "Build fv3-jedi with OpenMP support" ON)
 
 set( CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH})
 
 set( CMAKE_DIRECTORY_LABELS "fv3-jedi" )
+
+find_package( ecbuild 3.6 REQUIRED )
 
 set( ECBUILD_DEFAULT_BUILD_TYPE Release )
 set( ENABLE_OS_TESTS           OFF CACHE BOOL "Disable OS tests" FORCE )
@@ -75,7 +77,7 @@ find_package( NetCDF REQUIRED COMPONENTS C Fortran )
 find_package( atlas 0.35.0 REQUIRED )
 
 # oops
-find_package( oops 1.9.0 REQUIRED )
+find_package( oops 1.10.0 REQUIRED )
 
 # saber
 find_package( saber 1.9.0 REQUIRED )
@@ -86,11 +88,8 @@ find_package( crtm 2.2.3 REQUIRED )
 # ropp
 find_package( ropp-ufo QUIET )
 
-# geos-aero
-find_package( geos-aero QUIET )
-
 # gsibec
-find_package( gsibec 1.1.2 QUIET )
+find_package( gsibec 1.2.1 QUIET )
 if( gsibec_FOUND )
     message( STATUS "FV3-SABER block GSI is enabled" )
     add_definitions(-DENABLE_GSIBEC=1)
