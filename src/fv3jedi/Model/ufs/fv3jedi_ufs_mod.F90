@@ -203,9 +203,6 @@ contains
     allocate(stdnames(vars%nvars()))
     do var = 1, vars%nvars()
        stdnames(var) = trim(vars%variable(var))
-       if(stdnames(var) == 'sheleg') then ! weasd is apparently not a standard name
-          stdnames(var) = 'weasd' 
-       endif
     enddo
     call ESMF_LogWrite("Advertising export from ESM", ESMF_LOGMSG_INFO)
     ! Advertise fields on the exportState, for data coming out of ESM component

@@ -12,10 +12,10 @@ time window:
   begin: &date 2020-12-14T21:00:00Z
   length: PT6H
 
-Run Forecast: false
+Run Forecast: False
 files:
-  - testinput/forecast_ufs_1.yaml
-  - testinput/forecast_ufs_2.yaml
+  - testinput/letkf_forecast_ufs_1.yaml
+  - testinput/letkf_forecast_ufs_2.yaml
 
 batch: 1
 

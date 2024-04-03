@@ -215,6 +215,8 @@ list( APPEND fv3jedi_testinput
   testinput/increment_gfs.yaml
   testinput/letkf.yaml
   testinput/letkf-inline.yaml
+  testinput/letkf_forecast_ufs_1.yaml
+  testinput/letkf_forecast_ufs_2.yaml
   testinput/letkf3d.yaml
   testinput/lgetkf.yaml
   testinput/3dvar_snow.yaml
