@@ -1,23 +1,24 @@
 geometry:
   fms initialization:
-    namelist filename: Data/ModelRunDirs/UFS_warmstart/input.nml
-    field table filename: Data/ModelRunDirs/UFS_warmstart/field_table
+    namelist filename: Data/fv3files/fmsmpp.nml
+    field table filename: Data/fv3files/field_table
   akbk: Data/fv3files/akbk127.nc4
-  npx: 49
-  npy: 49
+  npx: 13
+  npy: 13
   npz: 127
-  field metadata override: Data/fieldmetadata/ufs.yaml
+  field metadata override: Data/fieldmetadata/gfs-restart.yaml
 
 time window:
   begin: &date 2020-12-14T21:00:00Z
   length: PT6H
 
-Run Forecast: false
-files:
-  - testinput/forecast_ufs_1.yaml
-  - testinput/forecast_ufs_2.yaml
-
+Run Forecast: False
+compute: False
 batch: 1
+files:
+  - testinput/letkf_forecast_ufs_1.yaml
+  - testinput/letkf_forecast_ufs_2.yaml
+
 background:
    members from template:
      template:
@@ -26,14 +27,14 @@ background:
        state variables: [ua,va,t,delp,sphum,ice_wat,liq_wat,o3mr,phis,
                          slmsk,sheleg,tsea,vtype,stype,vfrac,stc,smc,snwdph,
                          u_srf,v_srf,f10m]
-       datapath: Data/inputs/gfs_c48/mem%mem%/
+       datapath: Data/inputs/gfs_c12/mem%mem%/
        filename_core: 20201215.000000.fv_core.res.nc
        filename_trcr: 20201215.000000.fv_tracer.res.nc
        filename_sfcd: 20201215.000000.sfc_data.nc
        filename_sfcw: 20201215.000000.fv_srf_wnd.res.nc
        filename_cplr: 20201215.000000.coupler.res
      pattern: '%mem%'
-     nmembers: 2
+     nmembers: 3
      zero padding: 3
 
 observations:
@@ -174,12 +175,7 @@ observations:
 
 driver:
   save posterior ensemble: false
-  save posterior mean: true
-  save posterior mean increment: false
-  save posterior ensemble increments: false
-  read HX from disk: false
-  do test prints: true
-  do posterior observer: false
+  save posterior mean increment: true
 
 local ensemble DA:
   solver: LETKF
@@ -200,7 +196,7 @@ output increment:
   gridtype: latlon
   filename: Data/analysis/letkf/gfs/mem%{member}%/xainc.
 
-#test:
-#  reference filename: testoutput/letkf.ref
-#  test output filename: testoutput/letkf.test.out
-#  float relative tolerance: 1.0e-3
+test:
+  reference filename: testoutput/letkf.ref
+  test output filename: testoutput/letkf.test.out
+  float relative tolerance: 1.0e-3

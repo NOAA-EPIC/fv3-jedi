@@ -13,10 +13,13 @@ time window:
   length: PT6H
 
 Run Forecast: False
+
+
 files:
   - testinput/letkf_forecast_ufs_1.yaml
   - testinput/letkf_forecast_ufs_2.yaml
 
+compute: true
 batch: 1
 
 background:
@@ -220,3 +223,4 @@ output ensemble increments:
 #  reference filename: testoutput/letkf.ref
 #  test output filename: testoutput/letkf.test.out
 #  float relative tolerance: 1.0e3
+
