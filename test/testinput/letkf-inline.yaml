@@ -12,14 +12,13 @@ time window:
   begin: &date 2020-12-14T21:00:00Z
   length: PT6H
 
-Run Forecast: False
-
+Run Forecast: true 
 
 files:
   - testinput/letkf_forecast_ufs_1.yaml
   - testinput/letkf_forecast_ufs_2.yaml
 
-compute: true
+Compute HofX Only: true
 batch: 1
 
 background:
