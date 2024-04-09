@@ -12,14 +12,15 @@ time window:
   begin: &date 2020-12-14T21:00:00Z
   length: PT6H
 
-Run Forecast: true 
-
-files:
+inline parameters:
+  Run Forecast: false
+  Forecast configuration:
   - testinput/letkf_forecast_ufs_1.yaml
   - testinput/letkf_forecast_ufs_2.yaml
-
-Compute HofX Only: true
-batch: 1
+  Compute HofX Only: true
+  forecast batch size: 1
+  zero padding: 2
+  output file pattern: '%ensmem%'
 
 background:
    members from template:
@@ -53,10 +54,10 @@ observations:
       obsdataout:
         engine:
           type: H5File
-          obsfile: Data/hofx/scatwind_letkf-gfs_2020121500_m.nc4
+          obsfile: Data/hofx/scatwind_letkf-member%ensmem%-gfs_2020121500_m.nc4
       io pool:
         max pool size: 2
-        write multiple files: true
+        write multiple files: false
       simulated variables: [windEastward, windNorthward]
     obs operator:
       name: VertInterp
@@ -82,10 +83,10 @@ observations:
       obsdataout:
         engine:
           type: H5File
-          obsfile: Data/hofx/amsua_n19_letkf-gfs_2020121500_m.nc4
+          obsfile: Data/hofx/amsua_n19_letkf-member%ensmem%-gfs_2020121500_m.nc4
       io pool:
         max pool size: 2
-        write multiple files: true
+        write multiple files: false
       simulated variables: [brightnessTemperature]
       channels: 4-6,9-14
     obs operator:
@@ -127,11 +128,11 @@ observations:
       obsdataout:
         engine:
           type: H5File
-          obsfile: Data/hofx/sfc_letkf-gfs_2020121500_m.nc4
+          obsfile: Data/hofx/sfc_letkf-member%ensmem%-gfs_2020121500_m.nc4
       simulated variables: [stationPressure]
       io pool:
         max pool size: 2
-        write multiple files: true
+        write multiple files: false
     obs operator:
       name: SfcPCorrected
       da_psfc_scheme: UKMO
@@ -159,10 +160,10 @@ observations:
       obsdataout:
         engine:
           type: H5File
-          obsfile: Data/hofx/aircraft_letkf-gfs_2020121500_m.nc4
+          obsfile: Data/hofx/aircraft_letkf-member%ensmem%-gfs_2020121500_m.nc4
       io pool:
         max pool size: 2
-        write multiple files: true
+        write multiple files: false
       simulated variables: [windEastward,windNorthward,airTemperature]
     obs operator:
       name: VertInterp
