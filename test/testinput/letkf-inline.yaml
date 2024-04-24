@@ -6,6 +6,7 @@ geometry:
   npx: 49
   npy: 49
   npz: 127
+  member_number: 0
   field metadata override: Data/fieldmetadata/ufs.yaml
 
 time window:
@@ -17,7 +18,7 @@ inline parameters:
   Forecast configuration:
   - testinput/letkf_forecast_ufs_1.yaml
   - testinput/letkf_forecast_ufs_2.yaml
-  Compute HofX Only: true
+  Compute HofX Only: True
   forecast batch size: 1
   zero padding: 2
   output file pattern: '%ensmem%'
@@ -51,6 +52,7 @@ observations:
         engine:
           type: H5File
           obsfile: Data/obs/testinput_tier_1/scatwind_obs_2020121500_m.nc4
+#         obsfile: Data/hofx/scatwind_letkf-gfs_2020121500_m.nc4
       obsdataout:
         engine:
           type: H5File
@@ -80,6 +82,7 @@ observations:
         engine:
           type: H5File
           obsfile: Data/obs/testinput_tier_1/amsua_n19_obs_2020121500_m.nc4
+#         obsfile: Data/hofx/amsua_n19_letkf-gfs_2020121500_m.nc4
       obsdataout:
         engine:
           type: H5File
@@ -125,6 +128,7 @@ observations:
         engine:
           type: H5File
           obsfile: Data/obs/testinput_tier_1/sfc_obs_2020121500_m.nc4
+#         obsfile: Data/hofx/sfc_letkf-gfs_2020121500_m.nc4
       obsdataout:
         engine:
           type: H5File
@@ -157,6 +161,7 @@ observations:
         engine:
           type: H5File
           obsfile: Data/obs/testinput_tier_1/aircraft_obs_2020121500_m.nc4
+#         obsfile: Data/hofx/aircraft_letkf-gfs_2020121500_m.nc4
       obsdataout:
         engine:
           type: H5File

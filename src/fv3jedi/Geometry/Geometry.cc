@@ -34,7 +34,9 @@ Geometry::Geometry(const eckit::Configuration & config, const eckit::mpi::Comm &
   GeometryParameters params;
   params.deserialize(config);
   // Call the initialize phase, done only once.
-  static bool initialized = false;
+  std::cout << "in Geom ctr, config is " << config << std::endl;
+  bool initialized = false;
+  std::cout << "in Geom ctr, intialized is " << initialized << std::endl;
   if (!initialized) {
     fv3jedi_geom_initialize_f90((*params.fmsInit.value()).toConfiguration(), &comm_);
     initialized = true;
@@ -42,9 +44,11 @@ Geometry::Geometry(const eckit::Configuration & config, const eckit::mpi::Comm &
 
   // Geometry constructor
   fv3jedi_geom_setup_f90(keyGeom_, params.toConfiguration(), &comm_, nLevels_);
+  std::cout << "in Geom ctr, done with setup " << std::endl;
 
   // Construct the field sets and add to Geometry
   fieldsMeta_.reset(new FieldsMetadata(params.fieldsMetadataParameters, nLevels_));
+  std::cout << "in Geom ctr 1" << std::endl;
   fv3jedi_geom_addfmd_f90(keyGeom_, fieldsMeta_.get());
 
   {
@@ -52,6 +56,7 @@ Geometry::Geometry(const eckit::Configuration & config, const eckit::mpi::Comm &
     int num_nodes;
     int num_tri_elements;
     int num_quad_elements;
+  std::cout << "in Geom ctr 2" << std::endl;
     fv3jedi_geom_get_num_nodes_and_elements_f90(keyGeom_, num_nodes,
                                                 num_tri_elements, num_quad_elements);
 
@@ -102,6 +107,7 @@ Geometry::Geometry(const eckit::Configuration & config, const eckit::mpi::Comm &
       ++global_element_index;
     }
 
+  std::cout << "in Geom ctr 3" << std::endl;
     std::vector<atlas::gidx_t> atlas_global_indices(num_nodes);
     std::transform(global_indices.begin(), global_indices.end(), atlas_global_indices.begin(),
                    [](const int index) {return atlas::gidx_t{index};});
@@ -137,12 +143,14 @@ Geometry::Geometry(const eckit::Configuration & config, const eckit::mpi::Comm &
   // Set lon/lat field, include halo so we can set up function spaces with/without halo
   atlas::FieldSet fs;
   const bool include_halo = true;
+  std::cout << "in Geom ctr 4" << std::endl;
   fv3jedi_geom_set_lonlat_f90(keyGeom_, fs.get(), include_halo);
 
   // Create function space without halo, for constructing the bump interpolator from fv3jedi
   const atlas::Field lonlatFieldForBump = fs.field("lonlat");
   functionSpaceForBump_ = atlas::functionspace::PointCloud(lonlatFieldForBump);
 
+  std::cout << "in Geom ctr 5" << std::endl;
   // Set function space pointers in Fortran
   fv3jedi_geom_set_functionspace_pointer_f90(keyGeom_, functionSpace_.get(),
                                              functionSpaceForBump_.get());
@@ -170,12 +178,15 @@ Geometry::Geometry(const eckit::Configuration & config, const eckit::mpi::Comm &
       insertDerivedTimeInvariantFields(fields_, derivedFields);
     }
   }
+  std::cout << "in Geom ctr 6" << std::endl;
   fv3jedi_geom_set_and_fill_geometry_fields_f90(keyGeom_, fields_.get());
 
   // Copy some Fortran data to C++
   ak_.resize(nLevels_+1);
   bk_.resize(nLevels_+1);
+  std::cout << "in Geom ctr 7" << std::endl;
   fv3jedi_geom_get_data_f90(keyGeom_, nLevels_, ak_.data(), bk_.data(), pTop_);
+  std::cout << "in Geom ctr 8" << std::endl;
 }
 
 // -------------------------------------------------------------------------------------------------

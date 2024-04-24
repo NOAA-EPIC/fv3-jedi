@@ -12,7 +12,8 @@ use iso_c_binding
 
 use fckit_mpi_module,           only: fckit_mpi_comm
 use fckit_configuration_module, only: fckit_configuration
-
+use mpp_mod,                    only: mpp_npes, mpp_exit, mpp_set_current_pelist
+use ensemble_manager_mod,       only: ensemble_manager_init
 use fields_metadata_mod, only: fields_metadata
 
 use fv3jedi_kinds_mod
@@ -63,7 +64,7 @@ end subroutine c_fv3jedi_geom_initialize
 
 ! --------------------------------------------------------------------------------------------------
 
-subroutine c_fv3jedi_geom_setup(c_key_self, c_conf, c_comm, c_nlev) &
+subroutine c_fv3jedi_geom_setup(c_key_self, c_conf, c_comm, c_nlev ) &
                                bind(c, name='fv3jedi_geom_setup_f90')
 
 !Arguments
@@ -75,8 +76,10 @@ integer(c_int),     intent(inout) :: c_nlev
 type(fv3jedi_geom), pointer :: self
 type(fckit_configuration)   :: f_conf
 type(fckit_mpi_comm)        :: f_comm
-integer                     :: f_nlev
+integer                     :: f_nlev, comm_size, ierr, ensNum, tasks, i
+integer, allocatable        :: pelist(:)
 
+write(6,*) 'HEYYY, in fv3jedi_geom_setup ',mpp_npes()
 ! LinkedList
 ! ----------
 call fv3jedi_geom_registry%init()
@@ -87,15 +90,33 @@ call fv3jedi_geom_registry%get(c_key_self,self)
 ! ------------
 f_conf            = fckit_configuration(c_conf)
 f_comm            = fckit_mpi_comm(c_comm)
+write(6,*) 'HEYYY, in fv3jedi_geom_setup 6',f_comm%size()
 
+call f_conf%get_or_die("member_number", ensNum)
+self%ensNum = ensNum
+if(ensNum > 0) then
+  call f_conf%get_or_die("tasks_per_tile", tasks) 
+else 
+  ensNum = 1
+  tasks = f_comm%size()
+endif
+allocate(pelist(tasks))
+do i=1,tasks
+    pelist(i) = (ensNum - 1) * tasks + i - 1
+    write(6,*) 'HEY, pelist(',i,') is ',pelist(i)
+enddo
+write(6,*) 'size of pelist is ',size(pelist),mpp_npes()
+call mpp_set_current_pelist(pelist=pelist)
+!call ensemble_manager_init()
+write(6,*) 'size of pelist is now ',size(pelist),mpp_npes()
 ! Call implementation
 ! -------------------
 call self%create(f_conf, f_comm, f_nlev)
+write(6,*) 'HEYYY, in fv3jedi_geom_setup 7'
 
 ! Pass number of levels
 ! ---------------------
 c_nlev = f_nlev
-
 end subroutine c_fv3jedi_geom_setup
 
 ! --------------------------------------------------------------------------------------------------

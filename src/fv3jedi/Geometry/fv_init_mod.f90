@@ -35,7 +35,8 @@ logical,                          intent(in)    :: skip_nml_read
 real(kind_fv3) :: dt_atmos
 
 dt_atmos = dt_atmos_in
-
+write(6,*) 'in fv_init, grids on pe is ',grids_on_this_pe
+write(6,*) 'in fv_init, psplit is ',p_split,skip_nml_read
 call fv_init_fv3(Atm, dt_atmos, grids_on_this_pe, p_split)
 deallocate(pelist_all)
 

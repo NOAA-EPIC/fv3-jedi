@@ -90,6 +90,7 @@ type :: fv3jedi_geom
   logical :: bounded_domain = .false.
   character(len=10) :: vertcoord_type
 
+  integer :: ensNum = 1
   integer :: grid_type = 0
   logical :: dord4 = .true.
   type(atlas_functionspace) :: afunctionspace
@@ -214,7 +215,9 @@ call fmsnamelist%replace_namelist(conf)
 
 !Intialize using the model setup routine
 ! --------------------------------------
+write(6,*) 'calling fv_init'
 call fv_init(Atm, 300.0_kind_real, grids_on_this_pe, p_split, gtile, .true.)
+write(6,*) 'done calling fv_init'
 
 ! Copy relevant contents of Atm
 ! -----------------------------
@@ -319,6 +322,7 @@ if (self%npz > 1) then
        dcount = dcount + 1
     endif
   enddo
+write(6,*) 'geom_mod 1'
   if (readdim == -1) call abor1_ftn("ak/bk in file does not match dimension of npz from input.nml")
 
   !Read ak and bk from the file
@@ -387,6 +391,7 @@ self%ngrid = (self%iec-self%isc+1)*(self%jec-self%jsc+1)
 allocate(self%lat_us(self%ngrid))
 allocate(self%lon_us(self%ngrid))
 
+write(6,*) 'geom_mod 2'
 jj = 0
 do j = self%jsc,self%jec
   do i = self%isc,self%iec
@@ -404,10 +409,12 @@ call deallocate_fv_atmos_type(Atm(1))
 deallocate(Atm)
 deallocate(grids_on_this_pe)
 
+write(6,*) 'geom_mod 3'
 !Resetup domain to avoid risk of copied pointers
 call setup_domain( self%domain_fix, self%npx-1, self%npy-1, &
-                   self%ntiles, self%layout, self%io_layout, 3)
+                   self%ntiles, self%layout, self%io_layout, 3, self%ensNum)
 
+write(6,*) 'geom_mod 4'
 self%domain => self%domain_fix
 call nullify_domain()
 
@@ -729,15 +736,16 @@ end subroutine set_and_fill_geometry_fields
 
 ! --------------------------------------------------------------------------------------------------
 
-subroutine setup_domain(domain, nx, ny, ntiles, layout_in, io_layout, halo)
+subroutine setup_domain(domain, nx, ny, ntiles, layout_in, io_layout, halo, ensNum)
 
  type(domain2D),   intent(inout) :: domain
  integer,          intent(in)    :: nx, ny, ntiles
  integer,          intent(in)    :: layout_in(:), io_layout(:)
  integer,          intent(in)    :: halo
+ integer,          intent(in)    :: ensNum
 
  integer                              :: pe, npes, npes_per_tile, tile
- integer                              :: num_contact, num_alloc
+ integer                              :: num_contact, num_alloc, offset
  integer                              :: n, layout(2)
  integer, allocatable, dimension(:,:) :: global_indices, layout2D
  integer, allocatable, dimension(:)   :: pe_start, pe_end
@@ -750,6 +758,7 @@ subroutine setup_domain(domain, nx, ny, ntiles, layout_in, io_layout, halo)
   pe = mpp_pe()
   npes = mpp_npes()
 
+  write(6,*) 'in setup_d pe and npes are ',pe, npes
   if (mod(npes,ntiles) /= 0) then
      call mpp_error(NOTE, "setup_domain: npes can not be divided by ntiles")
      return
@@ -760,6 +769,7 @@ subroutine setup_domain(domain, nx, ny, ntiles, layout_in, io_layout, halo)
   if (layout_in(1)*layout_in(2) == npes_per_tile) then
      layout = layout_in
   else
+  write(6,*) 'in setup_d calling define_layout ',npes_per_tile, layout
      call mpp_define_layout( (/1,nx,1,ny/), npes_per_tile, layout )
   endif
 
@@ -782,12 +792,20 @@ subroutine setup_domain(domain, nx, ny, ntiles, layout_in, io_layout, halo)
     call mpp_error(FATAL, "setup_domain: ntiles != 1 or 6")
   end select
 
+  if(ensNum == 0) then ! this is the global domain
+    offset = 0
+  else
+    offset = (ensNum - 1)*npes_per_tile*ntiles
+  endif
   do n = 1, ntiles
      global_indices(:,n) = (/1,nx,1,ny/)
      layout2D(:,n)       = layout
-     pe_start(n)         = (n-1)*npes_per_tile
-     pe_end(n)           = n*npes_per_tile-1
+     pe_start(n)         = (n-1)*npes_per_tile + offset
+     pe_end(n)           = n*npes_per_tile-1 + offset
   enddo
+  write(6,*) 'setup_dom ensNum is ',ensNum
+  write(6,*) 'setup_dom pe_start is ',pe_start
+  write(6,*) 'setup_dom pe_end is ',pe_end
   num_alloc = max(1, num_contact)
   ! this code copied from domain_decomp in fv_mp_mod.f90
   allocate(tile1(num_alloc), tile2(num_alloc) )
@@ -853,11 +871,14 @@ subroutine setup_domain(domain, nx, ny, ntiles, layout_in, io_layout, halo)
      tile_id(n) = n
   enddo
 
+write(6,*) 'setup_domain 1',pe_start
+write(6,*) 'setup_domain 1.2',pe_end
   call mpp_define_mosaic(global_indices, layout2D, domain, ntiles, num_contact, tile1, tile2, &
                          istart1, iend1, jstart1, jend1, istart2, iend2, jstart2, jend2,      &
                          pe_start, pe_end, whalo=halo, ehalo=halo, shalo=halo, nhalo=halo,    &
                          symmetry=is_symmetry, tile_id=tile_id, &
                          name='cubic_grid')
+write(6,*) 'setup_domain 2'
 
   if (io_layout(1) /= 1 .or. io_layout(2) /= 1) call mpp_define_io_domain(domain, io_layout)
 
