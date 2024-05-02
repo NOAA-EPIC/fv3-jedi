@@ -1536,7 +1536,7 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_letkf_inline
                   COMMAND  fv3jedi_letkf.x )
 
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_letkf_inline_part2
-                  MPI      6
+                  MPI      12
                   ARGS     testinput/letkf-inline-part2.yaml
                   COMMAND  fv3jedi_letkf.x )
 
