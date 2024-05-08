@@ -12,7 +12,7 @@ use iso_c_binding
 
 use fckit_mpi_module,           only: fckit_mpi_comm
 use fckit_configuration_module, only: fckit_configuration
-use mpp_mod,                    only: mpp_npes, mpp_exit, mpp_set_current_pelist
+use mpp_mod,                    only: mpp_npes, mpp_exit, mpp_set_current_pelist,mpp_get_current_pelist
 use ensemble_manager_mod,       only: ensemble_manager_init
 use fields_metadata_mod, only: fields_metadata
 
@@ -64,7 +64,7 @@ end subroutine c_fv3jedi_geom_initialize
 
 ! --------------------------------------------------------------------------------------------------
 
-subroutine c_fv3jedi_geom_setup(c_key_self, c_conf, c_comm, c_nlev ) &
+subroutine c_fv3jedi_geom_setup(c_key_self, c_conf, c_comm, c_nlev, tileNum ) &
                                bind(c, name='fv3jedi_geom_setup_f90')
 
 !Arguments
@@ -72,12 +72,13 @@ integer(c_int),     intent(inout) :: c_key_self
 type(c_ptr), value, intent(in)    :: c_conf
 type(c_ptr), value, intent(in)    :: c_comm
 integer(c_int),     intent(inout) :: c_nlev
+integer(c_int),     intent(inout) :: tileNum
 
 type(fv3jedi_geom), pointer :: self
 type(fckit_configuration)   :: f_conf
 type(fckit_mpi_comm)        :: f_comm
 integer                     :: f_nlev, comm_size, ierr, ensNum, tasks, i
-integer, allocatable        :: pelist(:)
+integer, allocatable        :: pelist(:),pelist2(:)
 
 write(6,*) 'HEYYY, in fv3jedi_geom_setup ',mpp_npes()
 ! LinkedList
@@ -109,6 +110,12 @@ write(6,*) 'size of pelist is ',size(pelist),mpp_npes()
 call mpp_set_current_pelist(pelist=pelist)
 !call ensemble_manager_init()
 write(6,*) 'size of pelist is now ',size(pelist),mpp_npes()
+
+!call mpp_get_current_pelist(pelist2)
+!write(6,*) 'after call to get size of pelist2 is now ',size(pelist2),mpp_npes()
+!do i=1,size(pelist2)
+!    write(6,*) 'HEY, pelist2(',i,') is ',pelist2(i)
+!enddo
 ! Call implementation
 ! -------------------
 call self%create(f_conf, f_comm, f_nlev)
@@ -117,6 +124,7 @@ write(6,*) 'HEYYY, in fv3jedi_geom_setup 7'
 ! Pass number of levels
 ! ---------------------
 c_nlev = f_nlev
+tileNum = self%ntile
 end subroutine c_fv3jedi_geom_setup
 
 ! --------------------------------------------------------------------------------------------------

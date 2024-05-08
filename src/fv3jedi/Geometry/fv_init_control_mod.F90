@@ -38,6 +38,7 @@ real(kind_fv3) :: dt_atmos
 
 dt_atmos = dt_atmos_in
 
+write(6,*) 'in this fv_init'
 call fv_control_init(Atm, dt_atmos, this_grid, grids_on_this_pe, p_split, &
                      skip_nml_read_in=skip_nml_read)
 

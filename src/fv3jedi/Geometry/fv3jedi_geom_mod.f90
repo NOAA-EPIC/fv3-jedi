@@ -91,6 +91,7 @@ type :: fv3jedi_geom
   character(len=10) :: vertcoord_type
 
   integer :: ensNum = 1
+  integer :: nens = 1
   integer :: grid_type = 0
   logical :: dord4 = .true.
   type(atlas_functionspace) :: afunctionspace
@@ -430,6 +431,7 @@ endif
 ! -----------------------
 call fmsnamelist%revert_namelist
 
+write(6,*) 'created geometry on tile ',self%ntile,' idxs are ',self%isc,self%iec,self%jsc,self%jec
 end subroutine create
 
 ! --------------------------------------------------------------------------------------------------

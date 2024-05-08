@@ -43,9 +43,8 @@ Geometry::Geometry(const eckit::Configuration & config, const eckit::mpi::Comm &
   }
 
   // Geometry constructor
-  fv3jedi_geom_setup_f90(keyGeom_, params.toConfiguration(), &comm_, nLevels_);
+  fv3jedi_geom_setup_f90(keyGeom_, params.toConfiguration(), &comm_, nLevels_, tileNum_ );
   std::cout << "in Geom ctr, done with setup " << std::endl;
-
   // Construct the field sets and add to Geometry
   fieldsMeta_.reset(new FieldsMetadata(params.fieldsMetadataParameters, nLevels_));
   std::cout << "in Geom ctr 1" << std::endl;
@@ -218,9 +217,9 @@ GeometryIterator Geometry::begin() const {
   int ist, iend, jst, jend, kst, kend, npz;
   fv3jedi_geom_start_end_f90(keyGeom_, ist, iend, jst, jend, kst, kend, npz);
   // 3D iterator starts from 0 for surface variables
+  std::cout << "HEY geom here is " <<  ist << "," << iend<< ","  << jst<< ","  << jend<< ","  << kst<< "," << kend << std::endl;
   return GeometryIterator(*this, ist, jst, kst);
 }
-
 // -------------------------------------------------------------------------------------------------
 
 GeometryIterator Geometry::end() const {

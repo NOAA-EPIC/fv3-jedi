@@ -302,6 +302,30 @@ size_t State::serialSize() const {
 
 // -------------------------------------------------------------------------------------------------
 
+void State::serializeSect(std::vector<double> & vect, const int & isc, const int & iec, 
+     const int & jsc, const int & jec, const int & size_fld) const {
+  std::cout << "State serialize starting" << std::endl;
+  oops::Log::trace() << "State serialize starting" << std::endl;
+  std::cout << "serial size is " << size_fld << std::endl;
+  std::vector<double> v_fld(size_fld, 0);
+
+  std::cout << "calling fv3jedi_state SS " << std::endl;
+  fv3jedi_state_serializeSect_f90(keyState_, size_fld, v_fld.data(), isc, iec, jsc, jec);
+  std::cout << "done calling fv3jedi_state SS " << std::endl;
+  vect.insert(vect.end(), v_fld.begin(), v_fld.end());
+  std::cout << "done inserting vect, size is now " << vect.size() << std::endl;
+
+  // Serialize the date and time
+  vect.push_back(-54321.56789);
+  std::cout << "serializing time" << std::endl;
+  time_.serialize(vect);
+  std::cout << "done serializing time" << std::endl;
+
+  oops::Log::trace() << "State serialize done" << std::endl;
+}
+
+// -------------------------------------------------------------------------------------------------
+
 void State::serialize(std::vector<double> & vect) const {
   oops::Log::trace() << "State serialize starting" << std::endl;
   int size_fld = this->serialSize() - 3;
@@ -323,6 +347,7 @@ void State::deserialize(const std::vector<double> & vect, size_t & index) {
   oops::Log::trace() << "State deserialize starting" << std::endl;
   fv3jedi_state_deserialize_f90(keyState_, vect.size(), vect.data(), index);
 
+  std::cout << "HEY index here is " << index << std::endl;
   ASSERT(vect.at(index) == -54321.56789);
   ++index;
 
