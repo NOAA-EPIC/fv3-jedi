@@ -6,7 +6,7 @@ geometry:
   npx: 49
   npy: 49
   npz: 127
-  layout: [1,1]
+  layout: [2,1]
   member_number: 0
   field metadata override: Data/fieldmetadata/ufs.yaml
 

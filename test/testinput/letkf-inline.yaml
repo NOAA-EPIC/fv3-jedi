@@ -18,7 +18,7 @@ inline parameters:
   Forecast configuration:
   - testinput/letkf_forecast_ufs_1.yaml
   - testinput/letkf_forecast_ufs_2.yaml
-  Compute HofX Only: True
+  Compute HofX Only: true
   forecast batch size: 1
   zero padding: 2
   output file pattern: '%ensmem%'
@@ -51,7 +51,8 @@ observations:
       obsdatain:
         engine:
           type: H5File
-          obsfile: Data/obs/testinput_tier_1/scatwind_obs_2020121500_m.nc4
+          obsfile: Data/hofx/new/scatwind_letkf-gfs_2020121500_m.nc4
+#         obsfile: Data/obs/testinput_tier_1/scatwind_obs_2020121500_m.nc4
 #         obsfile: Data/hofx/scatwind_letkf-gfs_2020121500_m.nc4
       obsdataout:
         engine:
@@ -81,7 +82,8 @@ observations:
       obsdatain:
         engine:
           type: H5File
-          obsfile: Data/obs/testinput_tier_1/amsua_n19_obs_2020121500_m.nc4
+          obsfile: Data/hofx/new/amsua_n19_letkf-gfs_2020121500_m.nc4
+#         obsfile: Data/obs/testinput_tier_1/amsua_n19_obs_2020121500_m.nc4
 #         obsfile: Data/hofx/amsua_n19_letkf-gfs_2020121500_m.nc4
       obsdataout:
         engine:
@@ -127,7 +129,8 @@ observations:
       obsdatain:
         engine:
           type: H5File
-          obsfile: Data/obs/testinput_tier_1/sfc_obs_2020121500_m.nc4
+          obsfile: Data/hofx/new/sfc_letkf-gfs_2020121500_m.nc4
+#         obsfile: Data/obs/testinput_tier_1/sfc_obs_2020121500_m.nc4
 #         obsfile: Data/hofx/sfc_letkf-gfs_2020121500_m.nc4
       obsdataout:
         engine:
@@ -160,7 +163,8 @@ observations:
       obsdatain:
         engine:
           type: H5File
-          obsfile: Data/obs/testinput_tier_1/aircraft_obs_2020121500_m.nc4
+          obsfile: Data/hofx/new/aircraft_letkf-gfs_2020121500_m.nc4
+#         obsfile: Data/obs/testinput_tier_1/aircraft_obs_2020121500_m.nc4
 #         obsfile: Data/hofx/aircraft_letkf-gfs_2020121500_m.nc4
       obsdataout:
         engine:
@@ -200,7 +204,7 @@ driver:
   read HX from disk: false
   do test prints: true
   do posterior observer: false
-  run as observer only: true
+  run as observer only: false
 local ensemble DA:
   solver: LETKF
   inflation:
@@ -227,5 +231,5 @@ output ensemble increments:
 #test:
 #  reference filename: testoutput/letkf.ref
 #  test output filename: testoutput/letkf.test.out
-#  float relative tolerance: 1.0e3
+#  float relative tolerance: 1.0e-3
 
