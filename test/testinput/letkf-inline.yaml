@@ -13,12 +13,12 @@ time window:
   length: PT6H
 
 inline parameters:
-  Run Forecast: false
+  Run Forecast: true
   Forecast configuration:
   - testinput/letkf_forecast_ufs_1.yaml
   - testinput/letkf_forecast_ufs_2.yaml
   Compute HofX Only: true
-  forecast batch size: 1
+  forecast batch size: 2
   zero padding: 2
   output file pattern: '%ensmem%'
 
