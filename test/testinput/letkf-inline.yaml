@@ -14,7 +14,7 @@ time window:
   length: PT6H
 
 inline parameters:
-  Run Forecast: false
+  Run Forecast: true
   Forecast configuration:
   - testinput/letkf_forecast_ufs_1.yaml
   - testinput/letkf_forecast_ufs_2.yaml
