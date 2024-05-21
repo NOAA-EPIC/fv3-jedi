@@ -1,4 +1,4 @@
-forecast length: &fclength PT6H
+forecast length: &fclength PT1H
 geometry:
   fms initialization:
     namelist filename: Data/ModelRunDirs/UFS_warmstart/input.nml
@@ -10,10 +10,11 @@ geometry:
   npy: 49
   npz: 127
   ntiles: 6
+  member_number: 1
   field metadata override: Data/fieldmetadata/ufs.yaml
 model:
   name: UFS
-  tstep: PT6H
+  tstep: PT1H
   forecast length: *fclength
   ufs_run_directory: Data/ModelRunDirs/UFS_warmstart
   model variables: [ua,va,t,delp,sphum,ice_wat,liq_wat,o3mr,phis,
@@ -35,6 +36,6 @@ output:
   filetype: fms restart
   datapath: ../../../Data/forecast
   prefix: forecast.jediex.
-  first: PT6H
-  frequency: PT6H
+  first: PT1H
+  frequency: PT1H
 

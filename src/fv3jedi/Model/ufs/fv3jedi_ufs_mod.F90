@@ -25,7 +25,7 @@ module fv3jedi_ufs_mod
   use NUOPC
   use NUOPC_Driver
   use UFSDriver, only: esmSS => UFSDriver_SS
-  use mpp_mod,            only: read_input_nml,mpp_pe
+  use mpp_mod,            only: read_input_nml,mpp_pe,mpp_get_current_pelist,mpp_npes
 
   implicit none
   private
@@ -66,7 +66,8 @@ contains
 
     character(len=*),parameter :: subname = modname//' (create)'
     character(len=128) :: msg
-    integer :: rc
+    integer :: rc, i
+    integer :: pelist(6),pelist2(6)
 
     self%comm = geom%f_comm
     ! Initialize ESMF
@@ -89,6 +90,11 @@ contains
     call ESMF_LogWrite(trim(msg))
 
     self%initialized = .false.
+!   call mpp_get_current_pelist(pelist2)
+!   write(6,*) 'after call to get size of pelist2 is now ',size(pelist2),mpp_npes()
+!   do i=1,size(pelist2)
+!     write(6,*) 'HEY, pelist2(',i,') is ',pelist2(i)
+!   enddo
 
     call ESMF_LogWrite("Exit "//subname, ESMF_LOGMSG_INFO)
 
@@ -238,17 +244,20 @@ contains
          ESMF_LOGMSG_INFO)
 
     ! call ExternalAdvertise phase
+    write(6,*) 'in fv3-jedi comp search phase'
     call NUOPC_CompSearchPhaseMap(self%esmComp, &
          methodflag=ESMF_METHOD_INITIALIZE, &
          phaseLabel=label_ExternalAdvertise, phaseIndex=phase, rc=rc)
     esmf_err_abort(rc)
 
+    write(6,*) 'in fv3-jedi comp init'
     call ESMF_GridCompInitialize(self%esmComp, phase=phase, &
          importState=self%fromJedi, exportState=self%toJedi, &
          clock=self%clock, userRc=urc, rc=rc)
     esmf_err_abort(rc)
     esmf_err_abort(urc)
 
+    write(6,*) 'in fv3-jedi state get'
     call ESMF_StateGet(self%toJedi, itemCount=cnt, rc=rc)
     esmf_err_abort(rc)
 

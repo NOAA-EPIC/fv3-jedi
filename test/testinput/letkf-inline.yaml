@@ -6,11 +6,12 @@ geometry:
   npx: 49
   npy: 49
   npz: 127
+  member_number: 0
   field metadata override: Data/fieldmetadata/ufs.yaml
 
 time window:
   begin: &date 2020-12-14T21:00:00Z
-  length: PT6H
+  length: PT1H
 
 inline parameters:
   Run Forecast: true
@@ -18,7 +19,7 @@ inline parameters:
   - testinput/letkf_forecast_ufs_1.yaml
   - testinput/letkf_forecast_ufs_2.yaml
   Compute HofX Only: true
-  forecast batch size: 2
+  forecast batch size: 1
   zero padding: 2
   output file pattern: '%ensmem%'
 

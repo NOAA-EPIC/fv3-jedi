@@ -35,14 +35,18 @@ Geometry::Geometry(const eckit::Configuration & config, const eckit::mpi::Comm &
   params.deserialize(config);
   // Call the initialize phase, done only once.
   static bool initialized = false;
+  std::cout << "in fv3jedi/Geometry.cc and initialized is " << initialized << std::endl;
   if (!initialized) {
+    std::cout << "in fv3jedi/Geometry.cc calling geom_init " << std::endl;
     fv3jedi_geom_initialize_f90((*params.fmsInit.value()).toConfiguration(), &comm_);
     initialized = true;
   }
 
   // Geometry constructor
+    std::cout << "in fv3jedi/Geometry.cc calling geom_setup " << std::endl;
   fv3jedi_geom_setup_f90(keyGeom_, params.toConfiguration(), &comm_, nLevels_);
 
+    std::cout << "in fv3jedi/Geometry.cc constructing fields " << std::endl;
   // Construct the field sets and add to Geometry
   fieldsMeta_.reset(new FieldsMetadata(params.fieldsMetadataParameters, nLevels_));
   fv3jedi_geom_addfmd_f90(keyGeom_, fieldsMeta_.get());

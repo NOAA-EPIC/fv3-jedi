@@ -20,8 +20,8 @@ use fckit_mpi_module,           only: fckit_mpi_comm
 use fckit_configuration_module, only: fckit_configuration
 
 ! fms uses
-use fms_io_mod,                 only: nullify_domain
-use fms_mod,                    only: fms_init
+use fms_io_mod,                 only: nullify_domain, fms_io_exit
+use fms_mod,                    only: fms_init, fms_end
 use mpp_mod,                    only: mpp_exit, mpp_pe, mpp_npes, mpp_error, FATAL, NOTE
 use mpp_domains_mod,            only: domain2D, mpp_deallocate_domain, mpp_define_layout, &
                                       mpp_define_mosaic, mpp_define_io_domain, mpp_domains_exit, &
@@ -36,7 +36,7 @@ use fields_metadata_mod,        only: fields_metadata
 use fv3jedi_constants_mod,      only: constant
 use fv3jedi_kinds_mod,          only: kind_int, kind_real
 use fv3jedi_netcdf_utils_mod,   only: nccheck
-use fv_init_mod,                only: fv_init
+use fv_init_mod,                only: fv_init, fv_end_local
 use fv3jedi_fmsnamelist_mod,    only: fv3jedi_fmsnamelist
 
 implicit none
@@ -90,6 +90,7 @@ type :: fv3jedi_geom
   logical :: bounded_domain = .false.
   character(len=10) :: vertcoord_type
 
+  integer :: ensNum
   integer :: grid_type = 0
   logical :: dord4 = .true.
   type(atlas_functionspace) :: afunctionspace
@@ -214,7 +215,9 @@ call fmsnamelist%replace_namelist(conf)
 
 !Intialize using the model setup routine
 ! --------------------------------------
+write(6,*) 'calling fv_init from create in fv3jedi_geom_mod'
 call fv_init(Atm, 300.0_kind_real, grids_on_this_pe, p_split, gtile, .true.)
+write(6,*) 'calling fv_init from create in fv3jedi_geom_mod',grids_on_this_pe
 
 ! Copy relevant contents of Atm
 ! -----------------------------
@@ -399,6 +402,7 @@ enddo
 !Set Ptop
 self%ptop = self%ak(1)
 
+call fv_end_local(Atm)
 !Done with the Atm stucture here
 call deallocate_fv_atmos_type(Atm(1))
 deallocate(Atm)
@@ -611,8 +615,9 @@ deallocate(self%lon_us)
 
 call self%afunctionspace%final()
 call self%afunctionspace_for_bump%final()
-
+write(6,*) "HEYY!!! deleting geometry 1"
 ! Could finalize the fms routines. Possibly needs to be done only when key = 0
+!call fms_end
 !call fms_io_exit
 !call mpp_domains_exit
 !call mpp_exit
@@ -738,7 +743,7 @@ subroutine setup_domain(domain, nx, ny, ntiles, layout_in, io_layout, halo)
 
  integer                              :: pe, npes, npes_per_tile, tile
  integer                              :: num_contact, num_alloc
- integer                              :: n, layout(2)
+ integer                              :: n, layout(2), ensNum
  integer, allocatable, dimension(:,:) :: global_indices, layout2D
  integer, allocatable, dimension(:)   :: pe_start, pe_end
  integer, allocatable, dimension(:)   :: tile1, tile2
@@ -756,7 +761,11 @@ subroutine setup_domain(domain, nx, ny, ntiles, layout_in, io_layout, halo)
   endif
   npes_per_tile = npes/ntiles
   tile = pe/npes_per_tile + 1
-
+  ensNum = 1
+  if(pe >= npes) then
+    ensNum = 2
+  endif
+  write(6,*) 'in setup_domain with npes_per_tile, pe, npes = ',npes_per_tile,pe,npes
   if (layout_in(1)*layout_in(2) == npes_per_tile) then
      layout = layout_in
   else
@@ -785,9 +794,11 @@ subroutine setup_domain(domain, nx, ny, ntiles, layout_in, io_layout, halo)
   do n = 1, ntiles
      global_indices(:,n) = (/1,nx,1,ny/)
      layout2D(:,n)       = layout
-     pe_start(n)         = (n-1)*npes_per_tile
-     pe_end(n)           = n*npes_per_tile-1
+     pe_start(n)         = (n-1)*npes_per_tile + (ensNum -1) * 6
+     pe_end(n)           = n*npes_per_tile-1 + (ensNum -1) * 6
   enddo
+  
+  write(6,*) 'in setup_domain set pe_end to be ',pe_end
   num_alloc = max(1, num_contact)
   ! this code copied from domain_decomp in fv_mp_mod.f90
   allocate(tile1(num_alloc), tile2(num_alloc) )

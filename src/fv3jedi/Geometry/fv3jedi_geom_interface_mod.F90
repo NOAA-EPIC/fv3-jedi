@@ -12,7 +12,8 @@ use iso_c_binding
 
 use fckit_mpi_module,           only: fckit_mpi_comm
 use fckit_configuration_module, only: fckit_configuration
-
+use mpp_mod,                    only: mpp_npes, mpp_exit, mpp_set_current_pelist,mpp_get_current_pelist
+use mpp_mod,                    only: mpp_declare_pelist, mpp_pe
 use fields_metadata_mod, only: fields_metadata
 
 use fv3jedi_kinds_mod
@@ -75,7 +76,8 @@ integer(c_int),     intent(inout) :: c_nlev
 type(fv3jedi_geom), pointer :: self
 type(fckit_configuration)   :: f_conf
 type(fckit_mpi_comm)        :: f_comm
-integer                     :: f_nlev
+integer                     :: f_nlev, i, ensNum
+integer, allocatable        :: pelist(:),pelist2(:)
 
 ! LinkedList
 ! ----------
@@ -87,15 +89,40 @@ call fv3jedi_geom_registry%get(c_key_self,self)
 ! ------------
 f_conf            = fckit_configuration(c_conf)
 f_comm            = fckit_mpi_comm(c_comm)
+call f_conf%get_or_die("member_number", ensNum)
+self%ensNum = ensNum
 
+if(ensNum > 0) then
+  allocate(pelist(6))
+  do i=1,6
+!    pelist(i) = (ensNum - 1) * f_comm%size() + i - 1
+    pelist(i) = (ensNum -1) * 6 + i - 1
+!   pelist(i) = i - 1
+    write(6,*) 'HEY, SMALL, pelist(',i,') is ',pelist(i),f_comm%rank(),f_comm%size(),ensNum
+  enddo
+else 
+  allocate(pelist(12))
+  do i=1,12
+    pelist(i) = i - 1
+    write(6,*) 'HEY, BIG pelist(',i,') is ',pelist(i),f_comm%rank(),ensNum 
+  enddo
+endif
+!write(6,*) 'declaring pelist on ',f_comm%rank(),ensNum,mpp_npes(),size(pelist) 
+!call mpp_declare_pelist(pelist=pelist)
+if(ensNum >= 0) then
+  write(6,*) 'geom interface setting pelist on ',f_comm%rank(),ensNum,mpp_npes(),size(pelist),mpp_pe() 
+  call mpp_set_current_pelist(pelist=pelist)
+  write(6,*) 'done geom interface setting pelist on ',f_comm%rank(),ensNum,mpp_npes(),size(pelist),mpp_pe() 
+endif
 ! Call implementation
 ! -------------------
 call self%create(f_conf, f_comm, f_nlev)
+write(6,*) 'done with create in geom interface'
 
 ! Pass number of levels
 ! ---------------------
 c_nlev = f_nlev
-
+deallocate(pelist)
 end subroutine c_fv3jedi_geom_setup
 
 ! --------------------------------------------------------------------------------------------------
@@ -165,6 +192,7 @@ call fv3jedi_geom_registry%get(c_key_self, self)
 
 ! Call implementation
 ! -------------------
+write(6,*) "HEYY!!! deleting geometry 0"
 call self%delete()
 
 ! LinkedList
