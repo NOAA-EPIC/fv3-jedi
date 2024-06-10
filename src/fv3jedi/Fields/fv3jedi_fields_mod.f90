@@ -62,6 +62,7 @@ type :: fv3jedi_fields
     procedure, public :: minmaxrms
     procedure, public :: accumul
     procedure, public :: serialize
+    procedure, public :: serializeSect
     procedure, public :: deserialize
     procedure, public :: to_fieldset
     procedure, public :: from_fieldset
@@ -416,6 +417,43 @@ end subroutine accumul
 
 ! --------------------------------------------------------------------------------------------------
 
+subroutine serializeSect(self,vsize,vect_inc,isc,iec,jsc,jec)
+
+implicit none
+
+! Passed variables
+class(fv3jedi_fields), intent(in)  :: self
+integer,               intent(in)  :: vsize
+integer,               intent(in)  :: isc
+integer,               intent(in)  :: iec
+integer,               intent(in)  :: jsc
+integer,               intent(in)  :: jec
+real(kind_real),       intent(out) :: vect_inc(vsize)
+
+! Local variables
+integer :: ind, var, i, j, k
+
+write(6,*) 'HEYYY start of serializeSect vsize is ',vsize,isc,iec,jsc,jec
+! Initialize
+ind = 0
+! Copy
+write(6,*) 'copying fields from ',isc,iec,jsc,jec,self%fields(var)%npz,self%nf
+do var = 1, self%nf
+  do k = 1,self%fields(var)%npz
+    do j = jsc,jec
+      do i = isc,iec
+        ind = ind + 1
+        vect_inc(ind) = self%fields(var)%array(i, j, k)
+      enddo
+    enddo
+!   write(6,*) 'vect_ind is ',vect_inc(ind),' at ',ind
+  enddo
+enddo
+write(6,*) 'HEYYY serializeSect number of fields is ',self%nf,' ind is ',ind, 'vsize ',size(vect_inc)
+
+end subroutine serializeSect
+
+! --------------------------------------------------------------------------------------------------
 subroutine serialize(self,vsize,vect_inc)
 
 implicit none

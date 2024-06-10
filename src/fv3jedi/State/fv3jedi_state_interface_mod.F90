@@ -421,6 +421,29 @@ call self%serialize(c_vsize,c_vect_inc)
 end subroutine fv3jedi_state_serialize_c
 
 ! --------------------------------------------------------------------------------------------------
+! --------------------------------------------------------------------------------------------------
+subroutine fv3jedi_state_serializeSect_c(c_key_self,c_vsize,c_vect_inc,isc,iec,jsc,jec) &
+           bind(c,name='fv3jedi_state_serializeSect_f90')
+
+implicit none
+
+! Passed variables
+integer(c_int),intent(in) :: c_key_self           !< State
+integer(c_int),intent(in) :: c_vsize              !< Size
+real(c_double),intent(out) :: c_vect_inc(c_vsize) !< Vector
+integer(c_int),intent(in) :: isc                  !< Size
+integer(c_int),intent(in) :: iec                  !< Size
+integer(c_int),intent(in) :: jsc                  !< Size
+integer(c_int),intent(in) :: jec                  !< Size
+
+type(fv3jedi_state),pointer :: self
+
+call fv3jedi_state_registry%get(c_key_self, self)
+! Call Fortran
+call self%serializeSect(c_vsize,c_vect_inc,isc,iec,jsc,jec)
+
+end subroutine fv3jedi_state_serializeSect_c
+
 
 subroutine fv3jedi_state_deserialize_c(c_key_self,c_vsize,c_vect_inc,c_index) &
            bind(c,name='fv3jedi_state_deserialize_f90')

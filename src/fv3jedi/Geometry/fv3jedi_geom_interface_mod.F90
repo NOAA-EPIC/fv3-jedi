@@ -66,7 +66,7 @@ end subroutine c_fv3jedi_geom_initialize
 
 ! --------------------------------------------------------------------------------------------------
 
-subroutine c_fv3jedi_geom_setup(c_key_self, c_conf, c_comm, c_nlev) &
+subroutine c_fv3jedi_geom_setup(c_key_self, c_conf, c_comm, c_nlev, tileNum ) &
                                bind(c, name='fv3jedi_geom_setup_f90')
 
 !Arguments
@@ -74,6 +74,7 @@ integer(c_int),     intent(inout) :: c_key_self
 type(c_ptr), value, intent(in)    :: c_conf
 type(c_ptr), value, intent(in)    :: c_comm
 integer(c_int),     intent(inout) :: c_nlev
+integer(c_int),     intent(inout) :: tileNum
 
 type(fv3jedi_geom), pointer :: self
 type(fckit_configuration)   :: f_conf
@@ -138,6 +139,7 @@ write(6,*) 'done with create in geom interface'
 ! Pass number of levels
 ! ---------------------
 c_nlev = f_nlev
+tileNum = self%ntile
 !deallocate(pelist)
 end subroutine c_fv3jedi_geom_setup
 

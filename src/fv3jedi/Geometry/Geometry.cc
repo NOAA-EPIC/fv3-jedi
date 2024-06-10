@@ -44,7 +44,7 @@ Geometry::Geometry(const eckit::Configuration & config, const eckit::mpi::Comm &
 
   // Geometry constructor
     std::cout << "in fv3jedi/Geometry.cc calling geom_setup " << std::endl;
-  fv3jedi_geom_setup_f90(keyGeom_, params.toConfiguration(), &comm_, nLevels_);
+  fv3jedi_geom_setup_f90(keyGeom_, params.toConfiguration(), &comm_, nLevels_, tileNum_ );
 
     std::cout << "in fv3jedi/Geometry.cc constructing fields " << std::endl;
   // Construct the field sets and add to Geometry

@@ -60,6 +60,18 @@ class Geometry : public util::Printable,
   const atlas::FieldSet & fields() const {return fields_;}
   void latlon(std::vector<double> &, std::vector<double> &, const bool) const;
 
+  int tileNum() const {return tileNum_;}
+  void get_indices(std::vector<int> & indices) const {
+     int ist, iend, jst, jend, kst, kend, npz;
+     fv3jedi_geom_start_end_f90(keyGeom_, ist, iend, jst, jend, kst, kend, npz);
+     indices.push_back(ist); 
+     indices.push_back(iend); 
+     indices.push_back(jst); 
+     indices.push_back(jend); 
+     indices.push_back(kst); 
+     indices.push_back(kend); 
+     indices.push_back(npz); 
+  }
   std::vector<size_t> variableSizes(const oops::Variables &) const;
 
   const FieldsMetadata & fieldsMetaData() const {return *fieldsMeta_;}
@@ -82,6 +94,7 @@ class Geometry : public util::Printable,
   std::shared_ptr<FieldsMetadata> fieldsMeta_;
   std::vector<double> ak_;
   std::vector<double> bk_;
+  int tileNum_;
   int nLevels_;
   double pTop_;
 };
