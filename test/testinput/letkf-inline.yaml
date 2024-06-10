@@ -11,7 +11,7 @@ geometry:
 
 time window:
   begin: &date 2020-12-14T21:00:00Z
-  length: PT1H
+  length: PT6H
 
 inline parameters:
   Run Forecast: true
@@ -51,13 +51,15 @@ observations:
       obsdatain:
         engine:
           type: H5File
-          obsfile: Data/obs/testinput_tier_1/scatwind_obs_2020121500_m.nc4
+          obsfile: Data/hofx/new/scatwind_letkf-gfs_2020121500_m.nc4
+#         obsfile: Data/obs/testinput_tier_1/scatwind_obs_2020121500_m.nc4
+#         obsfile: Data/hofx/scatwind_letkf-gfs_2020121500_m.nc4
       obsdataout:
         engine:
           type: H5File
           obsfile: Data/hofx/scatwind_letkf-member%ensmem%-gfs_2020121500_m.nc4
       io pool:
-        max pool size: 2
+        max pool size: 1
         write multiple files: false
       simulated variables: [windEastward, windNorthward]
     obs operator:
@@ -80,13 +82,15 @@ observations:
       obsdatain:
         engine:
           type: H5File
-          obsfile: Data/obs/testinput_tier_1/amsua_n19_obs_2020121500_m.nc4
+          obsfile: Data/hofx/new/amsua_n19_letkf-gfs_2020121500_m.nc4
+#         obsfile: Data/obs/testinput_tier_1/amsua_n19_obs_2020121500_m.nc4
+#         obsfile: Data/hofx/amsua_n19_letkf-gfs_2020121500_m.nc4
       obsdataout:
         engine:
           type: H5File
           obsfile: Data/hofx/amsua_n19_letkf-member%ensmem%-gfs_2020121500_m.nc4
       io pool:
-        max pool size: 2
+        max pool size: 1
         write multiple files: false
       simulated variables: [brightnessTemperature]
       channels: 4-6,9-14
@@ -125,14 +129,16 @@ observations:
       obsdatain:
         engine:
           type: H5File
-          obsfile: Data/obs/testinput_tier_1/sfc_obs_2020121500_m.nc4
+          obsfile: Data/hofx/new/sfc_letkf-gfs_2020121500_m.nc4
+#         obsfile: Data/obs/testinput_tier_1/sfc_obs_2020121500_m.nc4
+#         obsfile: Data/hofx/sfc_letkf-gfs_2020121500_m.nc4
       obsdataout:
         engine:
           type: H5File
           obsfile: Data/hofx/sfc_letkf-member%ensmem%-gfs_2020121500_m.nc4
       simulated variables: [stationPressure]
       io pool:
-        max pool size: 2
+        max pool size: 1
         write multiple files: false
     obs operator:
       name: SfcPCorrected
@@ -157,7 +163,9 @@ observations:
       obsdatain:
         engine:
           type: H5File
-          obsfile: Data/obs/testinput_tier_1/aircraft_obs_2020121500_m.nc4
+          obsfile: Data/hofx/new/aircraft_letkf-gfs_2020121500_m.nc4
+#         obsfile: Data/obs/testinput_tier_1/aircraft_obs_2020121500_m.nc4
+#         obsfile: Data/hofx/aircraft_letkf-gfs_2020121500_m.nc4
       obsdataout:
         engine:
           type: H5File
@@ -189,14 +197,14 @@ observations:
       max nobs: 50
 
 driver:
-  save posterior ensemble: false
+  save posterior ensemble: true
   save posterior mean: true
-  save posterior mean increment: false
-  save posterior ensemble increments: false
+  save posterior mean increment: true
+  save posterior ensemble increments: true
   read HX from disk: false
   do test prints: true
-  do posterior observer: false
-  run as observer only: true
+  do posterior observer: true
+  run as observer only: false
 local ensemble DA:
   solver: LETKF
   inflation:
@@ -223,5 +231,5 @@ output ensemble increments:
 #test:
 #  reference filename: testoutput/letkf.ref
 #  test output filename: testoutput/letkf.test.out
-#  float relative tolerance: 1.0e3
+#  float relative tolerance: 1.0e-3
 
