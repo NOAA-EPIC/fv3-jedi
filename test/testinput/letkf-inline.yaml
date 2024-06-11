@@ -7,6 +7,7 @@ geometry:
   npy: 49
   npz: 127
   member_number: 0
+  layout: [2,1]
   field metadata override: Data/fieldmetadata/ufs.yaml
 
 time window:
@@ -19,7 +20,7 @@ inline parameters:
   - testinput/letkf_forecast_ufs_1.yaml
   - testinput/letkf_forecast_ufs_2.yaml
   Compute HofX Only: true
-  forecast batch size: 1
+  forecast batch size: 2
   zero padding: 2
   output file pattern: '%ensmem%'
 

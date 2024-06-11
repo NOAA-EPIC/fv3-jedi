@@ -51,6 +51,7 @@ Geometry::Geometry(const eckit::Configuration & config, const eckit::mpi::Comm &
   fieldsMeta_.reset(new FieldsMetadata(params.fieldsMetadataParameters, nLevels_));
   fv3jedi_geom_addfmd_f90(keyGeom_, fieldsMeta_.get());
 
+    std::cout << "in fv3jedi/Geometry.cc Done constructing fields " << std::endl;
   {
     // grab local coordinates + global indices from fortran (owned + 1-deep halo points)
     int num_nodes;

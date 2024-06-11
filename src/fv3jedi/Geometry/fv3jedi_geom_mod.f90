@@ -26,6 +26,8 @@ use mpp_mod,                    only: mpp_exit, mpp_pe, mpp_npes, mpp_error, FAT
 use mpp_domains_mod,            only: domain2D, mpp_deallocate_domain, mpp_define_layout, &
                                       mpp_define_mosaic, mpp_define_io_domain, mpp_domains_exit, &
                                       mpp_domains_set_stack_size
+use ensemble_manager_mod,       only: get_ensemble_id,get_ensemble_size
+
 use field_manager_mod,          only: fm_string_len, field_manager_init
 
 ! fv3 uses
@@ -743,17 +745,19 @@ subroutine setup_domain(domain, nx, ny, ntiles, layout_in, io_layout, halo)
 
  integer                              :: pe, npes, npes_per_tile, tile
  integer                              :: num_contact, num_alloc
- integer                              :: n, layout(2), ensNum
+ integer                              :: n, layout(2)
  integer, allocatable, dimension(:,:) :: global_indices, layout2D
  integer, allocatable, dimension(:)   :: pe_start, pe_end
  integer, allocatable, dimension(:)   :: tile1, tile2
  integer, allocatable, dimension(:)   :: istart1, iend1, jstart1, jend1
  integer, allocatable, dimension(:)   :: istart2, iend2, jstart2, jend2
- integer, allocatable :: tile_id(:)
+ integer, allocatable :: tile_id(:), ensNum
  logical :: is_symmetry
 
   pe = mpp_pe()
   npes = mpp_npes()
+  ensNum = get_ensemble_id()
+
 
   if (mod(npes,ntiles) /= 0) then
      call mpp_error(NOTE, "setup_domain: npes can not be divided by ntiles")
@@ -761,10 +765,6 @@ subroutine setup_domain(domain, nx, ny, ntiles, layout_in, io_layout, halo)
   endif
   npes_per_tile = npes/ntiles
   tile = pe/npes_per_tile + 1
-  ensNum = 1
-  if(pe >= npes) then
-    ensNum = 2
-  endif
   write(6,*) 'in setup_domain with npes_per_tile, pe, npes = ',npes_per_tile,pe,npes
   if (layout_in(1)*layout_in(2) == npes_per_tile) then
      layout = layout_in

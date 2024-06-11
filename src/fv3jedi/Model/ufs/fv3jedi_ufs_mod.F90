@@ -67,7 +67,6 @@ contains
     character(len=*),parameter :: subname = modname//' (create)'
     character(len=128) :: msg
     integer :: rc, i
-    integer :: pelist(6),pelist2(6)
 
     self%comm = geom%f_comm
     ! Initialize ESMF
@@ -90,11 +89,6 @@ contains
     call ESMF_LogWrite(trim(msg))
 
     self%initialized = .false.
-!   call mpp_get_current_pelist(pelist2)
-!   write(6,*) 'after call to get size of pelist2 is now ',size(pelist2),mpp_npes()
-!   do i=1,size(pelist2)
-!     write(6,*) 'HEY, pelist2(',i,') is ',pelist2(i)
-!   enddo
 
     call ESMF_LogWrite("Exit "//subname, ESMF_LOGMSG_INFO)
 

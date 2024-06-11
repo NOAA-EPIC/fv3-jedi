@@ -121,6 +121,7 @@ if( ensNum > 0 ) then
   ens_siz = get_ensemble_size()
   ensemble_size = ens_siz(1)
   npes = ens_siz(2)
+  write(6,*) 'DONE calling ensemble manager init',ensemble_size,npes
   call ensemble_pelist_setup(.true., atmos_npes, ocean_npes, land_npes, ice_npes, &
                                Atm_pelist, Ocean_pelist, Land_pelist, Ice_fast_pelist)
   ensemble_id = get_ensemble_id()
