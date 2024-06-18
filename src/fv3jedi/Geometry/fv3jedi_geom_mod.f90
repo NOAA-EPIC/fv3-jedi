@@ -794,8 +794,8 @@ subroutine setup_domain(domain, nx, ny, ntiles, layout_in, io_layout, halo)
   do n = 1, ntiles
      global_indices(:,n) = (/1,nx,1,ny/)
      layout2D(:,n)       = layout
-     pe_start(n)         = (n-1)*npes_per_tile + (ensNum -1) * 6
-     pe_end(n)           = n*npes_per_tile-1 + (ensNum -1) * 6
+     pe_start(n)         = (n-1)*npes_per_tile + (ensNum -1) * 6 * npes_per_tile
+     pe_end(n)           = n*npes_per_tile-1 + (ensNum -1) * 6 * npes_per_tile
   enddo
   
   write(6,*) 'in setup_domain set pe_end to be ',pe_end

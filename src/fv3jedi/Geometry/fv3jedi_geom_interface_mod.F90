@@ -93,10 +93,6 @@ integer                     :: ens_siz(6), ensemble_size, npes
 integer, allocatable :: ensemble_pelist(:, :)
 
 
-atmos_npes = 6
-ocean_npes = 0
-land_npes = 0
-ice_npes = 0
 
 ! LinkedList
 ! ----------
@@ -109,21 +105,31 @@ call fv3jedi_geom_registry%get(c_key_self,self)
 f_conf            = fckit_configuration(c_conf)
 f_comm            = fckit_mpi_comm(c_comm)
 call f_conf%get_or_die("member_number", ensNum)
+write(6,*) 'in geom_interface, member number is ',ensNum
 self%ensNum = ensNum
 if( ensNum > 0 ) then
   write(6,*) 'calling ensemble manager init'
+  call ensemble_manager_init()
+  ens_siz = get_ensemble_size()
+  ensemble_size = ens_siz(1)
+  npes = ens_siz(2)
+  write(6,*) 'in geom_interface, ensemble size is ',ens_siz
+
+  atmos_npes = npes
+  ocean_npes = 0
+  land_npes = 0
+  ice_npes = 0
+
   allocate( Atm_pelist  (atmos_npes) )
   allocate( Ocean_pelist(ocean_npes) )
   allocate( Land_pelist (land_npes) )
   allocate( Ice_fast_pelist(ice_npes) )
 
-  call ensemble_manager_init()
-  ens_siz = get_ensemble_size()
-  ensemble_size = ens_siz(1)
-  npes = ens_siz(2)
   write(6,*) 'DONE calling ensemble manager init',ensemble_size,npes
+  write(6,*) 'atmos_npes is',atmos_npes,npes
   call ensemble_pelist_setup(.true., atmos_npes, ocean_npes, land_npes, ice_npes, &
                                Atm_pelist, Ocean_pelist, Land_pelist, Ice_fast_pelist)
+  write(6,*) 'atmospelist is',Atm_pelist
   ensemble_id = get_ensemble_id()
   write(6,*) 'my ensemble id is ',ensemble_id
   allocate(ensemble_pelist(1:ensemble_size,1:npes))

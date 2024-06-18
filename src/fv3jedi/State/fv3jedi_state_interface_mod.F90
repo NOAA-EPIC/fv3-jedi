@@ -72,7 +72,7 @@ call fv3jedi_state_registry%add(c_key_self)
 call fv3jedi_state_registry%get(c_key_self,self)
 
 vars = oops_variables(c_vars)
-
+write(6,*) 'creating variables now '
 ! Create Fortran pointer to datetime
 call c_f_datetime(c_time, self%time)
 

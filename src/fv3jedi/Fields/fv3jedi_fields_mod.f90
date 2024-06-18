@@ -129,6 +129,7 @@ subroutine create(self, geom, vars)
     self%fields(fc)%jsc = geom%jsc
     self%fields(fc)%jec = geom%jec
 
+    write(6,*) 'creating field ',trim(vars%variable(var)),geom%isc,geom%iec,geom%jsc,geom%jec
     ! Set this fields meta data
     call create_field(self%fields(fc), geom%fmd%get_field_metadata(trim(vars%variable(var))), &
                       geom%f_comm)
@@ -437,8 +438,11 @@ write(6,*) 'HEYYY start of serializeSect vsize is ',vsize,isc,iec,jsc,jec
 ! Initialize
 ind = 0
 ! Copy
-write(6,*) 'copying fields from ',isc,iec,jsc,jec,self%fields(var)%npz,self%nf
 do var = 1, self%nf
+  write(6,*) 'copying fields from ',isc,iec,jsc,jec,self%fields(var)%npz,self%nf,ind,var
+  write(6,*) 'about to look at val from ',iec,jec,self%fields(var)%npz,trim(self%fields(var)%short_name)
+  write(6,*) 'array val is ',self%fields(var)%array(isc, jsc, self%fields(var)%npz )
+  write(6,*) 'array val is ',self%fields(var)%array(iec, jec, self%fields(var)%npz )
   do k = 1,self%fields(var)%npz
     do j = jsc,jec
       do i = isc,iec
@@ -446,7 +450,6 @@ do var = 1, self%nf
         vect_inc(ind) = self%fields(var)%array(i, j, k)
       enddo
     enddo
-!   write(6,*) 'vect_ind is ',vect_inc(ind),' at ',ind
   enddo
 enddo
 write(6,*) 'HEYYY serializeSect number of fields is ',self%nf,' ind is ',ind, 'vsize ',size(vect_inc)
