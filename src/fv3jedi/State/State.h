@@ -103,8 +103,8 @@ class State : public util::Printable, private util::ObjectCounter<State> {
 // Serialize and deserialize
   size_t serialSize() const;
   void serialize(std::vector<double> &) const;
-  void serializeSect(std::vector<double> &, const int &, const int &, 
-     const int &, const int &, const int &) const;
+  void serializeSect(std::vector<double> &, int, int, 
+     int, int, int ) const;
   void deserialize(const std::vector<double> &, size_t &);
 
 // Add or remove fields

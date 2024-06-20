@@ -4,7 +4,7 @@ geometry:
     namelist filename: Data/ModelRunDirs/UFS_warmstart/input.nml
     field table filename: Data/ModelRunDirs/UFS_warmstart/field_table
   akbk: Data/fv3files/akbk127.nc4
-  layout: [1,1]
+  layout: [1,2]
   io_layout: [1,1]
   npx: 49
   npy: 49

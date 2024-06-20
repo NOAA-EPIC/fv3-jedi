@@ -98,10 +98,8 @@ self%interpolation_source_point_mask = fmd%interpolation_source_point_mask
 
 ! Allocate the field array data
 ! -----------------------------
-write(6,*) 'in field mod, alloc is ',self%lalloc
 if(.not.self%lalloc) then
 
-write(6,*) 'in field mod, stagger loc is ',trim(self%horizontal_stagger_location) 
   if (trim(self%horizontal_stagger_location) == 'center') then
     allocate(self%array(self%isc:self%iec,self%jsc:self%jec,1:self%npz))
   elseif (trim(self%horizontal_stagger_location) == 'northsouth') then

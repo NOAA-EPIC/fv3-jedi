@@ -418,7 +418,7 @@ end subroutine accumul
 
 ! --------------------------------------------------------------------------------------------------
 
-subroutine serializeSect(self,vsize,vect_inc,isc,iec,jsc,jec)
+subroutine serializeSect(self,vsize,isc,iec,jsc,jec,vect_inc)
 
 implicit none
 
@@ -438,6 +438,7 @@ write(6,*) 'HEYYY start of serializeSect vsize is ',vsize,isc,iec,jsc,jec
 ! Initialize
 ind = 0
 ! Copy
+write(6,*) 'indices are ',isc,iec,jsc,jec,self%fields(var)%npz,self%nf
 do var = 1, self%nf
   write(6,*) 'copying fields from ',isc,iec,jsc,jec,self%fields(var)%npz,self%nf,ind,var
   write(6,*) 'about to look at val from ',iec,jec,self%fields(var)%npz,trim(self%fields(var)%short_name)
@@ -501,6 +502,7 @@ integer,               intent(inout) :: index
 ! Local variables
 integer :: ind, var, i, j, k
 
+write(6,*) 'HEY, in deserialize of fv3jedi_fields_mod'
 ! Copy
 do var = 1, self%nf
   do k = 1,self%fields(var)%npz

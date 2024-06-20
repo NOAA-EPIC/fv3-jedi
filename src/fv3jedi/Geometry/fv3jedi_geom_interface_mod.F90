@@ -129,7 +129,7 @@ if( ensNum > 0 ) then
   write(6,*) 'atmos_npes is',atmos_npes,npes
   call ensemble_pelist_setup(.true., atmos_npes, ocean_npes, land_npes, ice_npes, &
                                Atm_pelist, Ocean_pelist, Land_pelist, Ice_fast_pelist)
-  write(6,*) 'atmospelist is',Atm_pelist
+  write(6,*) 'atmos pelist is',Atm_pelist
   ensemble_id = get_ensemble_id()
   write(6,*) 'my ensemble id is ',ensemble_id
   allocate(ensemble_pelist(1:ensemble_size,1:npes))
@@ -324,7 +324,7 @@ subroutine c_fv3jedi_geom_start_end(c_key_self, ist, iend, jst, jend, kst, kend,
                                     bind(c, name='fv3jedi_geom_start_end_f90')
 
 integer(c_int), intent( in) :: c_key_self
-integer(c_int), intent(out) :: ist, iend, jst, jend, kst, kend, npz
+integer(c_int), intent(inout) :: ist, iend, jst, jend, kst, kend, npz
 
 type(fv3jedi_geom), pointer :: self
 

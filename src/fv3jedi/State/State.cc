@@ -303,8 +303,8 @@ size_t State::serialSize() const {
 
 // -------------------------------------------------------------------------------------------------
 
-void State::serializeSect(std::vector<double> & vect, const int & isc, const int & iec, 
-     const int & jsc, const int & jec, const int & size_fld) const {
+void State::serializeSect(std::vector<double> & vect, int isc, int iec, 
+     int jsc, int jec, int size_fld) const {
   std::cout << "State serialize starting" << std::endl;
   oops::Log::trace() << "State serialize starting" << std::endl;
   std::cout << "serial size is " << size_fld << std::endl;

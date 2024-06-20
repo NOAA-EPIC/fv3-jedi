@@ -12,6 +12,7 @@ use iso_c_binding
 
 ! fckit
 use fckit_configuration_module,     only: fckit_configuration
+use mpp_mod,     only: mpp_pe
 
 ! atlas
 use atlas_module, only: atlas_fieldset
@@ -437,10 +438,36 @@ integer(c_int),intent(in) :: jsc                  !< Size
 integer(c_int),intent(in) :: jec                  !< Size
 
 type(fv3jedi_state),pointer :: self
+! Local variables
+integer :: ind, var, i, j, k, mype
 
 call fv3jedi_state_registry%get(c_key_self, self)
 ! Call Fortran
-call self%serializeSect(c_vsize,c_vect_inc,isc,iec,jsc,jec)
+
+mype = mpp_pe()
+write(6,*) 'HEYYY start of serializeSect vsize is ',c_vsize,isc,iec,jsc,jec
+write(6,*) 'HEYYY mype is ',mype
+! Initialize
+ind = 0
+! Copy
+write(6,*) 'indices are ',isc,iec,jsc,jec,self%fields(1)%npz,self%nf
+do var = 1, self%nf
+! write(6,*) 'copying fields from ',isc,iec,jsc,jec,self%fields(var)%npz,self%nf,ind,var
+  write(6,*) 'about to look at variable ',trim(self%fields(var)%short_name)
+! write(6,*) 'array val is ',self%fields(var)%array(isc, jsc, self%fields(var)%npz )
+! write(6,*) 'array val is ',self%fields(var)%array(iec, jec, self%fields(var)%npz )
+  write(6,*) 'size of array is ',size(self%fields(var)%array,1),size(self%fields(var)%array,2),size(self%fields(var)%array,3)
+  do k = 1,self%fields(var)%npz
+    do j = jsc,jec
+      do i = isc,iec
+        ind = ind + 1
+        c_vect_inc(ind) = self%fields(var)%array(i, j, k)
+      enddo
+    enddo
+  enddo
+enddo
+write(6,*) 'HEYYY serializeSect number of fields is ',self%nf,' ind is ',ind, 'vsize ',size(c_vect_inc),mype
+!call self%serializeSect(c_vsize,isc,iec,jsc,jec,c_vect_inc)
 
 end subroutine fv3jedi_state_serializeSect_c
 
