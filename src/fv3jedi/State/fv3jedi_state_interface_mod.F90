@@ -451,15 +451,16 @@ write(6,*) 'HEYYY start of deserializeSect vsize is ',c_vsize,isc,iec,jsc,jec
 ! Initialize
 ind = 0
 ! Copy
-write(6,*) 'indices are ',isc,iec,jsc,jec,self%fields(1)%npz,self%nf
+write(6,*) 'indices are ',isc,iec,jsc,jec
+write(6,*) 'sg indices should be between are ',isc_sg,iec_sg,jsc_sg,jec_sg
 do var = 1, self%nf
   write(6,*) 'about to look at variable ',trim(self%fields(var)%short_name)
   do k = 1,self%fields(var)%npz
     do j = jsc,jec
       do i = isc,iec
         ind = ind + 1  ! need to update index in bigger array
-        if((isc <= isc_sg) .and. (iec_sg <= iec)) then  ! probably a faster way to do this. 
-          if((jsc <= jsc_sg) .and. (jec_sg <= jec)) then   
+        if((i >= isc_sg) .and. (i <= iec_sg)) then  ! probably a faster way to do this. 
+          if((j >= jsc_sg) .and. (j <= jec_sg)) then   
             self%fields(var)%array(i, j, k) = c_vect_inc(ind)
           endif
         endif
