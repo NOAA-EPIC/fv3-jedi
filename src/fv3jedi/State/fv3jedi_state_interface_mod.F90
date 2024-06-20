@@ -422,6 +422,54 @@ call self%serialize(c_vsize,c_vect_inc)
 end subroutine fv3jedi_state_serialize_c
 
 ! --------------------------------------------------------------------------------------------------
+subroutine fv3jedi_state_deserializeSect_c(c_key_self,c_vsize,c_vect_inc,isc,iec,jsc,jec,isc_sg,iec_sg,jsc_sg,jec_sg) &
+           bind(c,name='fv3jedi_state_deserializeSect_f90')
+implicit none
+
+! Passed variables
+integer(c_int),intent(in) :: c_key_self           !< State
+integer(c_int),intent(in) :: c_vsize              !< Size
+real(c_double),intent(in) :: c_vect_inc(c_vsize) !< Vector
+integer(c_int),intent(in) :: isc                  !< Size
+integer(c_int),intent(in) :: iec                  !< Size
+integer(c_int),intent(in) :: jsc                  !< Size
+integer(c_int),intent(in) :: jec                  !< Size
+integer(c_int),intent(in) :: isc_sg               !< Size
+integer(c_int),intent(in) :: iec_sg               !< Size
+integer(c_int),intent(in) :: jsc_sg               !< Size
+integer(c_int),intent(in) :: jec_sg               !< Size
+
+type(fv3jedi_state),pointer :: self
+! Local variables
+integer :: ind, var, i, j, k, mype
+
+call fv3jedi_state_registry%get(c_key_self, self)
+! Call Fortran
+
+mype = mpp_pe()
+write(6,*) 'HEYYY start of deserializeSect vsize is ',c_vsize,isc,iec,jsc,jec
+! Initialize
+ind = 0
+! Copy
+write(6,*) 'indices are ',isc,iec,jsc,jec,self%fields(1)%npz,self%nf
+do var = 1, self%nf
+  write(6,*) 'about to look at variable ',trim(self%fields(var)%short_name)
+  do k = 1,self%fields(var)%npz
+    do j = jsc,jec
+      do i = isc,iec
+        ind = ind + 1  ! need to update index in bigger array
+        if((isc <= isc_sg) .and. (iec_sg <= iec)) then  ! probably a faster way to do this. 
+          if((jsc <= jsc_sg) .and. (jec_sg <= jec)) then   
+            self%fields(var)%array(i, j, k) = c_vect_inc(ind)
+          endif
+        endif
+      enddo
+    enddo
+  enddo
+enddo
+write(6,*) 'HEYYY deserializeSect number of fields is ',self%nf,' ind is ',ind, 'vsize ',size(c_vect_inc),mype
+
+end subroutine fv3jedi_state_deserializeSect_c
 ! --------------------------------------------------------------------------------------------------
 subroutine fv3jedi_state_serializeSect_c(c_key_self,c_vsize,c_vect_inc,isc,iec,jsc,jec) &
            bind(c,name='fv3jedi_state_serializeSect_f90')
@@ -471,6 +519,7 @@ write(6,*) 'HEYYY serializeSect number of fields is ',self%nf,' ind is ',ind, 'v
 
 end subroutine fv3jedi_state_serializeSect_c
 
+! --------------------------------------------------------------------------------------------------
 
 subroutine fv3jedi_state_deserialize_c(c_key_self,c_vsize,c_vect_inc,c_index) &
            bind(c,name='fv3jedi_state_deserialize_f90')

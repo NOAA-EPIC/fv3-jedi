@@ -303,8 +303,30 @@ size_t State::serialSize() const {
 
 // -------------------------------------------------------------------------------------------------
 
-void State::serializeSect(std::vector<double> & vect, int isc, int iec, 
-     int jsc, int jec, int size_fld) const {
+void State::deserializeSect(std::vector<double> & vect, int size_fld, int isc, int iec, 
+     int jsc, int jec, int isc_sg, int iec_sg, int jsc_sg, int jec_sg) const {
+  std::cout << "State deserialize starting" << std::endl;
+  oops::Log::trace() << "State deserialize starting" << std::endl;
+  std::cout << "serial size is " << size_fld << std::endl;
+  std::vector<double> v_fld(size_fld, 0);
+
+  std::cout << "calling fv3jedi_state dSS " << std::endl;
+  fv3jedi_state_deserializeSect_f90(keyState_, size_fld, v_fld.data(), isc, iec, jsc, jec,
+           isc_sg, iec_sg, jsc_sg, jec_sg);
+
+//  time_.deserialize(vect, index);
+  oops::Log::trace() << "State deserialize done" << std::endl;
+
+  std::cout << "FIX deserializing time" << std::endl;
+
+  oops::Log::trace() << "State deserializeSect done" << std::endl;
+}
+
+// -------------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------
+
+void State::serializeSect(std::vector<double> & vect, int size_fld, int isc, int iec, 
+     int jsc, int jec) const {
   std::cout << "State serialize starting" << std::endl;
   oops::Log::trace() << "State serialize starting" << std::endl;
   std::cout << "serial size is " << size_fld << std::endl;
