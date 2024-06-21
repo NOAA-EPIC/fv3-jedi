@@ -447,14 +447,14 @@ call fv3jedi_state_registry%get(c_key_self, self)
 ! Call Fortran
 
 mype = mpp_pe()
-write(6,*) 'HEYYY start of deserializeSect vsize is ',c_vsize,isc,iec,jsc,jec
+!write(6,*) 'HEYYY start of deserializeSect vsize is ',c_vsize,isc,iec,jsc,jec
 ! Initialize
 ind = 0
 ! Copy
-write(6,*) 'indices are ',isc,iec,jsc,jec
-write(6,*) 'sg indices should be between are ',isc_sg,iec_sg,jsc_sg,jec_sg
+!write(6,*) 'indices are ',isc,iec,jsc,jec
+!write(6,*) 'sg indices should be between are ',isc_sg,iec_sg,jsc_sg,jec_sg
 do var = 1, self%nf
-  write(6,*) 'about to look at variable ',trim(self%fields(var)%short_name)
+! write(6,*) 'about to look at variable ',trim(self%fields(var)%short_name)
   do k = 1,self%fields(var)%npz
     do j = jsc,jec
       do i = isc,iec

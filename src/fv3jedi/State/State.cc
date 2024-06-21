@@ -308,10 +308,9 @@ void State::deserializeSect(std::vector<double> & vect, int size_fld, int isc, i
   std::cout << "State deserialize starting" << std::endl;
   oops::Log::trace() << "State deserialize starting" << std::endl;
   std::cout << "serial size is " << size_fld << std::endl;
-  std::vector<double> v_fld(size_fld, 0);
 
   std::cout << "calling fv3jedi_state dSS " << std::endl;
-  fv3jedi_state_deserializeSect_f90(keyState_, size_fld, v_fld.data(), isc, iec, jsc, jec,
+  fv3jedi_state_deserializeSect_f90(keyState_, size_fld, vect.data(), isc, iec, jsc, jec,
            isc_sg, iec_sg, jsc_sg, jec_sg);
 
 //  time_.deserialize(vect, index);
