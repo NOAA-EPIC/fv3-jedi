@@ -7,7 +7,7 @@ geometry:
   npy: 49
   npz: 127
   member_number: 0
-  layout: [2,2]
+  layout: [2,1]
   field metadata override: Data/fieldmetadata/ufs.yaml
 
 time window:
@@ -15,14 +15,14 @@ time window:
   length: PT6H
 
 inline parameters:
-  Run Forecast: true
+  Run Forecast: false
   Forecast configuration:
   - testinput/letkf_forecast_ufs_1.yaml
   - testinput/letkf_forecast_ufs_2.yaml
-  - testinput/letkf_forecast_ufs_3.yaml
-  - testinput/letkf_forecast_ufs_4.yaml
-  Compute HofX Only: true
-  forecast batch size: 4
+# - testinput/letkf_forecast_ufs_3.yaml
+# - testinput/letkf_forecast_ufs_4.yaml
+  Compute HofX Only: false
+  forecast batch size: 1
   zero padding: 2
   output file pattern: '%ensmem%'
 
@@ -41,7 +41,7 @@ background:
        filename_sfcw: 20201215.000000.fv_srf_wnd.res.nc
        filename_cplr: 20201215.000000.coupler.res
      pattern: '%mem%'
-     nmembers: 4
+     nmembers: 2
      zero padding: 3
 
 observations:
