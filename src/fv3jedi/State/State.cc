@@ -305,11 +305,8 @@ size_t State::serialSize() const {
 
 void State::deserializeSect(std::vector<double> & vect, int size_fld, int isc, int iec, 
      int jsc, int jec, int isc_sg, int iec_sg, int jsc_sg, int jec_sg) const {
-  std::cout << "State deserialize starting" << std::endl;
   oops::Log::trace() << "State deserialize starting" << std::endl;
-  std::cout << "serial size is " << size_fld << std::endl;
 
-  std::cout << "calling fv3jedi_state dSS " << std::endl;
   fv3jedi_state_deserializeSect_f90(keyState_, size_fld, vect.data(), isc, iec, jsc, jec,
            isc_sg, iec_sg, jsc_sg, jec_sg);
 
@@ -326,22 +323,15 @@ void State::deserializeSect(std::vector<double> & vect, int size_fld, int isc, i
 
 void State::serializeSect(std::vector<double> & vect, int size_fld, int isc, int iec, 
      int jsc, int jec) const {
-  std::cout << "State serialize starting" << std::endl;
   oops::Log::trace() << "State serialize starting" << std::endl;
-  std::cout << "serial size is " << size_fld << std::endl;
   std::vector<double> v_fld(size_fld, 0);
 
-  std::cout << "calling fv3jedi_state SS " << std::endl;
   fv3jedi_state_serializeSect_f90(keyState_, size_fld, v_fld.data(), isc, iec, jsc, jec);
-  std::cout << "done calling fv3jedi_state SS " << std::endl;
   vect.insert(vect.end(), v_fld.begin(), v_fld.end());
-  std::cout << "done inserting vect, size is now " << vect.size() << std::endl;
 
   // Serialize the date and time
   vect.push_back(-54321.56789);
-  std::cout << "serializing time" << std::endl;
   time_.serialize(vect);
-  std::cout << "done serializing time" << std::endl;
 
   oops::Log::trace() << "State serialize done" << std::endl;
 }

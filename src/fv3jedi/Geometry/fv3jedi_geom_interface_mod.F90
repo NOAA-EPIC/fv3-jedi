@@ -105,15 +105,12 @@ call fv3jedi_geom_registry%get(c_key_self,self)
 f_conf            = fckit_configuration(c_conf)
 f_comm            = fckit_mpi_comm(c_comm)
 call f_conf%get_or_die("member_number", ensNum)
-write(6,*) 'in geom_interface, member number is ',ensNum
 self%ensNum = ensNum
 if( ensNum > 0 ) then
-  write(6,*) 'calling ensemble manager init'
   call ensemble_manager_init()
   ens_siz = get_ensemble_size()
   ensemble_size = ens_siz(1)
   npes = ens_siz(2)
-  write(6,*) 'in geom_interface, ensemble size is ',ens_siz
 
   atmos_npes = npes
   ocean_npes = 0
@@ -125,23 +122,17 @@ if( ensNum > 0 ) then
   allocate( Land_pelist (land_npes) )
   allocate( Ice_fast_pelist(ice_npes) )
 
-  write(6,*) 'DONE calling ensemble manager init',ensemble_size,npes
-  write(6,*) 'atmos_npes is',atmos_npes,npes
   call ensemble_pelist_setup(.true., atmos_npes, ocean_npes, land_npes, ice_npes, &
                                Atm_pelist, Ocean_pelist, Land_pelist, Ice_fast_pelist)
-  write(6,*) 'atmos pelist is',Atm_pelist
   ensemble_id = get_ensemble_id()
-  write(6,*) 'my ensemble id is ',ensemble_id
   allocate(ensemble_pelist(1:ensemble_size,1:npes))
   call get_ensemble_pelist(ensemble_pelist)
   call mpp_set_current_pelist(ensemble_pelist(ensemble_id,:))
-  write(6,*) 'my ensemble_pelist is',ensemble_pelist(ensemble_id,:)
 endif
 
 ! Call implementation
 ! -------------------
 call self%create(f_conf, f_comm, f_nlev)
-write(6,*) 'done with create in geom interface'
 
 ! Pass number of levels
 ! ---------------------
@@ -217,7 +208,6 @@ call fv3jedi_geom_registry%get(c_key_self, self)
 
 ! Call implementation
 ! -------------------
-write(6,*) "HEYY!!! deleting geometry 0"
 call self%delete()
 ! LinkedList
 ! ----------

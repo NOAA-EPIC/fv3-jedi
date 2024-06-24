@@ -73,7 +73,6 @@ call fv3jedi_state_registry%add(c_key_self)
 call fv3jedi_state_registry%get(c_key_self,self)
 
 vars = oops_variables(c_vars)
-write(6,*) 'creating variables now '
 ! Create Fortran pointer to datetime
 call c_f_datetime(c_time, self%time)
 
@@ -447,14 +446,10 @@ call fv3jedi_state_registry%get(c_key_self, self)
 ! Call Fortran
 
 mype = mpp_pe()
-!write(6,*) 'HEYYY start of deserializeSect vsize is ',c_vsize,isc,iec,jsc,jec
 ! Initialize
 ind = 0
 ! Copy
-!write(6,*) 'indices are ',isc,iec,jsc,jec
-!write(6,*) 'sg indices should be between are ',isc_sg,iec_sg,jsc_sg,jec_sg
 do var = 1, self%nf
-! write(6,*) 'about to look at variable ',trim(self%fields(var)%short_name)
   do k = 1,self%fields(var)%npz
     do j = jsc,jec
       do i = isc,iec
@@ -468,7 +463,6 @@ do var = 1, self%nf
     enddo
   enddo
 enddo
-write(6,*) 'HEYYY deserializeSect number of fields is ',self%nf,' ind is ',ind, 'vsize ',size(c_vect_inc),mype
 
 end subroutine fv3jedi_state_deserializeSect_c
 ! --------------------------------------------------------------------------------------------------
@@ -494,18 +488,10 @@ call fv3jedi_state_registry%get(c_key_self, self)
 ! Call Fortran
 
 mype = mpp_pe()
-write(6,*) 'HEYYY start of serializeSect vsize is ',c_vsize,isc,iec,jsc,jec
-write(6,*) 'HEYYY mype is ',mype
 ! Initialize
 ind = 0
 ! Copy
-write(6,*) 'indices are ',isc,iec,jsc,jec,self%fields(1)%npz,self%nf
 do var = 1, self%nf
-! write(6,*) 'copying fields from ',isc,iec,jsc,jec,self%fields(var)%npz,self%nf,ind,var
-  write(6,*) 'about to look at variable ',trim(self%fields(var)%short_name)
-! write(6,*) 'array val is ',self%fields(var)%array(isc, jsc, self%fields(var)%npz )
-! write(6,*) 'array val is ',self%fields(var)%array(iec, jec, self%fields(var)%npz )
-  write(6,*) 'size of array is ',size(self%fields(var)%array,1),size(self%fields(var)%array,2),size(self%fields(var)%array,3)
   do k = 1,self%fields(var)%npz
     do j = jsc,jec
       do i = isc,iec
@@ -515,7 +501,6 @@ do var = 1, self%nf
     enddo
   enddo
 enddo
-write(6,*) 'HEYYY serializeSect number of fields is ',self%nf,' ind is ',ind, 'vsize ',size(c_vect_inc),mype
 !call self%serializeSect(c_vsize,isc,iec,jsc,jec,c_vect_inc)
 
 end subroutine fv3jedi_state_serializeSect_c

@@ -129,7 +129,6 @@ subroutine create(self, geom, vars)
     self%fields(fc)%jsc = geom%jsc
     self%fields(fc)%jec = geom%jec
 
-!   write(6,*) 'creating field ',trim(vars%variable(var)),geom%isc,geom%iec,geom%jsc,geom%jec
     ! Set this fields meta data
     call create_field(self%fields(fc), geom%fmd%get_field_metadata(trim(vars%variable(var))), &
                       geom%f_comm)
@@ -438,12 +437,7 @@ integer :: ind, var, i, j, k
 ! Initialize
 ind = 0
 ! Copy
-!rite(6,*) 'indices are ',isc,iec,jsc,jec,self%fields(var)%npz,self%nf
 do var = 1, self%nf
-! write(6,*) 'copying fields from ',isc,iec,jsc,jec,self%fields(var)%npz,self%nf,ind,var
-! write(6,*) 'about to look at val from ',iec,jec,self%fields(var)%npz,trim(self%fields(var)%short_name)
-! write(6,*) 'array val is ',self%fields(var)%array(isc, jsc, self%fields(var)%npz )
-! write(6,*) 'array val is ',self%fields(var)%array(iec, jec, self%fields(var)%npz )
   do k = 1,self%fields(var)%npz
     do j = jsc,jec
       do i = isc,iec
@@ -453,7 +447,6 @@ do var = 1, self%nf
     enddo
   enddo
 enddo
-!write(6,*) 'HEYYY serializeSect number of fields is ',self%nf,' ind is ',ind, 'vsize ',size(vect_inc)
 
 end subroutine serializeSect
 
@@ -502,7 +495,6 @@ integer,               intent(inout) :: index
 ! Local variables
 integer :: ind, var, i, j, k
 
-!write(6,*) 'HEY, in deserialize of fv3jedi_fields_mod'
 ! Copy
 do var = 1, self%nf
   do k = 1,self%fields(var)%npz

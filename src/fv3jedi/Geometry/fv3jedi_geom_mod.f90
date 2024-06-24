@@ -217,9 +217,7 @@ call fmsnamelist%replace_namelist(conf)
 
 !Intialize using the model setup routine
 ! --------------------------------------
-write(6,*) 'calling fv_init from create in fv3jedi_geom_mod'
 call fv_init(Atm, 300.0_kind_real, grids_on_this_pe, p_split, gtile, .true.)
-write(6,*) 'calling fv_init from create in fv3jedi_geom_mod',grids_on_this_pe
 
 ! Copy relevant contents of Atm
 ! -----------------------------
@@ -617,7 +615,6 @@ deallocate(self%lon_us)
 
 call self%afunctionspace%final()
 call self%afunctionspace_for_bump%final()
-write(6,*) "HEYY!!! deleting geometry 1"
 ! Could finalize the fms routines. Possibly needs to be done only when key = 0
 !call fms_end
 !call fms_io_exit
@@ -765,7 +762,6 @@ subroutine setup_domain(domain, nx, ny, ntiles, layout_in, io_layout, halo)
   endif
   npes_per_tile = npes/ntiles
   tile = pe/npes_per_tile + 1
-  write(6,*) 'in setup_domain with npes_per_tile, pe, npes = ',npes_per_tile,pe,npes
   if (layout_in(1)*layout_in(2) == npes_per_tile) then
      layout = layout_in
   else
@@ -798,7 +794,6 @@ subroutine setup_domain(domain, nx, ny, ntiles, layout_in, io_layout, halo)
      pe_end(n)           = n*npes_per_tile-1 + (ensNum -1) * 6 * npes_per_tile
   enddo
   
-  write(6,*) 'in setup_domain set pe_end to be ',pe_end
   num_alloc = max(1, num_contact)
   ! this code copied from domain_decomp in fv_mp_mod.f90
   allocate(tile1(num_alloc), tile2(num_alloc) )

@@ -65,7 +65,6 @@ class Geometry : public util::Printable,
      int ist, iend, jst, jend, kst, kend, npz;
      std::vector<int> indices;
      fv3jedi_geom_start_end_f90(keyGeom_, ist, iend, jst, jend, kst, kend, npz);
-     std::cout << "GEOMETRY " << ist << " " << iend << " " << jst << " " << jend << std::endl;
      indices.push_back(ist);
      indices.push_back(iend);
      indices.push_back(jst);

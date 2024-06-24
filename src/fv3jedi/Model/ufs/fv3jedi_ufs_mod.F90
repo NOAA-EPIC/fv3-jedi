@@ -238,20 +238,17 @@ contains
          ESMF_LOGMSG_INFO)
 
     ! call ExternalAdvertise phase
-    write(6,*) 'in fv3-jedi comp search phase'
     call NUOPC_CompSearchPhaseMap(self%esmComp, &
          methodflag=ESMF_METHOD_INITIALIZE, &
          phaseLabel=label_ExternalAdvertise, phaseIndex=phase, rc=rc)
     esmf_err_abort(rc)
 
-    write(6,*) 'in fv3-jedi comp init'
     call ESMF_GridCompInitialize(self%esmComp, phase=phase, &
          importState=self%fromJedi, exportState=self%toJedi, &
          clock=self%clock, userRc=urc, rc=rc)
     esmf_err_abort(rc)
     esmf_err_abort(urc)
 
-    write(6,*) 'in fv3-jedi state get'
     call ESMF_StateGet(self%toJedi, itemCount=cnt, rc=rc)
     esmf_err_abort(rc)
 

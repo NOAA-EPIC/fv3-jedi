@@ -38,10 +38,8 @@ real(kind_fv3) :: dt_atmos
 
 dt_atmos = dt_atmos_in
 
-write(6,*) 'in THISS fv_init in fv3jedi/Geometry/fv_init_control_mod'
 call fv_control_init(Atm, dt_atmos, this_grid, grids_on_this_pe, p_split, &
                      skip_nml_read_in=skip_nml_read)
-write(6,*) 'DONE with THISS fv_init in fv3jedi/Geometry/fv_init_control_mod'
 
 if (this_grid .ne. 1) call abor1_ftn("Geometry not ready for ngrid > 1")
 

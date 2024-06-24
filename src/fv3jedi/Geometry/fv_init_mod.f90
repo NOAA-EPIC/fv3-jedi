@@ -36,9 +36,7 @@ real(kind_fv3) :: dt_atmos
 
 dt_atmos = dt_atmos_in
 
-write(6,*) 'calling fv_init_fv3'
 call fv_init_fv3(Atm, dt_atmos, grids_on_this_pe, p_split)
-write(6,*) 'done calling fv_init_fv3',pelist_all
 deallocate(pelist_all)
 
 if (present(gtile)) gtile = Atm(1)%tile
@@ -48,7 +46,6 @@ end subroutine fv_init
 subroutine fv_init(Atm)
 
 type(fv_atmos_type), allocatable, intent(inout) :: Atm(:)
-  write(6,*) 'dummy fv_end'
 end subroutine fv_end
 
 ! --------------------------------------------------------------------------------------------------
