@@ -7,6 +7,7 @@ geometry:
   npy: 49
   npz: 127
   member_number: 0
+  layout: [2,1]
   field metadata override: Data/fieldmetadata/ufs.yaml
 
 time window:
@@ -14,11 +15,13 @@ time window:
   length: PT6H
 
 inline parameters:
-  Run Forecast: true
+  Run Forecast: false
   Forecast configuration:
   - testinput/letkf_forecast_ufs_1.yaml
   - testinput/letkf_forecast_ufs_2.yaml
-  Compute HofX Only: true
+# - testinput/letkf_forecast_ufs_3.yaml
+# - testinput/letkf_forecast_ufs_4.yaml
+  Compute HofX Only: false
   forecast batch size: 1
   zero padding: 2
   output file pattern: '%ensmem%'
@@ -197,13 +200,13 @@ observations:
       max nobs: 50
 
 driver:
-  save posterior ensemble: false
+  save posterior ensemble: true
   save posterior mean: true
-  save posterior mean increment: false
-  save posterior ensemble increments: false
+  save posterior mean increment: true
+  save posterior ensemble increments: true
   read HX from disk: false
   do test prints: true
-  do posterior observer: false
+  do posterior observer: true
   run as observer only: false
 local ensemble DA:
   solver: LETKF

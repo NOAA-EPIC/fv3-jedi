@@ -34,7 +34,8 @@ Geometry::Geometry(const eckit::Configuration & config, const eckit::mpi::Comm &
   GeometryParameters params;
   params.deserialize(config);
   // Call the initialize phase, done only once.
-  static bool initialized = false;
+  std::cout << "HEY, int fv3jedi geom const" << std::endl;
+  bool initialized = false;
   if (!initialized) {
     fv3jedi_geom_initialize_f90((*params.fmsInit.value()).toConfiguration(), &comm_);
     initialized = true;
@@ -245,7 +246,7 @@ std::vector<size_t> Geometry::variableSizes(const oops::Variables & vars) const 
   std::vector<size_t> varSizes;
   // Loop through arrays and search metadata map for the levels
   for (size_t it = 0; it < vars.size(); it++) {
-    varSizes.push_back(fieldsMeta_->getLevels(vars[it]));
+    varSizes.push_back(fieldsMeta_->getLevels(vars[it].name()));
   }
   return varSizes;
 }
