@@ -80,7 +80,7 @@ find_package( atlas 0.35.0 REQUIRED )
 find_package( oops 1.10.0 REQUIRED )
 
 # saber
-find_package( saber 1.9.0 REQUIRED )
+find_package( saber 1.10.0 REQUIRED )
 
 # crtm
 find_package( crtm 2.2.3 REQUIRED )
@@ -99,13 +99,13 @@ endif()
 find_package( sp QUIET )
 
 # ufo
-find_package( ufo 1.9.0 REQUIRED )
+find_package( ufo 1.10.0 REQUIRED )
 
 # femps
-find_package( femps 1.0.0 REQUIRED )
+find_package( femps 1.3.0 REQUIRED )
 
 # vader
-find_package( vader 1.6.0 REQUIRED )
+find_package( vader 1.7.0 REQUIRED )
 
 #OpenMP
 if(OPENMP)
@@ -147,7 +147,7 @@ if (FV3_FORECAST_MODEL MATCHES "GEOS")
 endif()
 
 # Linear model
-find_package( fv3jedilm 1.0.0 REQUIRED )
+find_package( fv3jedilm 1.5.0 REQUIRED )
 
 ################################################################################
 # Export package info
@@ -161,14 +161,25 @@ set( FV3JEDI_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
                           ${DEPEND_LIB_ROOT}/mod
                           ${DEPEND_LIB_ROOT}/include/fv3
                           ${CMAKE_Fortran_MODULE_DIRECTORY})
-if (FV3_FORECAST_MODEL MATCHES UFS)
+if( FV3_FORECAST_MODEL MATCHES UFS )
+  find_package(HDF5 REQUIRED COMPONENTS C HL )
+  # Use ESMF's own findESMF.cmake - if wanting
+  # the static ESMF library (we don't!), use
+  # set(USE_ESMF_STATIC_LIBS ON)
+  if( NOT DEFINED ENV{esmf_ROOT} )
+    message(FATAL_ERROR "Environmental variable esmf_ROOT not set, is ESMF module loaded?")
+  endif()
+  list(PREPEND CMAKE_MODULE_PATH "$ENV{esmf_ROOT}/cmake")
+  find_package(ESMF MODULE REQUIRED)
+  #
   if( UFS_APP MATCHES "^(ATM)$" )
     set( FV3JEDI_LIBRARIES fv3jedi
                            ccpp_framework
                            ccpp_physics )
   elseif( UFS_APP MATCHES "^(ATMAERO)$" )
-    find_package (GFTL_SHARED QUIET)
-    find_package (FARGPARSE QUIET)
+    find_package (GFTL_SHARED REQUIRED)
+    find_package (FARGPARSE REQUIRED)
+    find_package (PFLOGGER REQUIRED)
     find_package (MAPL REQUIRED)
     set( FV3JEDI_LIBRARIES fv3jedi
                            ufs_aerosols
@@ -193,6 +204,7 @@ if (FV3_FORECAST_MODEL MATCHES UFS)
                            mom6
                            cice
                            cmeps
+                           cdeps
                            PIO::PIO_Fortran
                            PIO::PIO_C
                            ccpp_framework
@@ -227,9 +239,9 @@ if (ENABLE_FV3_JEDI_DATA)
 else()
   # Set values for downloading fv3-jedi test data from tarball
   set (fv3-jedi_data_download_url "https://bin.ssec.wisc.edu/pub/s4/CRTM/file")
-  set (fv3-jedi_data_tag "1.8.0")
+  set (fv3-jedi_data_tag "1.9.0")
   set (fv3-jedi_data_tarball_name "fv3-jedi_testinput_tier_1_${fv3-jedi_data_tag}.tar.gz")
-  set (fv3-jedi_data_tarball_hash "ec6904cbf162da89b729af4623bba733")
+  set (fv3-jedi_data_tarball_hash "8ea0904eda4e4b3840536b8c744b3d9e")
 endif()
 
 ################################################################################

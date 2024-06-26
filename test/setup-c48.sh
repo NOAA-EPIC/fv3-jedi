@@ -3,6 +3,9 @@
 # work on a generic system and generate the experiment directory that is used to run the ufs forecast regression tests.
 set -x
 
+# delete existing input data if it exists
+rm -vfr input-data
+
 # create the input data directory which will be used by run_test.py
 mkdir input-data
 export INPUTDATA_ROOT=$PWD/input-data
@@ -22,6 +25,7 @@ baseline=`echo $lastupdate  | awk -F "/" '{print $1}' | awk -F " " '{print $5}'`
 cd input-data
 # pull the latest fixe files, input data and restart files from aws backup of rt.sh
 aws s3 sync --no-sign-request s3://noaa-ufs-regtests-pds/input-data-20221101/FV3_fix FV3_fix
+aws s3 sync --no-sign-request s3://noaa-ufs-regtests-pds/input-data-20221101/FV3_fix_tiled/C48 FV3_fix
 aws s3 sync --no-sign-request s3://noaa-ufs-regtests-pds/input-data-20221101/FV3_input_data48 FV3_input_data48
 aws s3 sync --no-sign-request s3://noaa-ufs-regtests-pds/$baseline/control_c48_intel/RESTART RESTART
 
@@ -41,17 +45,20 @@ export skip_check_results=false
 export delete_rundir=false
 export WLCLK=30
 export JOB_NR="001"
-touch fv3_001.exe
-touch modules.fv3_001.lua
 export PATHTR=$ufsdir
-export RT_COMPILER=intel
-export MACHINE_ID=hera
+# Need to use something that works with tcl/tk AND lua/lmod
+#export RT_COMPILER=intel
+#export MACHINE_ID=hera
+export RT_COMPILER=gnu
+export MACHINE_ID=linux
 mkdir -p $LOG_DIR
+export RTVERBOSE=0
 touch $LOGDIR/job_001_timestamp.txt
 cd $ufsdir/tests
 touch fv3_001.exe
-touch modules.fv3_001.lua
-source vars
+echo "#%Module" > modules.fv3_001
+# This doesn't exist anymore it seems
+### source vars
 
 if [ "$(uname)" == "Darwin" ]; then
   hash gsed 2>/dev/null || { echo >&2 "GNU SED (gsed) required on macOS, but not installed. Aborting."; exit 1; }
@@ -66,15 +73,31 @@ ${SED} -i "/submit_and_wait/a exit 0" rt_utils.sh
 # Generate the control_c48_intel regression test experiment directory for a cold start
 ./run_test.sh $PWD $fv3jedidata control_c48 001 001
 
+ls -l $fv3jedidata/001
+ls -l $fv3jedidata
+rm -rf $fv3jedidata/control_c48_intel
 mv $fv3jedidata/001 $fv3jedidata/control_c48_intel
 cd $fv3jedidata/control_c48_intel
 
 # Now use the restart data to convert the cold start to a warm start, which is required for JEDI coupling
+ls -l
+mkdir -p INPUT
 cp $INPUTDATA_ROOT/RESTART/* INPUT
 cd INPUT
 for file in 20210323.060000.*; do new=$(echo $file | cut -c 17-) && mv -v -- "$file" "$new" ; done
 ${SED} -i 's/3    22/3    23/g' coupler.res
 cd ..
+
+# Link missing files from fix directory
+ln -svf ${INPUTDATA_ROOT}/FV3_fix/CCN_ACTIVATE.BIN .
+ln -svf ${INPUTDATA_ROOT}/FV3_fix/global_glacier.2x2.grb .
+ln -svf ${INPUTDATA_ROOT}/FV3_fix/global_maxice.2x2.grb .
+ln -svf ${INPUTDATA_ROOT}/FV3_fix/RTGSST.1982.2012.monthly.clim.grb .
+ln -svf ${INPUTDATA_ROOT}/FV3_fix/IMS-NIC.blended.ice.monthly.clim.grb .
+ln -svf ${INPUTDATA_ROOT}/FV3_fix/C48* .
+ln -svf ${INPUTDATA_ROOT}/FV3_input_data48/global_slmask.t62.192.94.grb .
+ln -svf ${INPUTDATA_ROOT}/FV3_input_data48/global_soilmgldas.statsgo.t92.192.94.grb .
+ln -svf ${INPUTDATA_ROOT}/FV3_input_data48/global_snoclim.1.875.grb .
 
 # update model_configure file to turn off write component and do a warm start for our regression test
 ${SED} -i 's/quilting:                .true./quilting:                .false./g' model_configure
@@ -100,6 +123,5 @@ ${SED} -i '/&fms_nml/i \
   checksum_required = .false.\
 /' input.nml
 
-
-
-
+# Use C48 instead of C96 everywhere
+${SED} -i 's/C96/C48/g' input.nml

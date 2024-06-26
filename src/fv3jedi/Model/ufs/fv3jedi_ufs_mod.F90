@@ -25,7 +25,7 @@ module fv3jedi_ufs_mod
   use NUOPC
   use NUOPC_Driver
   use UFSDriver, only: esmSS => UFSDriver_SS
-  use mpp_mod,            only: read_input_nml,mpp_pe,mpp_get_current_pelist,mpp_npes
+  use mpp_mod,            only: read_input_nml,mpp_pe,mpp_set_current_pelist
 
   implicit none
   private
@@ -125,16 +125,16 @@ contains
     if (self%initialized) then
         ! May need to reset/adjust the clock here, check later what is needed
         call ESMF_LogWrite("Model already initialized, do nothing", ESMF_LOGMSG_INFO)
-    
+
         call ESMF_ClockPrint(self%clock, options="startTime", &
         preString="Printing startTime to stdout: ", rc=rc)
-    
+
         call ESMF_ClockPrint(self%clock, options="currTime", &
         preString="Printing currTime to stdout: ", rc=rc)
-    
+
         call ESMF_ClockPrint(self%clock, options="stopTime", &
         preString="Printing stopTime to stdout: ", rc=rc)
-    
+
         call ESMF_LogWrite("Exit "//subname, ESMF_LOGMSG_INFO)
         return
     end if
@@ -366,10 +366,10 @@ contains
 
     call ESMF_ClockPrint(self%clock, options="startTime", &
     preString="Printing startTime to stdout: ", rc=rc)
-    
+
     call ESMF_ClockPrint(self%clock, options="currTime", &
     preString="Printing currTime to stdout: ", rc=rc)
-    
+
     call ESMF_ClockPrint(self%clock, options="stopTime", &
     preString="Printing stopTime to stdout: ", rc=rc)
 
@@ -459,6 +459,7 @@ contains
     esmf_err_abort(rc)
 
     call ESMF_LogWrite("Exit "//subname, ESMF_LOGMSG_INFO)
+    call mpp_set_current_pelist()
 !   call self%comm%barrier()
 
   end subroutine finalize
@@ -506,9 +507,6 @@ contains
     ! ----------------------------------------------
     short_name = trim(item_names(i))
     call ESMF_LogWrite("item name is "//short_name, ESMF_LOGMSG_INFO)
-    if(trim(item_names(i)) == 'u') short_name = 'ud'
-    if(trim(item_names(i)) == 'v') short_name = 'vd'
-    if(trim(item_names(i)) == 'weasd') short_name = 'sheleg'
 
     ! Only need to extract field from UFS if fv3-jedi needs it
     ! ---------------------------------------------------------
@@ -692,9 +690,6 @@ contains
     ! ----------------------------------------------
     short_name = trim(item_names(i))
     call ESMF_LogWrite("state_to_fv3: item name is "//short_name, ESMF_LOGMSG_INFO)
-    if(trim(item_names(i)) == 'u') short_name = 'ud'
-    if(trim(item_names(i)) == 'v') short_name = 'vd'
-    if(trim(item_names(i)) == 'weasd') short_name = 'sheleg'
     ! DH*
     !if(trim(item_names(i)) == 't') short_name = 'air_temperature'
     !if(trim(item_names(i)) == 'T') short_name = 'air_temperature'
@@ -874,7 +869,7 @@ contains
     esmf_err_abort(rc)
 
     ! Set any time interval here, it will be overwritten later
-   
+
     timeStep = date_final - date_current
 !   call ESMF_TimeIntervalSet(timeStep, s=3600, rc=rc)
 

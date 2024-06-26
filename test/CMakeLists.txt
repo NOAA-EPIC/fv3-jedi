@@ -139,13 +139,15 @@ list( APPEND fv3jedi_testinput
   testinput/convertstate_gfs_restart2history.yaml
   testinput/convertstate_gfs_history2restart.yaml
   testinput/comparestates_gfs_restart2history2restart.yaml
-  testinput/converttolatlon_gfs.yaml
+  testinput/converttogauss_gfs.yaml
   testinput/diffstates_geos.yaml
   testinput/diffstates_gfs.yaml
   testinput/diffstates_lam_cmaq.yaml
+  testinput/diffusionparameters.yaml
   testinput/dirac_geos.yaml
   testinput/dirac_geos_gsi_global.yaml
   testinput/dirac_gfs.yaml
+  testinput/dirac_gfs_diffusion.yaml
   testinput/dirac_gfs_gsi_global.yaml
   testinput/eda_3dvar_control_pert.yaml
   testinput/eda_4dvar_fv3lm_1.yaml
@@ -154,7 +156,7 @@ list( APPEND fv3jedi_testinput
   testinput/eda_block_3dvar_1.yaml
   testinput/eda_block_3dvar_2.yaml
   testinput/eda_block_3dvar.yaml
-  testinput/ensemble_ufs_forecast.yaml 
+  testinput/ensemble_ufs_forecast.yaml
   testinput/enshofx_fv3lm_1.yaml
   testinput/enshofx_fv3lm_2.yaml
   testinput/enshofx_fv3lm.yaml
@@ -215,10 +217,12 @@ list( APPEND fv3jedi_testinput
   testinput/increment_gfs.yaml
   testinput/letkf.yaml
   testinput/letkf-inline.yaml
+  testinput/letkf-inline-part2.yaml
   testinput/letkf_forecast_ufs_1.yaml
   testinput/letkf_forecast_ufs_2.yaml
   testinput/letkf3d.yaml
   testinput/lgetkf.yaml
+  testinput/lgetkf_linearobserver.yaml
   testinput/3dvar_snow.yaml
   testinput/letkf_snow.yaml
   testinput/letkf_observer_soil_moisture.yaml
@@ -227,6 +231,7 @@ list( APPEND fv3jedi_testinput
   testinput/linearmodel.yaml
   testinput/linearvariablechange_geos.yaml
   testinput/linearvariablechange_gfs.yaml
+  testinput/linearization_error.yaml
   testinput/localization_bump.yaml
   testinput/model_fv3lm.yaml
   testinput/model_fv3lm_tracers.yaml
@@ -314,11 +319,12 @@ list( APPEND fv3jedi_testoutput
   testoutput/convertstate_gfs_history2restart.ref
   testoutput/convertstate_gchp_from_stretched_grid.ref
   testoutput/convertstate_gchp_to_stretched_grid.ref
-  testoutput/converttolatlon_gfs.ref
+  testoutput/converttogauss_gfs.ref
   testoutput/diffstates_geos.ref
   testoutput/diffstates_gfs.ref
   testoutput/diffstates_lam_cmaq.ref
   testoutput/dirac_geos.ref
+  testoutput/dirac_gfs_diffusion.ref
   testoutput/dirac_gfs.ref
   testoutput/dirac_geos_gsi_global.ref
   testoutput/dirac_gfs_gsi_global.ref
@@ -366,6 +372,8 @@ list( APPEND fv3jedi_testoutput
   testoutput/letkf_snow.ref
   testoutput/letkf_observer_soil_moisture.ref
   testoutput/lgetkf.ref
+  testoutput/lgetkf_linearobserver.ref
+  testoutput/linearization_error.ref
   testoutput/adjointforecast.ref
   testoutput/staticb_dirac_global_gfs_6pe.ref
   testoutput/staticb_dirac_global_gfs_12pe.ref
@@ -590,80 +598,81 @@ message(STATUS "Running fv3jedi tests for tiers up to and including tier " ${FV3
 # ------------
 
 # Executables
-ecbuild_add_executable( TARGET  test_fv3jedi_errorcovariance.x
-                        SOURCES mains/TestErrorCovariance.cc
-                        LIBS    ${FV3JEDI_LIBRARIES})
-
-ecbuild_add_executable( TARGET  test_fv3jedi_geometry.x
-                        SOURCES mains/TestGeometry.cc
-                        LIBS    ${FV3JEDI_LIBRARIES})
-
-ecbuild_add_executable( TARGET  test_fv3jedi_geometryiterator.x
-                        SOURCES mains/TestGeometryIterator.cc
-                        LIBS    ${FV3JEDI_LIBRARIES})
-
-ecbuild_add_executable( TARGET  test_fv3jedi_getvalues.x
-                        SOURCES mains/TestGetValues.cc
-                        LIBS    ${FV3JEDI_LIBRARIES})
-
-ecbuild_add_executable( TARGET  test_fv3jedi_unstructured_interpolator.x
-                        SOURCES mains/TestUnstructuredInterpolator.cc
-                        LIBS    ${FV3JEDI_LIBRARIES} )
-
-ecbuild_add_executable( TARGET  test_fv3jedi_global_interpolator.x
-                        SOURCES mains/TestGlobalInterpolator.cc
-                        LIBS    ${FV3JEDI_LIBRARIES} )
-
-ecbuild_add_executable( TARGET  test_fv3jedi_increment.x
-                        SOURCES mains/TestIncrement.cc
-                        LIBS    ${FV3JEDI_LIBRARIES})
-
-ecbuild_add_executable( TARGET  test_fv3jedi_linearmodel.x
-                        SOURCES mains/TestLinearModel.cc
-                        LIBS    ${FV3JEDI_LIBRARIES})
-
-ecbuild_add_executable( TARGET  test_fv3jedi_linearvariablechange.x
-                        SOURCES mains/TestLinVarCha.cc
-                        LIBS    ${FV3JEDI_LIBRARIES})
-
-ecbuild_add_executable( TARGET  test_fv3jedi_localization.x
-                        SOURCES mains/TestLocalization.cc
-                        LIBS    ${FV3JEDI_LIBRARIES})
-
-#ecbuild_add_executable( TARGET  test_fv3jedi_modelauxcontrol.x
-#                        SOURCES mains/TestModelAuxControl.cc
+#ecbuild_add_executable( TARGET  test_fv3jedi_errorcovariance.x
+#                        SOURCES mains/TestErrorCovariance.cc
 #                        LIBS    ${FV3JEDI_LIBRARIES})
 #
-#ecbuild_add_executable( TARGET  test_fv3jedi_modelauxcovariance.x
-#                        SOURCES mains/TestModelAuxCovariance.cc
+#ecbuild_add_executable( TARGET  test_fv3jedi_geometry.x
+#                        SOURCES mains/TestGeometry.cc
 #                        LIBS    ${FV3JEDI_LIBRARIES})
-
-ecbuild_add_executable( TARGET  test_fv3jedi_model.x
-                        SOURCES mains/TestModel.cc
-                        LIBS    ${FV3JEDI_LIBRARIES})
-
-ecbuild_add_executable( TARGET  test_fv3jedi_obslocalization.x
-                        SOURCES mains/TestObsLocalization.cc
-                        LIBS    ${FV3JEDI_LIBRARIES})
-
-ecbuild_add_executable( TARGET  test_fv3jedi_obslocalizations.x
-                        SOURCES mains/TestObsLocalizations.cc
-                        LIBS    ${FV3JEDI_LIBRARIES})
-
-ecbuild_add_executable( TARGET  test_fv3jedi_state.x
-                        SOURCES mains/TestState.cc
-                        LIBS    ${FV3JEDI_LIBRARIES})
-
-ecbuild_add_executable( TARGET  test_fv3jedi_comparestates.x
-                        SOURCES mains/TestCompareStates.cc
-                        LIBS    ${FV3JEDI_LIBRARIES})
-
-ecbuild_add_executable( TARGET  test_fv3jedi_variablechange.x
-                        SOURCES mains/TestVarCha.cc
-                        LIBS    ${FV3JEDI_LIBRARIES})
+#
+#ecbuild_add_executable( TARGET  test_fv3jedi_geometryiterator.x
+#                        SOURCES mains/TestGeometryIterator.cc
+#                        LIBS    ${FV3JEDI_LIBRARIES})
+#
+#ecbuild_add_executable( TARGET  test_fv3jedi_getvalues.x
+#                        SOURCES mains/TestGetValues.cc
+#                        LIBS    ${FV3JEDI_LIBRARIES})
+#
+#ecbuild_add_executable( TARGET  test_fv3jedi_unstructured_interpolator.x
+#                        SOURCES mains/TestUnstructuredInterpolator.cc
+#                        LIBS    ${FV3JEDI_LIBRARIES} )
+#
+#ecbuild_add_executable( TARGET  test_fv3jedi_global_interpolator.x
+#                        SOURCES mains/TestGlobalInterpolator.cc
+#                        LIBS    ${FV3JEDI_LIBRARIES} )
+#
+#ecbuild_add_executable( TARGET  test_fv3jedi_increment.x
+#                        SOURCES mains/TestIncrement.cc
+#                        LIBS    ${FV3JEDI_LIBRARIES})
+#
+#ecbuild_add_executable( TARGET  test_fv3jedi_linearmodel.x
+#                        SOURCES mains/TestLinearModel.cc
+#                        LIBS    ${FV3JEDI_LIBRARIES})
+#
+#ecbuild_add_executable( TARGET  test_fv3jedi_linearvariablechange.x
+#                        SOURCES mains/TestLinVarCha.cc
+#                        LIBS    ${FV3JEDI_LIBRARIES})
+#
+#ecbuild_add_executable( TARGET  test_fv3jedi_localization.x
+#                        SOURCES mains/TestLocalization.cc
+#                        LIBS    ${FV3JEDI_LIBRARIES})
+#
+##ecbuild_add_executable( TARGET  test_fv3jedi_modelauxcontrol.x
+##                        SOURCES mains/TestModelAuxControl.cc
+##                        LIBS    ${FV3JEDI_LIBRARIES})
+##
+##ecbuild_add_executable( TARGET  test_fv3jedi_modelauxcovariance.x
+##                        SOURCES mains/TestModelAuxCovariance.cc
+##                        LIBS    ${FV3JEDI_LIBRARIES})
+#
+#ecbuild_add_executable( TARGET  test_fv3jedi_model.x
+#                        SOURCES mains/TestModel.cc
+#                        LIBS    ${FV3JEDI_LIBRARIES})
+#
+#ecbuild_add_executable( TARGET  test_fv3jedi_obslocalization.x
+#                        SOURCES mains/TestObsLocalization.cc
+#                        LIBS    ${FV3JEDI_LIBRARIES})
+#
+#ecbuild_add_executable( TARGET  test_fv3jedi_obslocalizations.x
+#                        SOURCES mains/TestObsLocalizations.cc
+#                        LIBS    ${FV3JEDI_LIBRARIES})
+#
+#ecbuild_add_executable( TARGET  test_fv3jedi_state.x
+#                        SOURCES mains/TestState.cc
+#                        LIBS    ${FV3JEDI_LIBRARIES})
+#
+#ecbuild_add_executable( TARGET  test_fv3jedi_comparestates.x
+#                        SOURCES mains/TestCompareStates.cc
+#                        LIBS    ${FV3JEDI_LIBRARIES})
+#
+#ecbuild_add_executable( TARGET  test_fv3jedi_variablechange.x
+#                        SOURCES mains/TestVarCha.cc
+#                        LIBS    ${FV3JEDI_LIBRARIES})
 
 #Make some output directories for test data
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/bump)
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/diffusion)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/gsirf)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/hofx)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/hofx/eda)
@@ -747,13 +756,13 @@ if (FV3_FORECAST_MODEL MATCHES "UFS")
     ecbuild_add_test( TARGET  fv3jedi_setup_ufs_rundir_warmstart
                       TYPE    SCRIPT
                       COMMAND ${CMAKE_BINARY_DIR}/bin/${FV3_SETUP_UFS_RUNDIR_SCRIPT}
-                      ARGS    ${FV3_FORECAST_MODEL_RUNDIR_WARMSTART} ${FV3_FORECAST_MODEL_TESTDIR_WARMSTART} 
+                      ARGS    ${FV3_FORECAST_MODEL_RUNDIR_WARMSTART} ${FV3_FORECAST_MODEL_TESTDIR_WARMSTART}
                       TEST_DEPENDS fv3jedi_setup_ufs_c48_data)
 
     ecbuild_add_test( TARGET  fv3jedi_setup_ufs_rundir_warmstart_2
                       TYPE    SCRIPT
                       COMMAND ${CMAKE_BINARY_DIR}/bin/${FV3_SETUP_UFS_RUNDIR_SCRIPT}
-                      ARGS    ${FV3_FORECAST_MODEL_RUNDIR_WARMSTART_2} ${FV3_FORECAST_MODEL_TESTDIR_WARMSTART_2} 
+                      ARGS    ${FV3_FORECAST_MODEL_RUNDIR_WARMSTART_2} ${FV3_FORECAST_MODEL_TESTDIR_WARMSTART_2}
                       TEST_DEPENDS fv3jedi_setup_ufs_c48_data)
 
   else()
@@ -1006,17 +1015,17 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_convertincrement_geos_model2geoval
                   ARGS     testinput/convertincrement_geos_model2geovals.yaml
                   COMMAND  fv3jedi_convertincrement.x )
 
-ecbuild_add_test( TARGET   fv3jedi_test_tier1_converttolatlon_gfs
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_converttogauss_gfs
                   MPI      6
-                  ARGS     testinput/converttolatlon_gfs.yaml
-                  COMMAND  fv3jedi_converttolatlon.x )
+                  ARGS     testinput/converttogauss_gfs.yaml
+                  COMMAND  fv3jedi_converttostructuredgrid.x )
 
 # CompareStates tests
 # -------------------
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_comparestates_gfs_restart2history2restart.yaml
                   MPI      6
                   ARGS     testinput/comparestates_gfs_restart2history2restart.yaml
-                  COMMAND  test_fv3jedi_comparestates.x 
+                  COMMAND  test_fv3jedi_comparestates.x
                   TEST_DEPENDS fv3jedi_test_tier1_convertstate_gfs_history2restart )
 
 # Remaining interface tests
@@ -1070,20 +1079,10 @@ if( FV3_FORECAST_MODEL MATCHES "UFS")
                     TEST_DEPENDS fv3jedi_setup_ufs_rundir_warmstart )
 
 endif()
-if( FV3_FORECAST_MODEL MATCHES "GEOS")
-  ecbuild_add_test( TARGET   fv3jedi_test_tier1_model_geos
-                    MPI      6
-                    ARGS     testinput/model_geos.yaml
-                    COMMAND  test_fv3jedi_model.x )
-endif()
 
 # Disabled until setup of GEOS model rundir is added (e.g., see fv3jedi_setup_ufs_rundir_warmstart)
 #if( FV3_FORECAST_MODEL MATCHES "GEOS" AND BUILD_LARGE_TESTS)
 #ecbuild_add_test( TARGET   fv3jedi_test_tier1_model_geos
-#                  MPI      6
-#                  ARGS     testinput/model_geos.yaml
-#                  COMMAND  test_fv3jedi_model.x )
-#endif()
 
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_linearmodel
                   MPI      6
@@ -1099,6 +1098,12 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_hybrid_linear_model
                   MPI      6
                   ARGS     testinput/hybrid_linear_model.yaml
                   COMMAND  test_fv3jedi_linearmodel.x
+                  TEST_DEPENDS fv3jedi_test_tier1_gen_hybrid_linear_model_coeffs )
+
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_linearization_error
+                  MPI      6
+                  ARGS     testinput/linearization_error.yaml
+                  COMMAND  fv3jedi_linearization_error.x
                   TEST_DEPENDS fv3jedi_test_tier1_gen_hybrid_linear_model_coeffs )
 
 # Forecast tests
@@ -1223,6 +1228,11 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_bumpparameters_nicas_lam_cmaq
                   ARGS     testinput/bumpparameters_nicas_lam_cmaq.yaml
                   COMMAND  fv3jedi_error_covariance_toolbox.x )
 
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_diffusionparameters
+                  MPI      6
+                  ARGS     testinput/diffusionparameters.yaml
+                  COMMAND  fv3jedi_error_covariance_toolbox.x )
+
 if (FV3JEDI_TEST_TIER GREATER_EQUAL 2)
   ecbuild_add_test( TARGET   fv3jedi_test_tier2_bumpparameters_nicas_geos_p12
                     MPI      12
@@ -1265,6 +1275,11 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_dirac_gfs
                   ARGS     testinput/dirac_gfs.yaml
                   COMMAND  fv3jedi_error_covariance_toolbox.x )
 
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_dirac_gfs_diffusion
+                  MPI      6
+                  ARGS     testinput/dirac_gfs_diffusion.yaml
+                  COMMAND  fv3jedi_error_covariance_toolbox.x )
+
 if( ${gsibec_FOUND} )
 
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_dirac_geos_gsi_global
@@ -1283,13 +1298,10 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_hyb-3dvar_geos_sondes
                   COMMAND  fv3jedi_var.x )
 
 if (FV3JEDI_TEST_TIER GREATER_EQUAL 2)
-# TODO(RT,AS,NC): This test needs to be revisited to use hybrid covariance
-# via GSI block. Once SABER supports GSI covariance as a static component
-# for 4DEnVar, new test can be added with BUMP for localization.
-#ecbuild_add_test( TARGET   fv3jedi_test_tier2_hyb-4denvar_geos_sondes
-#                  MPI      6
-#                  ARGS     testinput/hyb-4denvar_geos_sondes_c12.yaml
-#                  COMMAND  fv3jedi_var.x )
+ecbuild_add_test( TARGET   fv3jedi_test_tier2_hyb-4denvar_geos_sondes
+                  MPI      6
+                  ARGS     testinput/hyb-4denvar_geos_sondes_c12.yaml
+                  COMMAND  fv3jedi_var.x )
 endif()
 
 if( ${sp_FOUND} )
@@ -1546,6 +1558,11 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_lgetkf_validate
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_lgetkf
                   MPI      6
                   ARGS     --no-validate testinput/lgetkf.yaml
+                  COMMAND  fv3jedi_letkf.x )
+
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_lgetkf_linearobserver
+                  MPI      6
+                  ARGS     --no-validate testinput/lgetkf_linearobserver.yaml
                   COMMAND  fv3jedi_letkf.x )
 
 # Land DA

@@ -106,6 +106,7 @@ f_conf            = fckit_configuration(c_conf)
 f_comm            = fckit_mpi_comm(c_comm)
 call f_conf%get_or_die("member_number", ensNum)
 self%ensNum = ensNum
+write(6,*) 'in geom_interface, ensNum is ',ensNum
 if( ensNum > 0 ) then
   call ensemble_manager_init()
   ens_siz = get_ensemble_size()

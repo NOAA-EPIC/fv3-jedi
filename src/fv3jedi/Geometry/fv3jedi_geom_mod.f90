@@ -756,12 +756,14 @@ subroutine setup_domain(domain, nx, ny, ntiles, layout_in, io_layout, halo)
   ensNum = get_ensemble_id()
 
 
+  write(6,*) 'in fv3jedi_geom_mod, pe, npes, and ensNum are ',pe,npes,ensNum
   if (mod(npes,ntiles) /= 0) then
      call mpp_error(NOTE, "setup_domain: npes can not be divided by ntiles")
      return
   endif
   npes_per_tile = npes/ntiles
   tile = pe/npes_per_tile + 1
+  write(6,*) 'in fv3jedi_geom_mod, npes_per_tile and tile are ',npes_per_tile, tile
   if (layout_in(1)*layout_in(2) == npes_per_tile) then
      layout = layout_in
   else
@@ -859,6 +861,7 @@ subroutine setup_domain(domain, nx, ny, ntiles, layout_in, io_layout, halo)
      tile_id(n) = n
   enddo
 
+  write(6,*) 'about to call define mosaic with global_indices ',global_indices
   call mpp_define_mosaic(global_indices, layout2D, domain, ntiles, num_contact, tile1, tile2, &
                          istart1, iend1, jstart1, jend1, istart2, iend2, jstart2, jend2,      &
                          pe_start, pe_end, whalo=halo, ehalo=halo, shalo=halo, nhalo=halo,    &
