@@ -66,7 +66,7 @@ contains
 
     character(len=*),parameter :: subname = modname//' (create)'
     character(len=128) :: msg
-    integer :: rc, i
+    integer :: rc
 
     self%comm = geom%f_comm
     ! Initialize ESMF

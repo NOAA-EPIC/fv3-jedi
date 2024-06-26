@@ -108,7 +108,6 @@ ${SED} -i '/quilting_restart/d' model_configure
 ${SED} -i 's/0 7/0 5/g' ufs.configure
 ${SED} -i '/ATM_omp/d' ufs.configure
 
-exit
 #switch to warm_start and turn off checksum comparisons
 ${SED} -i 's/warm_start = .false./warm_start = .true./g' input.nml
 ${SED} -i 's/make_nh = .true./make_nh = .false./g' input.nml
