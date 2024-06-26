@@ -15,7 +15,7 @@ use fv_prec_mod,       only: kind_fv3
 
 implicit none
 private
-public fv_init
+public fv_init, fv_end
 
 ! --------------------------------------------------------------------------------------------------
 
@@ -42,6 +42,11 @@ deallocate(pelist_all)
 if (present(gtile)) gtile = Atm(1)%tile
 
 end subroutine fv_init
+
+subroutine fv_init(Atm)
+
+type(fv_atmos_type), allocatable, intent(inout) :: Atm(:)
+end subroutine fv_end
 
 ! --------------------------------------------------------------------------------------------------
 

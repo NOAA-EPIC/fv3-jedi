@@ -12,6 +12,7 @@ use iso_c_binding
 
 ! fckit
 use fckit_configuration_module,     only: fckit_configuration
+use mpp_mod,     only: mpp_pe
 
 ! atlas
 use atlas_module, only: atlas_fieldset
@@ -72,7 +73,6 @@ call fv3jedi_state_registry%add(c_key_self)
 call fv3jedi_state_registry%get(c_key_self,self)
 
 vars = oops_variables(c_vars)
-
 ! Create Fortran pointer to datetime
 call c_f_datetime(c_time, self%time)
 
@@ -419,6 +419,91 @@ call fv3jedi_state_registry%get(c_key_self, self)
 call self%serialize(c_vsize,c_vect_inc)
 
 end subroutine fv3jedi_state_serialize_c
+
+! --------------------------------------------------------------------------------------------------
+subroutine fv3jedi_state_deserializeSect_c(c_key_self,c_vsize,c_vect_inc,isc,iec,jsc,jec,isc_sg,iec_sg,jsc_sg,jec_sg) &
+           bind(c,name='fv3jedi_state_deserializeSect_f90')
+implicit none
+
+! Passed variables
+integer(c_int),intent(in) :: c_key_self           !< State
+integer(c_int),intent(in) :: c_vsize              !< Size
+real(c_double),intent(in) :: c_vect_inc(c_vsize) !< Vector
+integer(c_int),intent(in) :: isc                  !< Size
+integer(c_int),intent(in) :: iec                  !< Size
+integer(c_int),intent(in) :: jsc                  !< Size
+integer(c_int),intent(in) :: jec                  !< Size
+integer(c_int),intent(in) :: isc_sg               !< Size
+integer(c_int),intent(in) :: iec_sg               !< Size
+integer(c_int),intent(in) :: jsc_sg               !< Size
+integer(c_int),intent(in) :: jec_sg               !< Size
+
+type(fv3jedi_state),pointer :: self
+! Local variables
+integer :: ind, var, i, j, k, mype
+
+call fv3jedi_state_registry%get(c_key_self, self)
+! Call Fortran
+
+mype = mpp_pe()
+! Initialize
+ind = 0
+! Copy
+do var = 1, self%nf
+  do k = 1,self%fields(var)%npz
+    do j = jsc,jec
+      do i = isc,iec
+        ind = ind + 1  ! need to update index in bigger array
+        if((i >= isc_sg) .and. (i <= iec_sg)) then  ! probably a faster way to do this. 
+          if((j >= jsc_sg) .and. (j <= jec_sg)) then   
+            self%fields(var)%array(i, j, k) = c_vect_inc(ind)
+          endif
+        endif
+      enddo
+    enddo
+  enddo
+enddo
+
+end subroutine fv3jedi_state_deserializeSect_c
+! --------------------------------------------------------------------------------------------------
+subroutine fv3jedi_state_serializeSect_c(c_key_self,c_vsize,c_vect_inc,isc,iec,jsc,jec) &
+           bind(c,name='fv3jedi_state_serializeSect_f90')
+
+implicit none
+
+! Passed variables
+integer(c_int),intent(in) :: c_key_self           !< State
+integer(c_int),intent(in) :: c_vsize              !< Size
+real(c_double),intent(out) :: c_vect_inc(c_vsize) !< Vector
+integer(c_int),intent(in) :: isc                  !< Size
+integer(c_int),intent(in) :: iec                  !< Size
+integer(c_int),intent(in) :: jsc                  !< Size
+integer(c_int),intent(in) :: jec                  !< Size
+
+type(fv3jedi_state),pointer :: self
+! Local variables
+integer :: ind, var, i, j, k, mype
+
+call fv3jedi_state_registry%get(c_key_self, self)
+! Call Fortran
+
+mype = mpp_pe()
+! Initialize
+ind = 0
+! Copy
+do var = 1, self%nf
+  do k = 1,self%fields(var)%npz
+    do j = jsc,jec
+      do i = isc,iec
+        ind = ind + 1
+        c_vect_inc(ind) = self%fields(var)%array(i, j, k)
+      enddo
+    enddo
+  enddo
+enddo
+!call self%serializeSect(c_vsize,isc,iec,jsc,jec,c_vect_inc)
+
+end subroutine fv3jedi_state_serializeSect_c
 
 ! --------------------------------------------------------------------------------------------------
 

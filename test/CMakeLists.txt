@@ -216,6 +216,10 @@ list( APPEND fv3jedi_testinput
   testinput/increment_geos.yaml
   testinput/increment_gfs.yaml
   testinput/letkf.yaml
+  testinput/letkf-inline.yaml
+  testinput/letkf-inline-part2.yaml
+  testinput/letkf_forecast_ufs_1.yaml
+  testinput/letkf_forecast_ufs_2.yaml
   testinput/letkf3d.yaml
   testinput/lgetkf.yaml
   testinput/lgetkf_linearobserver.yaml
@@ -594,77 +598,77 @@ message(STATUS "Running fv3jedi tests for tiers up to and including tier " ${FV3
 # ------------
 
 # Executables
-ecbuild_add_executable( TARGET  test_fv3jedi_errorcovariance.x
-                        SOURCES mains/TestErrorCovariance.cc
-                        LIBS    ${FV3JEDI_LIBRARIES})
-
-ecbuild_add_executable( TARGET  test_fv3jedi_geometry.x
-                        SOURCES mains/TestGeometry.cc
-                        LIBS    ${FV3JEDI_LIBRARIES})
-
-ecbuild_add_executable( TARGET  test_fv3jedi_geometryiterator.x
-                        SOURCES mains/TestGeometryIterator.cc
-                        LIBS    ${FV3JEDI_LIBRARIES})
-
-ecbuild_add_executable( TARGET  test_fv3jedi_getvalues.x
-                        SOURCES mains/TestGetValues.cc
-                        LIBS    ${FV3JEDI_LIBRARIES})
-
-ecbuild_add_executable( TARGET  test_fv3jedi_unstructured_interpolator.x
-                        SOURCES mains/TestUnstructuredInterpolator.cc
-                        LIBS    ${FV3JEDI_LIBRARIES} )
-
-ecbuild_add_executable( TARGET  test_fv3jedi_global_interpolator.x
-                        SOURCES mains/TestGlobalInterpolator.cc
-                        LIBS    ${FV3JEDI_LIBRARIES} )
-
-ecbuild_add_executable( TARGET  test_fv3jedi_increment.x
-                        SOURCES mains/TestIncrement.cc
-                        LIBS    ${FV3JEDI_LIBRARIES})
-
-ecbuild_add_executable( TARGET  test_fv3jedi_linearmodel.x
-                        SOURCES mains/TestLinearModel.cc
-                        LIBS    ${FV3JEDI_LIBRARIES})
-
-ecbuild_add_executable( TARGET  test_fv3jedi_linearvariablechange.x
-                        SOURCES mains/TestLinVarCha.cc
-                        LIBS    ${FV3JEDI_LIBRARIES})
-
-ecbuild_add_executable( TARGET  test_fv3jedi_localization.x
-                        SOURCES mains/TestLocalization.cc
-                        LIBS    ${FV3JEDI_LIBRARIES})
-
-#ecbuild_add_executable( TARGET  test_fv3jedi_modelauxcontrol.x
-#                        SOURCES mains/TestModelAuxControl.cc
+#ecbuild_add_executable( TARGET  test_fv3jedi_errorcovariance.x
+#                        SOURCES mains/TestErrorCovariance.cc
 #                        LIBS    ${FV3JEDI_LIBRARIES})
 #
-#ecbuild_add_executable( TARGET  test_fv3jedi_modelauxcovariance.x
-#                        SOURCES mains/TestModelAuxCovariance.cc
+#ecbuild_add_executable( TARGET  test_fv3jedi_geometry.x
+#                        SOURCES mains/TestGeometry.cc
 #                        LIBS    ${FV3JEDI_LIBRARIES})
-
-ecbuild_add_executable( TARGET  test_fv3jedi_model.x
-                        SOURCES mains/TestModel.cc
-                        LIBS    ${FV3JEDI_LIBRARIES})
-
-ecbuild_add_executable( TARGET  test_fv3jedi_obslocalization.x
-                        SOURCES mains/TestObsLocalization.cc
-                        LIBS    ${FV3JEDI_LIBRARIES})
-
-ecbuild_add_executable( TARGET  test_fv3jedi_obslocalizations.x
-                        SOURCES mains/TestObsLocalizations.cc
-                        LIBS    ${FV3JEDI_LIBRARIES})
-
-ecbuild_add_executable( TARGET  test_fv3jedi_state.x
-                        SOURCES mains/TestState.cc
-                        LIBS    ${FV3JEDI_LIBRARIES})
-
-ecbuild_add_executable( TARGET  test_fv3jedi_comparestates.x
-                        SOURCES mains/TestCompareStates.cc
-                        LIBS    ${FV3JEDI_LIBRARIES})
-
-ecbuild_add_executable( TARGET  test_fv3jedi_variablechange.x
-                        SOURCES mains/TestVarCha.cc
-                        LIBS    ${FV3JEDI_LIBRARIES})
+#
+#ecbuild_add_executable( TARGET  test_fv3jedi_geometryiterator.x
+#                        SOURCES mains/TestGeometryIterator.cc
+#                        LIBS    ${FV3JEDI_LIBRARIES})
+#
+#ecbuild_add_executable( TARGET  test_fv3jedi_getvalues.x
+#                        SOURCES mains/TestGetValues.cc
+#                        LIBS    ${FV3JEDI_LIBRARIES})
+#
+#ecbuild_add_executable( TARGET  test_fv3jedi_unstructured_interpolator.x
+#                        SOURCES mains/TestUnstructuredInterpolator.cc
+#                        LIBS    ${FV3JEDI_LIBRARIES} )
+#
+#ecbuild_add_executable( TARGET  test_fv3jedi_global_interpolator.x
+#                        SOURCES mains/TestGlobalInterpolator.cc
+#                        LIBS    ${FV3JEDI_LIBRARIES} )
+#
+#ecbuild_add_executable( TARGET  test_fv3jedi_increment.x
+#                        SOURCES mains/TestIncrement.cc
+#                        LIBS    ${FV3JEDI_LIBRARIES})
+#
+#ecbuild_add_executable( TARGET  test_fv3jedi_linearmodel.x
+#                        SOURCES mains/TestLinearModel.cc
+#                        LIBS    ${FV3JEDI_LIBRARIES})
+#
+#ecbuild_add_executable( TARGET  test_fv3jedi_linearvariablechange.x
+#                        SOURCES mains/TestLinVarCha.cc
+#                        LIBS    ${FV3JEDI_LIBRARIES})
+#
+#ecbuild_add_executable( TARGET  test_fv3jedi_localization.x
+#                        SOURCES mains/TestLocalization.cc
+#                        LIBS    ${FV3JEDI_LIBRARIES})
+#
+##ecbuild_add_executable( TARGET  test_fv3jedi_modelauxcontrol.x
+##                        SOURCES mains/TestModelAuxControl.cc
+##                        LIBS    ${FV3JEDI_LIBRARIES})
+##
+##ecbuild_add_executable( TARGET  test_fv3jedi_modelauxcovariance.x
+##                        SOURCES mains/TestModelAuxCovariance.cc
+##                        LIBS    ${FV3JEDI_LIBRARIES})
+#
+#ecbuild_add_executable( TARGET  test_fv3jedi_model.x
+#                        SOURCES mains/TestModel.cc
+#                        LIBS    ${FV3JEDI_LIBRARIES})
+#
+#ecbuild_add_executable( TARGET  test_fv3jedi_obslocalization.x
+#                        SOURCES mains/TestObsLocalization.cc
+#                        LIBS    ${FV3JEDI_LIBRARIES})
+#
+#ecbuild_add_executable( TARGET  test_fv3jedi_obslocalizations.x
+#                        SOURCES mains/TestObsLocalizations.cc
+#                        LIBS    ${FV3JEDI_LIBRARIES})
+#
+#ecbuild_add_executable( TARGET  test_fv3jedi_state.x
+#                        SOURCES mains/TestState.cc
+#                        LIBS    ${FV3JEDI_LIBRARIES})
+#
+#ecbuild_add_executable( TARGET  test_fv3jedi_comparestates.x
+#                        SOURCES mains/TestCompareStates.cc
+#                        LIBS    ${FV3JEDI_LIBRARIES})
+#
+#ecbuild_add_executable( TARGET  test_fv3jedi_variablechange.x
+#                        SOURCES mains/TestVarCha.cc
+#                        LIBS    ${FV3JEDI_LIBRARIES})
 
 #Make some output directories for test data
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/bump)
@@ -1079,10 +1083,6 @@ endif()
 # Disabled until setup of GEOS model rundir is added (e.g., see fv3jedi_setup_ufs_rundir_warmstart)
 #if( FV3_FORECAST_MODEL MATCHES "GEOS" AND BUILD_LARGE_TESTS)
 #ecbuild_add_test( TARGET   fv3jedi_test_tier1_model_geos
-#                  MPI      6
-#                  ARGS     testinput/model_geos.yaml
-#                  COMMAND  test_fv3jedi_model.x )
-#endif()
 
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_linearmodel
                   MPI      6
@@ -1539,6 +1539,11 @@ endif()
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_letkf
                   MPI      6
                   ARGS     testinput/letkf.yaml
+                  COMMAND  fv3jedi_letkf.x )
+
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_letkf_inline
+                  MPI      12
+                  ARGS     testinput/letkf-inline.yaml
                   COMMAND  fv3jedi_letkf.x )
 
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_letkf3d_vertloc

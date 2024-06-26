@@ -58,6 +58,22 @@ class Geometry : public util::Printable,
   const eckit::mpi::Comm & getComm() const {return comm_;}
   const atlas::FunctionSpace & functionSpace() const {return functionSpace_;}
   const atlas::FieldSet & fields() const {return fields_;}
+  void latlon(std::vector<double> &, std::vector<double> &, const bool) const;
+
+  int tileNum() const {return tileNum_;}
+  std::vector<int> get_indices() const {
+     int ist, iend, jst, jend, kst, kend, npz;
+     std::vector<int> indices;
+     fv3jedi_geom_start_end_f90(keyGeom_, ist, iend, jst, jend, kst, kend, npz);
+     indices.push_back(ist);
+     indices.push_back(iend);
+     indices.push_back(jst);
+     indices.push_back(jend);
+     indices.push_back(kst);
+     indices.push_back(kend);
+     indices.push_back(npz);
+     return indices;
+  }
 
   std::vector<size_t> variableSizes(const oops::Variables &) const;
 
@@ -81,6 +97,7 @@ class Geometry : public util::Printable,
   std::shared_ptr<FieldsMetadata> fieldsMeta_;
   std::vector<double> ak_;
   std::vector<double> bk_;
+  int tileNum_;
   int nLevels_;
   double pTop_;
 };

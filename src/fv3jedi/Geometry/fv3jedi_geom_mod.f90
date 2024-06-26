@@ -20,12 +20,14 @@ use fckit_mpi_module,           only: fckit_mpi_comm
 use fckit_configuration_module, only: fckit_configuration
 
 ! fms uses
-use fms_io_mod,                 only: nullify_domain
-use fms_mod,                    only: fms_init
+use fms_io_mod,                 only: nullify_domain, fms_io_exit
+use fms_mod,                    only: fms_init, fms_end
 use mpp_mod,                    only: mpp_exit, mpp_pe, mpp_npes, mpp_error, FATAL, NOTE
 use mpp_domains_mod,            only: domain2D, mpp_deallocate_domain, mpp_define_layout, &
                                       mpp_define_mosaic, mpp_define_io_domain, mpp_domains_exit, &
                                       mpp_domains_set_stack_size
+use ensemble_manager_mod,       only: get_ensemble_id,get_ensemble_size
+
 use field_manager_mod,          only: fm_string_len, field_manager_init
 
 ! fv3 uses
@@ -36,7 +38,7 @@ use fields_metadata_mod,        only: fields_metadata
 use fv3jedi_constants_mod,      only: constant
 use fv3jedi_kinds_mod,          only: kind_int, kind_real
 use fv3jedi_netcdf_utils_mod,   only: nccheck
-use fv_init_mod,                only: fv_init
+use fv_init_mod,                only: fv_init, fv_end_local
 use fv3jedi_fmsnamelist_mod,    only: fv3jedi_fmsnamelist
 
 implicit none
@@ -90,6 +92,7 @@ type :: fv3jedi_geom
   logical :: bounded_domain = .false.
   character(len=10) :: vertcoord_type
 
+  integer :: ensNum
   integer :: grid_type = 0
   logical :: dord4 = .true.
   type(atlas_functionspace) :: afunctionspace
@@ -103,7 +106,7 @@ type :: fv3jedi_geom
     procedure, public :: create
     procedure, public :: clone
     procedure, public :: delete
-    procedure, public :: fill_bump_lonlat
+    procedure, public :: set_lonlat
     procedure, public :: set_and_fill_geometry_fields
     procedure, public :: get_data
     procedure, public :: get_num_nodes_and_elements
@@ -399,6 +402,7 @@ enddo
 !Set Ptop
 self%ptop = self%ak(1)
 
+call fv_end_local(Atm)
 !Done with the Atm stucture here
 call deallocate_fv_atmos_type(Atm(1))
 deallocate(Atm)
@@ -611,8 +615,8 @@ deallocate(self%lon_us)
 
 call self%afunctionspace%final()
 call self%afunctionspace_for_bump%final()
-
 ! Could finalize the fms routines. Possibly needs to be done only when key = 0
+!call fms_end
 !call fms_io_exit
 !call mpp_domains_exit
 !call mpp_exit
@@ -621,27 +625,43 @@ end subroutine delete
 
 ! --------------------------------------------------------------------------------------------------
 
-subroutine fill_bump_lonlat(self, afieldset)
+subroutine set_lonlat(self, afieldset, include_halo)
 
 !Arguments
 class(fv3jedi_geom),  intent(inout) :: self
 type(atlas_fieldset), intent(inout) :: afieldset
+logical,              intent(in) :: include_halo
 
 !Locals
 real(kind_real), pointer :: real_ptr(:,:)
-type(atlas_field) :: afield
-integer :: ngrid
+type(atlas_field) :: afield, afield_incl_halo
+integer :: ngrid, dummy_ntris, dummy_nquads
 
 ngrid = self%ngrid
 
-! Create lonlat field, without halo, for bump
-afield = atlas_field(name="bump_lonlat", kind=atlas_real(kind_real), shape=(/2,ngrid/))
+! Create lon/lat field
+afield = atlas_field(name="lonlat", kind=atlas_real(kind_real), shape=(/2,ngrid/))
 call afield%data(real_ptr)
 real_ptr(1,:) = constant('rad2deg')*reshape(self%grid_lon(self%isc:self%iec, self%jsc:self%jec),(/ngrid/))
 real_ptr(2,:) = constant('rad2deg')*reshape(self%grid_lat(self%isc:self%iec, self%jsc:self%jec),(/ngrid/))
 call afieldset%add(afield)
 
-end subroutine fill_bump_lonlat
+if (include_halo) then
+  nullify(real_ptr)
+  call self%get_num_nodes_and_elements(ngrid, dummy_ntris, dummy_nquads)
+
+  ! Create an additional lon/lat field containing owned points (as above) and also halo
+  afield_incl_halo = atlas_field(name="lonlat_including_halo", kind=atlas_real(kind_real), &
+                                 shape=(/2,ngrid/))
+  call afield_incl_halo%data(real_ptr)
+  call self%fv3_nodes_to_atlas_nodes(self%grid_lon, real_ptr(1,:))
+  call self%fv3_nodes_to_atlas_nodes(self%grid_lat, real_ptr(2,:))
+  ! Convert rad -> degree
+  real_ptr(:,:) = constant('rad2deg') * real_ptr(:,:)
+  call afieldset%add(afield_incl_halo)
+endif
+
+end subroutine set_lonlat
 
 ! --------------------------------------------------------------------------------------------------
 
@@ -728,11 +748,13 @@ subroutine setup_domain(domain, nx, ny, ntiles, layout_in, io_layout, halo)
  integer, allocatable, dimension(:)   :: tile1, tile2
  integer, allocatable, dimension(:)   :: istart1, iend1, jstart1, jend1
  integer, allocatable, dimension(:)   :: istart2, iend2, jstart2, jend2
- integer, allocatable :: tile_id(:)
+ integer, allocatable :: tile_id(:), ensNum
  logical :: is_symmetry
 
   pe = mpp_pe()
   npes = mpp_npes()
+  ensNum = get_ensemble_id()
+
 
   if (mod(npes,ntiles) /= 0) then
      call mpp_error(NOTE, "setup_domain: npes can not be divided by ntiles")
@@ -740,7 +762,6 @@ subroutine setup_domain(domain, nx, ny, ntiles, layout_in, io_layout, halo)
   endif
   npes_per_tile = npes/ntiles
   tile = pe/npes_per_tile + 1
-
   if (layout_in(1)*layout_in(2) == npes_per_tile) then
      layout = layout_in
   else
@@ -769,9 +790,10 @@ subroutine setup_domain(domain, nx, ny, ntiles, layout_in, io_layout, halo)
   do n = 1, ntiles
      global_indices(:,n) = (/1,nx,1,ny/)
      layout2D(:,n)       = layout
-     pe_start(n)         = (n-1)*npes_per_tile
-     pe_end(n)           = n*npes_per_tile-1
+     pe_start(n)         = (n-1)*npes_per_tile + (ensNum -1) * 6 * npes_per_tile
+     pe_end(n)           = n*npes_per_tile-1 + (ensNum -1) * 6 * npes_per_tile
   enddo
+  
   num_alloc = max(1, num_contact)
   ! this code copied from domain_decomp in fv_mp_mod.f90
   allocate(tile1(num_alloc), tile2(num_alloc) )

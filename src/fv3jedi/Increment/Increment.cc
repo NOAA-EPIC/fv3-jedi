@@ -107,6 +107,7 @@ void Increment::updateFields(const oops::Variables & newVars) {
 }
 // -------------------------------------------------------------------------------------------------
 Increment & Increment::operator+=(const Increment & dx) {
+  std::cout << "HEYYY in fv3jedi increment.cc \n";
   ASSERT(this->validTime() == dx.validTime());
   fv3jedi_increment_self_add_f90(keyInc_, dx.keyInc_);
   return *this;
