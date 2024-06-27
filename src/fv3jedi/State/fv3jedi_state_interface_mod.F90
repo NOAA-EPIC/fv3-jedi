@@ -12,7 +12,6 @@ use iso_c_binding
 
 ! fckit
 use fckit_configuration_module,     only: fckit_configuration
-use mpp_mod,     only: mpp_pe
 
 ! atlas
 use atlas_module, only: atlas_fieldset
@@ -440,12 +439,11 @@ integer(c_int),intent(in) :: jec_sg               !< Size
 
 type(fv3jedi_state),pointer :: self
 ! Local variables
-integer :: ind, var, i, j, k, mype
+integer :: ind, var, i, j, k
 
 call fv3jedi_state_registry%get(c_key_self, self)
 ! Call Fortran
 
-mype = mpp_pe()
 ! Initialize
 ind = 0
 ! Copy
@@ -482,12 +480,11 @@ integer(c_int),intent(in) :: jec                  !< Size
 
 type(fv3jedi_state),pointer :: self
 ! Local variables
-integer :: ind, var, i, j, k, mype
+integer :: ind, var, i, j, k
 
 call fv3jedi_state_registry%get(c_key_self, self)
 ! Call Fortran
 
-mype = mpp_pe()
 ! Initialize
 ind = 0
 ! Copy

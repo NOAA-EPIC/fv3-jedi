@@ -7,7 +7,7 @@ module fv_init_mod
 
 ! fv3 uses
 use fv_arrays_mod,  only: fv_atmos_type
-use fv_control_mod, only: fv_control_init, fv_end
+use fv_control_mod, only: fv_control_init
 use fv_mp_mod,      only: grids_master_procs
 
 ! fv3jedi uses
@@ -16,7 +16,7 @@ use fv_prec_mod,       only: kind_fv3
 
 implicit none
 private
-public fv_init, fv_end_local
+public fv_init
 
 ! --------------------------------------------------------------------------------------------------
 
@@ -50,11 +50,5 @@ if (allocated(grids_master_procs)) deallocate(grids_master_procs)
 end subroutine fv_init
 
 ! --------------------------------------------------------------------------------------------------
-subroutine fv_end_local(Atm)
-type(fv_atmos_type), allocatable, intent(inout) :: Atm(:)
-
-  call fv_end(Atm,1,.false.)
-
-end subroutine fv_end_local
 
 end module fv_init_mod

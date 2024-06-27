@@ -37,7 +37,7 @@ use fields_metadata_mod,        only: fields_metadata
 use fv3jedi_constants_mod,      only: constant
 use fv3jedi_kinds_mod,          only: kind_int, kind_real
 use fv3jedi_netcdf_utils_mod,   only: nccheck
-use fv_init_mod,                only: fv_init, fv_end_local
+use fv_init_mod,                only: fv_init
 use fv3jedi_fmsnamelist_mod,    only: fv3jedi_fmsnamelist
 
 implicit none
@@ -401,7 +401,6 @@ enddo
 !Set Ptop
 self%ptop = self%ak(1)
 
-call fv_end_local(Atm)
 !Done with the Atm stucture here
 call deallocate_fv_atmos_type(Atm(1))
 deallocate(Atm)

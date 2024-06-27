@@ -15,7 +15,7 @@ use fv_prec_mod,       only: kind_fv3
 
 implicit none
 private
-public fv_init, fv_end
+public fv_init
 
 ! --------------------------------------------------------------------------------------------------
 
@@ -46,7 +46,7 @@ end subroutine fv_init
 subroutine fv_init(Atm)
 
 type(fv_atmos_type), allocatable, intent(inout) :: Atm(:)
-end subroutine fv_end
+end subroutine fv_init
 
 ! --------------------------------------------------------------------------------------------------
 

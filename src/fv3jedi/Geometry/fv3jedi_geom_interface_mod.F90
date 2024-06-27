@@ -103,7 +103,6 @@ f_conf            = fckit_configuration(c_conf)
 f_comm            = fckit_mpi_comm(c_comm)
 call f_conf%get_or_die("member_number", ensNum)
 self%ensNum = ensNum
-write(6,*) 'in geom_interface, ensNum is ',ensNum
 if( ensNum > 0 ) then
   call ensemble_manager_init()
   ens_siz = get_ensemble_size()
@@ -126,6 +125,10 @@ if( ensNum > 0 ) then
   allocate(ensemble_pelist(1:ensemble_size,1:npes))
   call get_ensemble_pelist(ensemble_pelist)
   call mpp_set_current_pelist(ensemble_pelist(ensemble_id,:))
+  deallocate( Atm_pelist )
+  deallocate( Ocean_pelist )
+  deallocate( Land_pelist )
+  deallocate( Ice_fast_pelist )
 endif
 
 ! Call implementation

@@ -219,8 +219,7 @@ void State::print(std::ostream & os) const {
      << "--------------------------------------------------"
         "--------------------------------------------------";
   os << std::endl << "State print | number of fields = " << numberFields
-                  << " | cube sphere face size: C" << cubeSize
-                  << " | time = " << time_;
+                  << " | cube sphere face size: C" << cubeSize;
 
   // Print info field by field
   const int FieldNameLen = 45;
@@ -267,7 +266,6 @@ double State::norm() const {
 
 void State::toFieldSet(atlas::FieldSet & fset) const {
   fv3jedi_state_to_fieldset_f90(keyState_, geom_.toFortran(), varsJedi_, fset.get());
-  fset.haloExchange();
 }
 
 // -------------------------------------------------------------------------------------------------
