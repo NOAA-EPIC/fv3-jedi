@@ -20,14 +20,13 @@ use fckit_mpi_module,           only: fckit_mpi_comm
 use fckit_configuration_module, only: fckit_configuration
 
 ! fms uses
-use fms_io_mod,                 only: nullify_domain, fms_io_exit
-use fms_mod,                    only: fms_init, fms_end
+use fms_io_mod,                 only: nullify_domain
+use fms_mod,                    only: fms_init
 use mpp_mod,                    only: mpp_exit, mpp_pe, mpp_npes, mpp_error, FATAL, NOTE
 use mpp_domains_mod,            only: domain2D, mpp_deallocate_domain, mpp_define_layout, &
                                       mpp_define_mosaic, mpp_define_io_domain, mpp_domains_exit, &
                                       mpp_domains_set_stack_size
 use ensemble_manager_mod,       only: get_ensemble_id,get_ensemble_size
-
 use field_manager_mod,          only: fm_string_len, field_manager_init
 
 ! fv3 uses
@@ -106,7 +105,7 @@ type :: fv3jedi_geom
     procedure, public :: create
     procedure, public :: clone
     procedure, public :: delete
-    procedure, public :: set_lonlat
+    procedure, public :: fill_bump_lonlat
     procedure, public :: set_and_fill_geometry_fields
     procedure, public :: get_data
     procedure, public :: get_num_nodes_and_elements
@@ -615,53 +614,32 @@ deallocate(self%lon_us)
 
 call self%afunctionspace%final()
 call self%afunctionspace_for_bump%final()
-! Could finalize the fms routines. Possibly needs to be done only when key = 0
-!call fms_end
-!call fms_io_exit
-!call mpp_domains_exit
-!call mpp_exit
 
 end subroutine delete
 
 ! --------------------------------------------------------------------------------------------------
 
-subroutine set_lonlat(self, afieldset, include_halo)
+subroutine fill_bump_lonlat(self, afieldset)
 
 !Arguments
 class(fv3jedi_geom),  intent(inout) :: self
 type(atlas_fieldset), intent(inout) :: afieldset
-logical,              intent(in) :: include_halo
 
 !Locals
 real(kind_real), pointer :: real_ptr(:,:)
-type(atlas_field) :: afield, afield_incl_halo
-integer :: ngrid, dummy_ntris, dummy_nquads
+type(atlas_field) :: afield
+integer :: ngrid
 
 ngrid = self%ngrid
 
-! Create lon/lat field
-afield = atlas_field(name="lonlat", kind=atlas_real(kind_real), shape=(/2,ngrid/))
+! Create lonlat field, without halo, for bump
+afield = atlas_field(name="bump_lonlat", kind=atlas_real(kind_real), shape=(/2,ngrid/))
 call afield%data(real_ptr)
 real_ptr(1,:) = constant('rad2deg')*reshape(self%grid_lon(self%isc:self%iec, self%jsc:self%jec),(/ngrid/))
 real_ptr(2,:) = constant('rad2deg')*reshape(self%grid_lat(self%isc:self%iec, self%jsc:self%jec),(/ngrid/))
 call afieldset%add(afield)
 
-if (include_halo) then
-  nullify(real_ptr)
-  call self%get_num_nodes_and_elements(ngrid, dummy_ntris, dummy_nquads)
-
-  ! Create an additional lon/lat field containing owned points (as above) and also halo
-  afield_incl_halo = atlas_field(name="lonlat_including_halo", kind=atlas_real(kind_real), &
-                                 shape=(/2,ngrid/))
-  call afield_incl_halo%data(real_ptr)
-  call self%fv3_nodes_to_atlas_nodes(self%grid_lon, real_ptr(1,:))
-  call self%fv3_nodes_to_atlas_nodes(self%grid_lat, real_ptr(2,:))
-  ! Convert rad -> degree
-  real_ptr(:,:) = constant('rad2deg') * real_ptr(:,:)
-  call afieldset%add(afield_incl_halo)
-endif
-
-end subroutine set_lonlat
+end subroutine fill_bump_lonlat
 
 ! --------------------------------------------------------------------------------------------------
 
@@ -755,15 +733,13 @@ subroutine setup_domain(domain, nx, ny, ntiles, layout_in, io_layout, halo)
   npes = mpp_npes()
   ensNum = get_ensemble_id()
 
-
-  write(6,*) 'in fv3jedi_geom_mod, pe, npes, and ensNum are ',pe,npes,ensNum
   if (mod(npes,ntiles) /= 0) then
      call mpp_error(NOTE, "setup_domain: npes can not be divided by ntiles")
      return
   endif
   npes_per_tile = npes/ntiles
   tile = pe/npes_per_tile + 1
-  write(6,*) 'in fv3jedi_geom_mod, npes_per_tile and tile are ',npes_per_tile, tile
+
   if (layout_in(1)*layout_in(2) == npes_per_tile) then
      layout = layout_in
   else
@@ -795,7 +771,7 @@ subroutine setup_domain(domain, nx, ny, ntiles, layout_in, io_layout, halo)
      pe_start(n)         = (n-1)*npes_per_tile + (ensNum -1) * 6 * npes_per_tile
      pe_end(n)           = n*npes_per_tile-1 + (ensNum -1) * 6 * npes_per_tile
   enddo
-  
+
   num_alloc = max(1, num_contact)
   ! this code copied from domain_decomp in fv_mp_mod.f90
   allocate(tile1(num_alloc), tile2(num_alloc) )
@@ -861,7 +837,6 @@ subroutine setup_domain(domain, nx, ny, ntiles, layout_in, io_layout, halo)
      tile_id(n) = n
   enddo
 
-  write(6,*) 'about to call define mosaic with global_indices ',global_indices
   call mpp_define_mosaic(global_indices, layout2D, domain, ntiles, num_contact, tile1, tile2, &
                          istart1, iend1, jstart1, jend1, istart2, iend2, jstart2, jend2,      &
                          pe_start, pe_end, whalo=halo, ehalo=halo, shalo=halo, nhalo=halo,    &

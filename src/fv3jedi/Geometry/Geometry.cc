@@ -34,8 +34,7 @@ Geometry::Geometry(const eckit::Configuration & config, const eckit::mpi::Comm &
   GeometryParameters params;
   params.deserialize(config);
   // Call the initialize phase, done only once.
-  std::cout << "HEY, int fv3jedi geom const" << std::endl;
-  bool initialized = false;
+  static bool initialized = false;
   if (!initialized) {
     fv3jedi_geom_initialize_f90((*params.fmsInit.value()).toConfiguration(), &comm_);
     initialized = true;
@@ -135,13 +134,10 @@ Geometry::Geometry(const eckit::Configuration & config, const eckit::mpi::Comm &
     functionSpace_ = atlas::functionspace::NodeColumns(mesh, config);
   }
 
-  // Set lon/lat field, include halo so we can set up function spaces with/without halo
-  atlas::FieldSet fs;
-  const bool include_halo = true;
-  fv3jedi_geom_set_lonlat_f90(keyGeom_, fs.get(), include_halo);
-
   // Create function space without halo, for constructing the bump interpolator from fv3jedi
-  const atlas::Field lonlatFieldForBump = fs.field("lonlat");
+  atlas::FieldSet fs;
+  fv3jedi_geom_fill_bump_lonlat_f90(keyGeom_, fs.get());
+  const atlas::Field lonlatFieldForBump = fs.field("bump_lonlat");
   functionSpaceForBump_ = atlas::functionspace::PointCloud(lonlatFieldForBump);
 
   // Set function space pointers in Fortran
@@ -158,6 +154,10 @@ Geometry::Geometry(const eckit::Configuration & config, const eckit::mpi::Comm &
     // Add fields read directly from file
     atlas::FieldSet timeInvFieldSet{};
     timeInvState.toFieldSet(timeInvFieldSet);
+    // Populate the atlas halos of the background time-invariant fields. This allows these fields
+    // to be used in setting up halo values of derived fields (e.g. the halo of the JEDI sea mask
+    // depends on the halo of the UFS slmsk + sheleg).
+    timeInvFieldSet.haloExchange();
     for (const auto & f : timeInvFieldSet) {
       fields_.add(f);
     }
@@ -249,27 +249,6 @@ std::vector<size_t> Geometry::variableSizes(const oops::Variables & vars) const 
     varSizes.push_back(fieldsMeta_->getLevels(vars[it].name()));
   }
   return varSizes;
-}
-
-// -------------------------------------------------------------------------------------------------
-
-void Geometry::latlon(std::vector<double> & lats, std::vector<double> & lons,
-                      const bool halo) const {
-  const atlas::FunctionSpace * fspace;
-  if (halo) {
-    fspace = &functionSpace_;
-  } else {
-    fspace = &functionSpaceForBump_;
-  }
-  const auto lonlat = atlas::array::make_view<double, 2>(fspace->lonlat());
-  const size_t npts = fspace->size();
-  lats.resize(npts);
-  lons.resize(npts);
-  for (size_t jj = 0; jj < npts; ++jj) {
-    lats[jj] = lonlat(jj, 1);
-    lons[jj] = lonlat(jj, 0);
-    if (lons[jj] < 0.0) lons[jj] += 360.0;
-  }
 }
 
 // -------------------------------------------------------------------------------------------------

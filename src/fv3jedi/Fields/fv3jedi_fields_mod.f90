@@ -433,11 +433,9 @@ real(kind_real),       intent(out) :: vect_inc(vsize)
 ! Local variables
 integer :: ind, var, i, j, k
 
-write(6,*) 'HEYYY start of serializeSection vsize is ',vsize,isc,iec,jsc,jec
 ! Initialize
 ind = 0
 ! Copy
-write(6,*) 'copying fields from ',isc,iec,jsc,jec,self%fields(var)%npz,self%nf
 do var = 1, self%nf
   do k = 1,self%fields(var)%npz
     do j = jsc,jec
@@ -446,10 +444,8 @@ do var = 1, self%nf
         vect_inc(ind) = self%fields(var)%array(i, j, k)
       enddo
     enddo
-!   write(6,*) 'vect_ind is ',vect_inc(ind),' at ',ind
   enddo
 enddo
-write(6,*) 'HEYYY serializeSection number of fields is ',self%nf,' ind is ',ind, 'vsize ',size(vect_inc)
 
 end subroutine serializeSection
 
@@ -479,7 +475,6 @@ do var = 1, self%nf
     enddo
   enddo
 enddo
-write(6,*) 'HEYYY number of fields is ',self%nf,' ind is ',ind, 'vsize ',size(vect_inc)
 
 end subroutine serialize
 
@@ -509,7 +504,6 @@ do var = 1, self%nf
     enddo
   enddo
 enddo
-write(6,*) 'after derserialize, index is ',index,' vect_inc is ',vect_inc(index)
 end subroutine deserialize
 
 ! --------------------------------------------------------------------------------------------------
