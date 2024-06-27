@@ -103,9 +103,9 @@ class State : public util::Printable, private util::ObjectCounter<State> {
 // Serialize and deserialize
   size_t serialSize() const;
   void serialize(std::vector<double> &) const;
-  void deserializeSect(std::vector<double> &, int, int, 
+  void deserializeSection(std::vector<double> &, int, int, 
      int, int, int, int, int, int, int ) const;
-  void serializeSect(std::vector<double> &, int, int, 
+  void serializeSection(std::vector<double> &, int, int, 
      int, int, int ) const;
   void deserialize(const std::vector<double> &, size_t &);
 

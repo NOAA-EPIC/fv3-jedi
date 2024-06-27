@@ -421,8 +421,8 @@ call self%serialize(c_vsize,c_vect_inc)
 end subroutine fv3jedi_state_serialize_c
 
 ! --------------------------------------------------------------------------------------------------
-subroutine fv3jedi_state_deserializeSect_c(c_key_self,c_vsize,c_vect_inc,isc,iec,jsc,jec,isc_sg,iec_sg,jsc_sg,jec_sg) &
-           bind(c,name='fv3jedi_state_deserializeSect_f90')
+subroutine fv3jedi_state_deserializeSection_c(c_key_self,c_vsize,c_vect_inc,isc,iec,jsc,jec,isc_sg,iec_sg,jsc_sg,jec_sg) &
+           bind(c,name='fv3jedi_state_deserializeSection_f90')
 implicit none
 
 ! Passed variables
@@ -464,10 +464,10 @@ do var = 1, self%nf
   enddo
 enddo
 
-end subroutine fv3jedi_state_deserializeSect_c
+end subroutine fv3jedi_state_deserializeSection_c
 ! --------------------------------------------------------------------------------------------------
-subroutine fv3jedi_state_serializeSect_c(c_key_self,c_vsize,c_vect_inc,isc,iec,jsc,jec) &
-           bind(c,name='fv3jedi_state_serializeSect_f90')
+subroutine fv3jedi_state_serializeSection_c(c_key_self,c_vsize,c_vect_inc,isc,iec,jsc,jec) &
+           bind(c,name='fv3jedi_state_serializeSection_f90')
 
 implicit none
 
@@ -501,9 +501,9 @@ do var = 1, self%nf
     enddo
   enddo
 enddo
-!call self%serializeSect(c_vsize,isc,iec,jsc,jec,c_vect_inc)
+!call self%serializeSection(c_vsize,isc,iec,jsc,jec,c_vect_inc)
 
-end subroutine fv3jedi_state_serializeSect_c
+end subroutine fv3jedi_state_serializeSection_c
 
 ! --------------------------------------------------------------------------------------------------
 

@@ -303,11 +303,11 @@ size_t State::serialSize() const {
 
 // -------------------------------------------------------------------------------------------------
 
-void State::deserializeSect(std::vector<double> & vect, int size_fld, int isc, int iec, 
+void State::deserializeSection(std::vector<double> & vect, int size_fld, int isc, int iec, 
      int jsc, int jec, int isc_sg, int iec_sg, int jsc_sg, int jec_sg) const {
   oops::Log::trace() << "State deserialize starting" << std::endl;
 
-  fv3jedi_state_deserializeSect_f90(keyState_, size_fld, vect.data(), isc, iec, jsc, jec,
+  fv3jedi_state_deserializeSection_f90(keyState_, size_fld, vect.data(), isc, iec, jsc, jec,
            isc_sg, iec_sg, jsc_sg, jec_sg);
 
 //  time_.deserialize(vect, index);
@@ -315,18 +315,18 @@ void State::deserializeSect(std::vector<double> & vect, int size_fld, int isc, i
 
   std::cout << "FIX deserializing time" << std::endl;
 
-  oops::Log::trace() << "State deserializeSect done" << std::endl;
+  oops::Log::trace() << "State deserializeSection done" << std::endl;
 }
 
 // -------------------------------------------------------------------------------------------------
 // -------------------------------------------------------------------------------------------------
 
-void State::serializeSect(std::vector<double> & vect, int size_fld, int isc, int iec, 
+void State::serializeSection(std::vector<double> & vect, int size_fld, int isc, int iec, 
      int jsc, int jec) const {
   oops::Log::trace() << "State serialize starting" << std::endl;
   std::vector<double> v_fld(size_fld, 0);
 
-  fv3jedi_state_serializeSect_f90(keyState_, size_fld, v_fld.data(), isc, iec, jsc, jec);
+  fv3jedi_state_serializeSection_f90(keyState_, size_fld, v_fld.data(), isc, iec, jsc, jec);
   vect.insert(vect.end(), v_fld.begin(), v_fld.end());
 
   // Serialize the date and time
