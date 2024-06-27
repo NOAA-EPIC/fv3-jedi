@@ -303,7 +303,7 @@ size_t State::serialSize() const {
 
 // -------------------------------------------------------------------------------------------------
 
-void State::deserializeSection(std::vector<double> & vect, int size_fld, int isc, int iec, 
+void State::deserializeSection(std::vector<double> & vect, int size_fld, int isc, int iec,
      int jsc, int jec, int isc_sg, int iec_sg, int jsc_sg, int jec_sg) const {
   oops::Log::trace() << "State deserialize starting" << std::endl;
 
@@ -321,7 +321,7 @@ void State::deserializeSection(std::vector<double> & vect, int size_fld, int isc
 // -------------------------------------------------------------------------------------------------
 // -------------------------------------------------------------------------------------------------
 
-void State::serializeSection(std::vector<double> & vect, int size_fld, int isc, int iec, 
+void State::serializeSection(std::vector<double> & vect, int size_fld, int isc, int iec,
      int jsc, int jec) const {
   oops::Log::trace() << "State serialize starting" << std::endl;
   std::vector<double> v_fld(size_fld, 0);
