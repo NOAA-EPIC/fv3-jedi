@@ -9,13 +9,13 @@ geometry:
   member_number: 0
   layout: [2,1]
   field metadata override: Data/fieldmetadata/ufs.yaml
-
 time window:
   begin: &date 2020-12-14T21:00:00Z
   length: PT6H
 
+Run Inline: true
 inline parameters:
-  Run Forecast: false
+  Run Forecast: true
   Forecast configuration:
   - testinput/letkf_forecast_ufs_1.yaml
   - testinput/letkf_forecast_ufs_2.yaml
