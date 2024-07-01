@@ -420,7 +420,7 @@ call self%serialize(c_vsize,c_vect_inc)
 end subroutine fv3jedi_state_serialize_c
 
 ! --------------------------------------------------------------------------------------------------
-subroutine fv3jedi_state_deserializeSection_c(c_key_self,c_vsize,c_vect_inc,isc,iec,jsc,jec,isc_sg,iec_sg,jsc_sg,jec_sg) &
+subroutine fv3jedi_state_deserializeSection_c(c_key_self,c_vsize,c_vect_inc,isc,iec,jsc,jec,isc_sg,iec_sg,jsc_sg,jec_sg,local_ind) &
            bind(c,name='fv3jedi_state_deserializeSection_f90')
 implicit none
 
@@ -436,6 +436,7 @@ integer(c_int),intent(in) :: isc_sg               !< Size
 integer(c_int),intent(in) :: iec_sg               !< Size
 integer(c_int),intent(in) :: jsc_sg               !< Size
 integer(c_int),intent(in) :: jec_sg               !< Size
+integer(c_int),intent(inout) :: local_ind          !< Size
 
 type(fv3jedi_state),pointer :: self
 ! Local variables
@@ -455,12 +456,14 @@ do var = 1, self%nf
         if((i >= isc_sg) .and. (i <= iec_sg)) then  ! probably a faster way to do this. 
           if((j >= jsc_sg) .and. (j <= jec_sg)) then   
             self%fields(var)%array(i, j, k) = c_vect_inc(ind)
+            local_ind = local_ind + 1
           endif
         endif
       enddo
     enddo
   enddo
 enddo
+local_ind = ind
 
 end subroutine fv3jedi_state_deserializeSection_c
 ! --------------------------------------------------------------------------------------------------

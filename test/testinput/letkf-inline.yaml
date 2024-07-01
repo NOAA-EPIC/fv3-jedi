@@ -15,7 +15,7 @@ time window:
 
 Run Inline: true
 inline parameters:
-  Run Forecast: true
+  Run Forecast: false
   Forecast configuration:
   - testinput/letkf_forecast_ufs_1.yaml
   - testinput/letkf_forecast_ufs_2.yaml
