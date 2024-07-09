@@ -82,8 +82,6 @@ void ModelUFS::step(State & xx, const ModelBias &) const
 // -------------------------------------------------------------------------------------------------
 void ModelUFS::finalize(State & xx) const {
   oops::Log::trace() << "ModelUFS::finalize starting" << std::endl;
-  std::cout << "ModelUFS::finalize starting" << std::endl;
-  std::cout << "ModelUFS::xx is " << xx << std::endl;
   fv3jedi_ufs_finalize_f90(keyConfig_, xx.toFortran());
   oops::Log::trace() << "ModelUFS::finalize done" << std::endl;
   chdir(topdir_);

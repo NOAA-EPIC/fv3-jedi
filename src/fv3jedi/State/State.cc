@@ -301,21 +301,14 @@ size_t State::serialSize() const {
 
 // -------------------------------------------------------------------------------------------------
 
-void State::deserializeSection(const std::vector<double> & vect, int & size_fld, int & isc, int & iec,
-     int & jsc, int & jec, int & isc_sg, int & iec_sg, int & jsc_sg, int & jec_sg, size_t & ind_local) {
+void State::deserializeSection(const std::vector<double> & vect, int & size_fld, int & isc,
+     int & iec, int & jsc, int & jec, int & isc_sg, int & iec_sg, int & jsc_sg, int & jec_sg,
+     size_t & ind_local) {
   oops::Log::trace() << "State deserialize starting" << std::endl;
-
   fv3jedi_state_deserializeSection_f90(keyState_, size_fld, vect.data(), isc, iec, jsc, jec,
            isc_sg, iec_sg, jsc_sg, jec_sg, ind_local);
 
-  std::cout << "about to deserialize time " << time_ << std::endl;
-  std::cout << "vect at " << ind_local << " is " << vect.at(ind_local) << std::endl;
   ASSERT(vect.at(ind_local) == -54321.56789);
-//  time_.deserialize(vect, ind_local);
-  oops::Log::trace() << "State deserialize done" << std::endl;
-
-  std::cout << "end of deserializeSect time is" << this->time() << std::endl;
-
   oops::Log::trace() << "State deserializeSection done" << std::endl;
 }
 
