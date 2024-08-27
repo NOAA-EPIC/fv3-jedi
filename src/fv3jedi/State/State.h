@@ -17,6 +17,7 @@
 #include "oops/base/ParameterTraitsVariables.h"
 #include "oops/base/Variables.h"
 #include "oops/base/WriteParametersBase.h"
+#include "oops/interface/State.h"
 #include "oops/util/ObjectCounter.h"
 #include "oops/util/Printable.h"
 
@@ -103,6 +104,7 @@ class State : public util::Printable, private util::ObjectCounter<State> {
 // Serialize and deserialize
   size_t serialSize() const;
   void serialize(std::vector<double> &) const;
+  void transpose(const State & FCState, const eckit::mpi::Comm & global, const int & mytask, const int & ensNum );
   void deserializeSection(const std::vector<double> &, int &, int &,
      int &, int &, int &, int &, int &, int &, int &, size_t &);
   void serializeSection(std::vector<double> &, int, int,

@@ -7,7 +7,7 @@ geometry:
   npy: 49
   npz: 127
   member_number: 0
-  layout: [2,2]
+  layout: [2,1]
   field metadata override: Data/fieldmetadata/ufs.yaml
 time window:
   begin: &date 2020-12-14T21:00:00Z
