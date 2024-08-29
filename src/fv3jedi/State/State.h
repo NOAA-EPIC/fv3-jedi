@@ -104,7 +104,8 @@ class State : public util::Printable, private util::ObjectCounter<State> {
 // Serialize and deserialize
   size_t serialSize() const;
   void serialize(std::vector<double> &) const;
-  void transpose(const State & FCState, const eckit::mpi::Comm & global, const int & mytask, const int & ensNum );
+  void transpose(const State & FCState, const eckit::mpi::Comm & global, const int & mytask,
+     const int & ensNum, const int & transNum );
   void deserializeSection(const std::vector<double> &, int &, int &,
      int &, int &, int &, int &, int &, int &, int &, size_t &);
   void serializeSection(std::vector<double> &, int, int,
