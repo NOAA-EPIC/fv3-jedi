@@ -438,23 +438,6 @@ void State::transpose(const State & FCState, const eckit::mpi::Comm & global, co
 }
 // -------------------------------------------------------------------------------------------------
 
-void State::serializeSection(std::vector<double> & vect, int size_fld, int isc, int iec,
-     int jsc, int jec) const {
-//  oops::Log::trace() << "State serialize starting" << std::endl;
-  std::vector<double> v_fld(size_fld, 0);
-
-  fv3jedi_state_serializeSection_f90(keyState_, size_fld, v_fld.data(), isc, iec, jsc, jec);
-  vect.insert(vect.end(), v_fld.begin(), v_fld.end());
-
-  // Serialize the date and time
-  vect.push_back(-54321.56789);
-  time_.serialize(vect);
-
-//  oops::Log::trace() << "State serialize done" << std::endl;
-}
-
-// -------------------------------------------------------------------------------------------------
-
 void State::serialize(std::vector<double> & vect) const {
   oops::Log::trace() << "State serialize starting" << std::endl;
   int size_fld = this->serialSize() - 3;

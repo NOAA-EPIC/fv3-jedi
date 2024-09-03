@@ -62,7 +62,6 @@ type :: fv3jedi_fields
     procedure, public :: minmaxrms
     procedure, public :: accumul
     procedure, public :: serialize
-    procedure, public :: serializeSection
     procedure, public :: deserialize
     procedure, public :: to_fieldset
     procedure, public :: from_fieldset
@@ -417,39 +416,6 @@ end subroutine accumul
 
 ! --------------------------------------------------------------------------------------------------
 
-subroutine serializeSection(self,vsize,vect_inc,isc,iec,jsc,jec)
-
-implicit none
-
-! Passed variables
-class(fv3jedi_fields), intent(in)  :: self
-integer,               intent(in)  :: vsize
-integer,               intent(in)  :: isc
-integer,               intent(in)  :: iec
-integer,               intent(in)  :: jsc
-integer,               intent(in)  :: jec
-real(kind_real),       intent(out) :: vect_inc(vsize)
-
-! Local variables
-integer :: ind, var, i, j, k
-
-! Initialize
-ind = 0
-! Copy
-do var = 1, self%nf
-  do k = 1,self%fields(var)%npz
-    do j = jsc,jec
-      do i = isc,iec
-        ind = ind + 1
-        vect_inc(ind) = self%fields(var)%array(i, j, k)
-      enddo
-    enddo
-  enddo
-enddo
-
-end subroutine serializeSection
-
-! --------------------------------------------------------------------------------------------------
 subroutine serialize(self,vsize,vect_inc)
 
 implicit none

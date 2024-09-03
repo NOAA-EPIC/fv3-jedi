@@ -467,45 +467,6 @@ local_ind = ind
 
 end subroutine fv3jedi_state_deserializeSection_c
 ! --------------------------------------------------------------------------------------------------
-subroutine fv3jedi_state_serializeSection_c(c_key_self,c_vsize,c_vect_inc,isc,iec,jsc,jec) &
-           bind(c,name='fv3jedi_state_serializeSection_f90')
-
-implicit none
-
-! Passed variables
-integer(c_int),intent(in) :: c_key_self           !< State
-integer(c_int),intent(in) :: c_vsize              !< Size
-real(c_double),intent(out) :: c_vect_inc(c_vsize) !< Vector
-integer(c_int),intent(in) :: isc                  !< Size
-integer(c_int),intent(in) :: iec                  !< Size
-integer(c_int),intent(in) :: jsc                  !< Size
-integer(c_int),intent(in) :: jec                  !< Size
-
-type(fv3jedi_state),pointer :: self
-! Local variables
-integer :: ind, var, i, j, k
-
-call fv3jedi_state_registry%get(c_key_self, self)
-! Call Fortran
-
-! Initialize
-ind = 0
-! Copy
-do var = 1, self%nf
-  do k = 1,self%fields(var)%npz
-    do j = jsc,jec
-      do i = isc,iec
-        ind = ind + 1
-        c_vect_inc(ind) = self%fields(var)%array(i, j, k)
-      enddo
-    enddo
-  enddo
-enddo
-!call self%serializeSection(c_vsize,isc,iec,jsc,jec,c_vect_inc)
-
-end subroutine fv3jedi_state_serializeSection_c
-
-! --------------------------------------------------------------------------------------------------
 
 subroutine fv3jedi_state_deserialize_c(c_key_self,c_vsize,c_vect_inc,c_index) &
            bind(c,name='fv3jedi_state_deserialize_f90')

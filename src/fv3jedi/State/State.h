@@ -108,8 +108,6 @@ class State : public util::Printable, private util::ObjectCounter<State> {
      const int & ensNum, const int & transNum);
   void deserializeSection(const std::vector<double> &, int &, int &,
      int &, int &, int &, int &, int &, int &, int &, size_t &);
-  void serializeSection(std::vector<double> &, int, int,
-     int, int, int) const;
   void deserialize(const std::vector<double> &, size_t &);
 
 // Add or remove fields
