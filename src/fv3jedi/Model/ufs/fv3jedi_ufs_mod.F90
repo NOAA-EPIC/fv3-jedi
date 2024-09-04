@@ -460,7 +460,6 @@ contains
 
     call ESMF_LogWrite("Exit "//subname, ESMF_LOGMSG_INFO)
     call mpp_set_current_pelist()
-!   call self%comm%barrier()
 
   end subroutine finalize
 

@@ -289,13 +289,13 @@ void State::setInterfaceFieldsOutOfDate(const bool outofdate) const {
 // -----------------------------------------------------------------------------
 
 size_t State::serialSize() const {
-//  oops::Log::trace() << "State serialSize starting" << std::endl;
+  oops::Log::trace() << "State serialSize starting" << std::endl;
   size_t nn = 1;
   int sz = 0;
   fv3jedi_state_sersize_f90(keyState_, sz);
   nn += sz;
   nn += time_.serialSize();
-//  oops::Log::trace() << "State serialSize done" << std::endl;
+  oops::Log::trace() << "State serialSize done" << std::endl;
   return nn;
 }
 

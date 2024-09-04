@@ -17,7 +17,6 @@
 #include "oops/base/ParameterTraitsVariables.h"
 #include "oops/base/Variables.h"
 #include "oops/base/WriteParametersBase.h"
-#include "oops/interface/State.h"
 #include "oops/util/ObjectCounter.h"
 #include "oops/util/Printable.h"
 

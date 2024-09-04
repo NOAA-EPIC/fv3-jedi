@@ -430,6 +430,7 @@ integer :: ind, var, i, j, k
 
 ! Initialize
 ind = 0
+
 ! Copy
 do var = 1, self%nf
   do k = 1,self%fields(var)%npz
@@ -470,6 +471,7 @@ do var = 1, self%nf
     enddo
   enddo
 enddo
+
 end subroutine deserialize
 
 ! --------------------------------------------------------------------------------------------------
