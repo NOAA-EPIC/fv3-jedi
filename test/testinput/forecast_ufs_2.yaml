@@ -1,4 +1,4 @@
-forecast length: &fclength PT1H
+forecast length: &fclength PT6H
 geometry:
   fms initialization:
     namelist filename: Data/ModelRunDirs/UFS_warmstart_2/input.nml
@@ -10,10 +10,11 @@ geometry:
   npy: 49
   npz: 127
   ntiles: 6
+  member_number: 2
   field metadata override: Data/fieldmetadata/ufs.yaml
 model:
   name: UFS
-  tstep: PT1H
+  tstep: PT6H
   forecast length: *fclength
   ufs_run_directory: Data/ModelRunDirs/UFS_warmstart_2
   model variables: [ua, va, t, delp, sphum, ice_wat, liq_wat, o3mr, phis, slmsk,

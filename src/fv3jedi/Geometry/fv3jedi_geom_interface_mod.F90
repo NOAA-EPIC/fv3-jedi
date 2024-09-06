@@ -101,7 +101,9 @@ call fv3jedi_geom_registry%get(c_key_self,self)
 ! ------------
 f_conf            = fckit_configuration(c_conf)
 f_comm            = fckit_mpi_comm(c_comm)
-call f_conf%get_or_die("member_number", ensNum)
+if (.not. f_conf%get("member_number", ensNum)) then
+  ensNum = 0
+endif
 self%ensNum = ensNum
 if( ensNum > 0 ) then
   call ensemble_manager_init()
