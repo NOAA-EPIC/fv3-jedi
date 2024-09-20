@@ -107,6 +107,7 @@ list( APPEND fv3jedi_testinput
   testinput/3dvar_gfs_0obs.yaml
   testinput/3dvar_gfs_aero.yaml
   testinput/3dvar_lam_cmaq.yaml
+  testinput/4dvar_append_obs.yaml
   testinput/4dvar_geos_aero.yaml
   testinput/4dvar_geos_cf.yaml
   testinput/4denvar.yaml
@@ -291,6 +292,7 @@ list( APPEND fv3jedi_testoutput
   testoutput/3dvar_gfs_0obs.ref
   testoutput/3dvar_gfs_aero.ref
   testoutput/4denvar.ref
+  testoutput/4dvar_append_obs.ref
   testoutput/4dvar_hybrid_linear_model.ref
   testoutput/4dvar_geos_aero.ref
   testoutput/4dvar_geos_cf.ref
@@ -574,11 +576,6 @@ if( crtm_FOUND AND NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/Data/crtm")
                            ${CMAKE_CURRENT_BINARY_DIR}/Data/crtm
                            ${crtm_coeff_files} )
 endif()
-
-# Backgrounds needed for Control-Pert
-execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink
-               ${CMAKE_CURRENT_BINARY_DIR}/Data/inputs/gfs_c12/bkg
-               ${CMAKE_CURRENT_BINARY_DIR}/Data/inputs/gfs_c12/mem000)
 
 # --------------------------------------------------------------------------------------------------
 
@@ -1492,6 +1489,14 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_gen_hybrid_linear_model_coeffs
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_4dvar_hybrid_linear_model
                   MPI      6
                   ARGS     --no-validate testinput/4dvar_hybrid_linear_model.yaml
+                  COMMAND  fv3jedi_var.x
+                  TEST_DEPENDS fv3jedi_test_tier1_gen_hybrid_linear_model_coeffs )
+
+# Continuous DA
+#--------------
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_4dvar_append_obs
+                  MPI      6
+                  ARGS     --no-validate testinput/4dvar_append_obs.yaml
                   COMMAND  fv3jedi_var.x
                   TEST_DEPENDS fv3jedi_test_tier1_gen_hybrid_linear_model_coeffs )
 

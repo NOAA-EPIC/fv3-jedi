@@ -106,7 +106,6 @@ ln -svf ${INPUTDATA_ROOT}/FV3_fix/IMS-NIC.blended.ice.monthly.clim.grb .
 ln -svf ${INPUTDATA_ROOT}/FV3_input_data48/global_slmask.t62.192.94.grb .
 ln -svf ${INPUTDATA_ROOT}/FV3_input_data48/global_soilmgldas.statsgo.t92.192.94.grb .
 ln -svf ${INPUTDATA_ROOT}/FV3_input_data48/global_snoclim.1.875.grb .
-rm RESTART
 # update model_configure file to turn off write component and do a warm start for our regression test
 ${SED} -i 's/quilting:                .true./quilting:                .false./g' model_configure
 ${SED} -i 's/start_day:               22/start_day:               23/g' model_configure
