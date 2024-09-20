@@ -218,9 +218,9 @@ list( APPEND fv3jedi_testinput
   testinput/increment_geos.yaml
   testinput/increment_gfs.yaml
   testinput/letkf.yaml
-  testinput/letkf-inline.yaml
-  testinput/letkf_forecast_ufs_1.yaml
-  testinput/letkf_forecast_ufs_2.yaml
+  testinput/letkf-inline-c48.yaml
+  testinput/forecast_c48_001.yaml
+  testinput/forecast_c48_002.yaml
   testinput/letkf3d.yaml
   testinput/lgetkf.yaml
   testinput/lgetkf_linearobserver.yaml
@@ -1146,7 +1146,7 @@ ecbuild_add_test( TARGET  fv3jedi_setup_letkf_ufs_rundir
                       ARGS    ${FV3_FORECAST_MODEL_RUNDIR_WARMSTART} ${FV3_FORECAST_MODEL_TESTDIR_WARMSTART}
                       TEST_DEPENDS fv3jedi_test_tier1_EnsGETKF_ufs_warmstart )
 
-ecbuild_add_test( TARGET   fv3jedi_test_tier1_LETFK_inline_ufs 
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_letfk_inline_ufs 
                   MPI      12
                   ARGS     testinput/letkf-inline-c48.yaml
                   COMMAND  fv3jedi_letkf.x
@@ -1559,11 +1559,6 @@ endif()
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_letkf
                   MPI      6
                   ARGS     testinput/letkf.yaml
-                  COMMAND  fv3jedi_letkf.x )
-
-ecbuild_add_test( TARGET   fv3jedi_test_tier1_letkf_inline
-                  MPI      12
-                  ARGS     testinput/letkf-inline.yaml
                   COMMAND  fv3jedi_letkf.x )
 
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_letkf3d_vertloc
