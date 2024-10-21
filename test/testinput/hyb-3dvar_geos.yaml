@@ -1,6 +1,6 @@
 cost function:
   cost type: 3D-Var
-  analysis variables: &3dvars [eastward_wind,northward_wind,air_temperature,surface_pressure,specific_humidity,cloud_liquid_ice,cloud_liquid_water,mole_fraction_of_ozone_in_air]
+  analysis variables: &3dvars [eastward_wind,northward_wind,air_temperature,air_pressure_at_surface,water_vapor_mixing_ratio_wrt_moist_air,cloud_liquid_ice,cloud_liquid_water,mole_fraction_of_ozone_in_air]
   time window:
     begin: 2020-12-14T21:00:00Z
     length: PT6H
@@ -668,7 +668,7 @@ cost function:
         channels: 1-14
       obs operator:
         name: ObsAtmSfcInterp
-        geovals: [surface_temperature_where_sea,water_area_fraction,surface_wind_speed]
+        geovals: [skin_temperature_at_surface_where_sea,water_area_fraction,wind_speed_at_surface]
       obs operator:
         name: CRTM
         Absorbers: [H2O,O3]
@@ -696,10 +696,10 @@ cost function:
             name: GeoVaLs/water_area_fraction
           minvalue: 1
         - variable:
-            name: GeoVaLs/surface_temperature_where_sea
+            name: GeoVaLs/skin_temperature_at_surface_where_sea
           minvalue: 275
         - variable:
-            name: GeoVaLs/surface_wind_speed
+            name: GeoVaLs/wind_speed_at_surface
           maxvalue: 12
         - variable:
             name: MetaData/latitude
@@ -853,7 +853,7 @@ cost function:
         channels: 5,6,7,10,12,13
       obs operator:
         name: ObsAtmSfcInterp
-        geovals: [surface_temperature_where_sea,water_area_fraction]
+        geovals: [skin_temperature_at_surface_where_sea,water_area_fraction]
       obs operator:
         name: CRTM
         Absorbers: [H2O,O3]
@@ -899,7 +899,7 @@ cost function:
             name: GeoVaLs/water_area_fraction
           minvalue: 1
 #2        - variable:
-#2            name: GeoVaLs/surface_temperature_where_sea
+#2            name: GeoVaLs/skin_temperature_at_surface_where_sea
 #2          minvalue: 275
       - filter: BlackList
         filter variables:
@@ -1263,9 +1263,6 @@ cost function:
       obs filters:
       - filter: Background Check
         threshold: 1000
-final:
-  diagnostics:
-    departures: oman
 output:
   filetype: cube sphere history
   provider: geos
@@ -1286,8 +1283,6 @@ variational:
       npy: 13
       npz: 72
       field metadata override: Data/fieldmetadata/geos.yaml
-    diagnostics:
-      departures: ombg
   - ninner: 5
     gradient norm reduction: 1e-10
     test: on
@@ -1297,9 +1292,6 @@ variational:
       npy: 13
       npz: 72
       field metadata override: Data/fieldmetadata/geos.yaml
-    diagnostics:
-      departures: innov2         # output from the 2nd outer-loop
-
 test:
   reference filename: testoutput/hyb-3dvar_geos.ref
   integer tolerance: 3

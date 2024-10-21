@@ -9,9 +9,6 @@ field metadata:
 - long name: air_temperature
   io name: T
 
-- long name: air_pressure_thickness
-  io name: DELP
-
 - long name: stc
   io file: surface
 
@@ -20,16 +17,16 @@ field metadata:
   io file: surface
 
 # interpolation masks of surface fields for CRTM FOV averaging
-- long name: surface_temperature_where_sea
+- long name: skin_temperature_at_surface_where_sea
   interpolation source point mask: water_mask
 
-- long name: surface_temperature_where_land
+- long name: skin_temperature_at_surface_where_land
   interpolation source point mask: land_uncovered_by_snow_mask
 
-- long name: surface_temperature_where_ice
+- long name: skin_temperature_at_surface_where_ice
   interpolation source point mask: ice_uncovered_by_snow_mask
 
-- long name: surface_temperature_where_snow
+- long name: skin_temperature_at_surface_where_snow
   interpolation source point mask: snow_mask
 
 - long name: vegetation_type_index
@@ -55,3 +52,6 @@ field metadata:
 
 - long name: surface_snow_thickness
   interpolation source point mask: snow_mask
+
+- long name: skin_temperature_at_surface
+  io name: tsea

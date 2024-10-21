@@ -42,7 +42,7 @@ cost function:
       processor layout x direction: 3
       processor layout y direction: 2
       debugging mode: false
-      state variables to inverse: &bvars [surface_pressure,mole_fraction_of_ozone_in_air]
+      state variables to inverse: &bvars [air_pressure_at_surface,mole_fraction_of_ozone_in_air]
     linear variable change:
       linear variable change name: Control2Analysis
       input variables: *bvars
@@ -198,12 +198,6 @@ cost function:
         action:
           name: reject
 
-
-
-
-final:
-  diagnostics:
-    departures: oman
 output:
   filetype: cube sphere history
   provider: geos
@@ -224,8 +218,6 @@ variational:
       npy: 13
       npz: 72
       field metadata override: Data/fieldmetadata/geos.yaml
-    diagnostics:
-      departures: ombg
 #   online diagnostics:
 #     write increment: true
 #     increment:
@@ -243,8 +235,6 @@ variational:
 #     npy: 13
 #     npz: 72
 #     field metadata override: Data/fieldmetadata/geos.yaml
-#   diagnostics:
-#     departures: ombg
 #   online diagnostics:
 #     write increment: true
 #     increment:

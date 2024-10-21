@@ -38,17 +38,17 @@ const oops::Variables ModelData::defaultVariables() {
     return oops::Variables(std::vector<std::string>(
         {"air_temperature", "air_pressure", "air_pressure_levels",
          "water_area_fraction", "land_area_fraction", "ice_area_fraction",
-         "surface_snow_area_fraction", "surface_temperature_where_land",
-         "surface_temperature_where_ice", "surface_temperature_where_snow",
-         "surface_temperature_where_sea", "vegetation_area_fraction", "leaf_area_index",
+         "surface_snow_area_fraction", "skin_temperature_at_surface_where_land",
+         "skin_temperature_at_surface_where_ice", "skin_temperature_at_surface_where_snow",
+         "skin_temperature_at_surface_where_sea", "vegetation_area_fraction", "leaf_area_index",
          "volume_fraction_of_condensed_water_in_soil", "soil_temperature", "surface_snow_thickness",
-         "vegetation_type_index", "soil_type", "humidity_mixing_ratio",
+         "vegetation_type_index", "soil_type", "water_vapor_mixing_ratio_wrt_dry_air",
          "mole_fraction_of_ozone_in_air", "mole_fraction_of_carbon_dioxide_in_air",
          "mass_content_of_cloud_liquid_water_in_atmosphere_layer",
          "effective_radius_of_cloud_liquid_water_particle",
          "mass_content_of_cloud_ice_in_atmosphere_layer", "effective_radius_of_cloud_ice_particle",
-         "surface_wind_speed", "surface_wind_from_direction",
-         "eastward_wind", "northward_wind"}));
+         "wind_speed_at_surface", "wind_from_direction_at_surface",
+         "eastward_wind", "northward_wind", "air_pressure_at_surface"}));
 }
 
 // -------------------------------------------------------------------------------------------------

@@ -9,7 +9,6 @@ input geometry:
   field metadata override: Data/fieldmetadata/geos_cf.yaml
 output geometry:
   akbk: Data/fv3files/akbk72.nc4
-  interpolation method: bump
   npx: 25
   npy: 25
   npz: 72
@@ -21,7 +20,7 @@ states:
     provider: geos
     datapath: Data/inputs/geos_c12
     filename: geos_cf.bkg.%yyyy%mm%dd_%hh%MM%ssz.nc4
-    state variables: [DELP,NO2,NO,O3,PS,SPHU]
+    state variables: [delp,NO2,NO,O3,PS,SPHU]
   output:
    filetype: cube sphere history
    provider: geos

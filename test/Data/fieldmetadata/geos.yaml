@@ -12,7 +12,7 @@ field metadata:
 # Clouds
 # ------
 
-- long name: specific_humidity
+- long name: water_vapor_mixing_ratio_wrt_moist_air
   io name: q
 
 - long name: cloud_liquid_ice
@@ -30,13 +30,16 @@ field metadata:
 # Surface fields
 # --------------
 
-- long name: sea_surface_temperature
+- long name: skin_temperature_at_surface
   io name: ts
 
-- long name: surface_eastward_wind
+- long name: sea_surface_temperature
+  io name: ts_found
+
+- long name: eastward_wind_at_surface
   io name: u10m
 
-- long name: surface_northward_wind
+- long name: northward_wind_at_surface
   io name: v10m
 
 # Compo compo

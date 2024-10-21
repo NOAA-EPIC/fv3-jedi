@@ -50,8 +50,8 @@ cost function:
       debugging mode: false
     linear variable change:
       linear variable change name: Control2Analysis
-      input variables: [eastward_wind,northward_wind,air_temperature,surface_pressure,
-                        specific_humidity,mole_fraction_of_ozone_in_air]
+      input variables: [eastward_wind,northward_wind,air_temperature,air_pressure_at_surface,
+                        water_vapor_mixing_ratio_wrt_moist_air,mole_fraction_of_ozone_in_air]
       output variables: *3dvars
 
 #---------------------------------
@@ -253,10 +253,6 @@ cost function:
 #       action:
 #         name: reject
 
-
-final:
-  diagnostics:
-    departures: oman
 output:
   filetype: fms restart
 ##provider: gfs
@@ -279,8 +275,6 @@ variational:
       npy: 13
       npz: 127
       field metadata override: Data/fieldmetadata/gfs-restart.yaml
-    diagnostics:
-      departures: ombg
 #   online diagnostics:
 #     write increment: true
 #     increment:
@@ -300,8 +294,6 @@ variational:
 #     npy: 13
 #     npz: 127
 #     field metadata override: Data/fieldmetadata/gfs-restart.yaml
-#   diagnostics:
-#     departures: ombg
 ##  online diagnostics:
 ##    write increment: true
 ##    increment:

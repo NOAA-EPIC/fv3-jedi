@@ -25,7 +25,7 @@ field metadata:
 - long name: northward_wind
   io name: va
 
-- long name: specific_humidity
+- long name: water_vapor_mixing_ratio_wrt_moist_air
   io name: sphum
   io file: tracer
 
@@ -37,7 +37,7 @@ field metadata:
   io name: o3mr
   io file: tracer
 
-- long name: sfc_geopotential_height_times_grav
+- long name: geopotential_height_times_gravity_at_surface
   io name: phis
   io file: core
 

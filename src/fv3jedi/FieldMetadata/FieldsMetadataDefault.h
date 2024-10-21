@@ -184,7 +184,7 @@ namespace fv3jedi {
     md.space = "magnitude";
     addFieldMetadata(fieldsmetadata, nlev, md);
 
-    md.longName = "potential_temperature";
+    md.longName = "air_potential_temperature";
     md.shortName = "pt";
     md.units = "K";
     md.kind = "double";
@@ -234,7 +234,7 @@ namespace fv3jedi {
     md.space = "magnitude";
     addFieldMetadata(fieldsmetadata, nlev, md);
 
-    md.longName = "surface_pressure";
+    md.longName = "air_pressure_at_surface";
     md.shortName = "ps";
     md.units = "Pa";
     md.kind = "double";
@@ -254,7 +254,7 @@ namespace fv3jedi {
     md.space = "magnitude";
     addFieldMetadata(fieldsmetadata, nlev, md);
 
-    md.longName = "specific_humidity";
+    md.longName = "water_vapor_mixing_ratio_wrt_moist_air";
     md.shortName = "sphum";
     md.units = "kgkg-1";
     md.kind = "double";
@@ -484,7 +484,7 @@ namespace fv3jedi {
     md.space = "magnitude";
     addFieldMetadata(fieldsmetadata, nlev, md);
 
-    md.longName = "sfc_geopotential_height_times_grav";
+    md.longName = "geopotential_height_times_gravity_at_surface";
     md.shortName = "phis";
     md.units = "m";
     md.kind = "double";
@@ -554,8 +554,18 @@ namespace fv3jedi {
     md.space = "magnitude";
     addFieldMetadata(fieldsmetadata, nlev, md);
 
+    md.longName = "skin_temperature_at_surface";
+    md.shortName = "ts";
+    md.units = "K";
+    md.kind = "double";
+    md.tracer = "false";
+    md.horizontalStaggerLocation = "center";
+    md.levels = "1";
+    md.space = "magnitude";
+    addFieldMetadata(fieldsmetadata, nlev, md);
+
     md.longName = "sea_surface_temperature";
-    md.shortName = "tsea";
+    md.shortName = "sst";
     md.units = "K";
     md.kind = "double";
     md.tracer = "false";
@@ -674,7 +684,7 @@ namespace fv3jedi {
     md.space = "magnitude";
     addFieldMetadata(fieldsmetadata, nlev, md);
 
-    md.longName = "surface_eastward_wind";
+    md.longName = "eastward_wind_at_surface";
     md.shortName = "u_srf";
     md.units = "ms-1";
     md.kind = "double";
@@ -684,7 +694,7 @@ namespace fv3jedi {
     md.space = "magnitude";
     addFieldMetadata(fieldsmetadata, nlev, md);
 
-    md.longName = "surface_northward_wind";
+    md.longName = "northward_wind_at_surface";
     md.shortName = "v_srf";
     md.units = "ms-1";
     md.kind = "double";
@@ -924,7 +934,7 @@ namespace fv3jedi {
     md.space = "magnitude";
     addFieldMetadata(fieldsmetadata, nlev, md);
 
-    md.longName = "surface_temperature";
+    md.longName = "air_temperature_at_2m";
     md.shortName = "t2m";
     md.units = "K";
     md.kind = "double";
@@ -964,8 +974,8 @@ namespace fv3jedi {
     md.space = "magnitude";
     addFieldMetadata(fieldsmetadata, nlev, md);
 
-    md.longName = "height";
-    md.shortName = "height";
+    md.longName = "height_above_mean_sea_level";
+    md.shortName = "height_above_mean_sea_level";
     md.units = "m";
     md.kind = "double";
     md.tracer = "false";
@@ -974,8 +984,8 @@ namespace fv3jedi {
     md.space = "magnitude";
     addFieldMetadata(fieldsmetadata, nlev, md);
 
-    md.longName = "surface_altitude";
-    md.shortName = "surface_altitude";
+    md.longName = "height_above_mean_sea_level_at_surface";
+    md.shortName = "height_above_mean_sea_level_at_surface";
     md.units = "m";
     md.kind = "double";
     md.tracer = "false";
@@ -984,8 +994,8 @@ namespace fv3jedi {
     md.space = "magnitude";
     addFieldMetadata(fieldsmetadata, nlev, md);
 
-    md.longName = "surface_geopotential_height";
-    md.shortName = "surface_geopotential_height";
+    md.longName = "geopotential_height_at_surface";
+    md.shortName = "geopotential_height_at_surface";
     md.units = "m";
     md.kind = "double";
     md.tracer = "false";
@@ -994,18 +1004,8 @@ namespace fv3jedi {
     md.space = "magnitude";
     addFieldMetadata(fieldsmetadata, nlev, md);
 
-    md.longName = "surface_geometric_height";
-    md.shortName = "surface_geometric_height";
-    md.units = "m";
-    md.kind = "double";
-    md.tracer = "false";
-    md.horizontalStaggerLocation = "center";
-    md.levels = "1";
-    md.space = "magnitude";
-    addFieldMetadata(fieldsmetadata, nlev, md);
-
-    md.longName = "humidity_mixing_ratio";
-    md.shortName = "humidity_mixing_ratio";
+    md.longName = "water_vapor_mixing_ratio_wrt_dry_air";
+    md.shortName = "water_vapor_mixing_ratio_wrt_dry_air";
     md.units = "1";
     md.kind = "double";
     md.tracer = "false";
@@ -1194,8 +1194,8 @@ namespace fv3jedi {
     md.space = "magnitude";
     addFieldMetadata(fieldsmetadata, nlev, md);
 
-    md.longName = "surface_temperature_where_sea";
-    md.shortName = "surface_temperature_where_sea";
+    md.longName = "skin_temperature_at_surface_where_sea";
+    md.shortName = "skin_temperature_at_surface_where_sea";
     md.units = "none";
     md.kind = "double";
     md.tracer = "false";
@@ -1204,8 +1204,8 @@ namespace fv3jedi {
     md.space = "magnitude";
     addFieldMetadata(fieldsmetadata, nlev, md);
 
-    md.longName = "surface_temperature_where_land";
-    md.shortName = "surface_temperature_where_land";
+    md.longName = "skin_temperature_at_surface_where_land";
+    md.shortName = "skin_temperature_at_surface_where_land";
     md.units = "none";
     md.kind = "double";
     md.tracer = "false";
@@ -1214,8 +1214,8 @@ namespace fv3jedi {
     md.space = "magnitude";
     addFieldMetadata(fieldsmetadata, nlev, md);
 
-    md.longName = "surface_temperature_where_ice";
-    md.shortName = "surface_temperature_where_ice";
+    md.longName = "skin_temperature_at_surface_where_ice";
+    md.shortName = "skin_temperature_at_surface_where_ice";
     md.units = "none";
     md.kind = "double";
     md.tracer = "false";
@@ -1224,8 +1224,8 @@ namespace fv3jedi {
     md.space = "magnitude";
     addFieldMetadata(fieldsmetadata, nlev, md);
 
-    md.longName = "surface_temperature_where_snow";
-    md.shortName = "surface_temperature_where_snow";
+    md.longName = "skin_temperature_at_surface_where_snow";
+    md.shortName = "skin_temperature_at_surface_where_snow";
     md.units = "none";
     md.kind = "double";
     md.tracer = "false";
@@ -1254,8 +1254,8 @@ namespace fv3jedi {
     md.space = "magnitude";
     addFieldMetadata(fieldsmetadata, nlev, md);
 
-    md.longName = "surface_wind_speed";
-    md.shortName = "surface_wind_speed";
+    md.longName = "wind_speed_at_surface";
+    md.shortName = "wind_speed_at_surface";
     md.units = "none";
     md.kind = "double";
     md.tracer = "false";
@@ -1264,8 +1264,8 @@ namespace fv3jedi {
     md.space = "magnitude";
     addFieldMetadata(fieldsmetadata, nlev, md);
 
-    md.longName = "surface_wind_from_direction";
-    md.shortName = "surface_wind_from_direction";
+    md.longName = "wind_from_direction_at_surface";
+    md.shortName = "wind_from_direction_at_surface";
     md.units = "none";
     md.kind = "double";
     md.tracer = "false";
@@ -1346,6 +1346,16 @@ namespace fv3jedi {
 
     md.longName = "wind_reduction_factor_at_10m";
     md.shortName = "wind_reduction_factor_at_10m";
+    md.units = "none";
+    md.kind = "double";
+    md.tracer = "false";
+    md.horizontalStaggerLocation = "center";
+    md.levels = "1";
+    md.space = "magnitude";
+    addFieldMetadata(fieldsmetadata, nlev, md);
+
+    md.longName = "observable_domain_mask";
+    md.shortName = "observable_domain_mask";
     md.units = "none";
     md.kind = "double";
     md.tracer = "false";
@@ -1541,16 +1551,6 @@ namespace fv3jedi {
     md.tracer = "false";
     md.horizontalStaggerLocation = "center";
     md.levels = "full";
-    md.space = "magnitude";
-    addFieldMetadata(fieldsmetadata, nlev, md);
-
-    md.longName = "sea_surface_foundation_temperature";
-    md.shortName = "sea_surface_foundation_temperature";
-    md.units = "none";
-    md.kind = "double";
-    md.tracer = "false";
-    md.horizontalStaggerLocation = "center";
-    md.levels = "1";
     md.space = "magnitude";
     addFieldMetadata(fieldsmetadata, nlev, md);
 

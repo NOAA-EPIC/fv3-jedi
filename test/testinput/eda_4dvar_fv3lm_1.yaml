@@ -8,7 +8,7 @@ cost function:
     filename_sfcd: 20201214.210000.sfc_data.nc
     filename_sfcw: 20201214.210000.fv_srf_wnd.res.nc
     filename_cplr: 20201214.210000.coupler.res
-    state variables: [u,v,ua,va,T,ps,DELP,sphum,ice_wat,liq_wat,o3mr,phis,
+    state variables: [u,v,ua,va,T,ps,delp,sphum,ice_wat,liq_wat,o3mr,phis,
                       slmsk,sheleg,tsea,vtype,stype,vfrac,stc,smc,snwdph,
                       u_srf,v_srf,f10m]
   background error:
@@ -28,7 +28,7 @@ cost function:
                 in file: fixed_2500km_0.3
               - in code: air_temperature
                 in file: fixed_2500km_0.3
-              - in code: specific_humidity
+              - in code: water_vapor_mixing_ratio_wrt_moist_air
                 in file: fixed_2500km_0.3
               - in code: cloud_liquid_ice
                 in file: fixed_2500km_0.3
@@ -36,7 +36,7 @@ cost function:
                 in file: fixed_2500km_0.3
               - in code: ozone_mass_mixing_ratio
                 in file: fixed_2500km_0.3
-              - in code: surface_pressure
+              - in code: air_pressure_at_surface
                 in file: fixed_2500km
             drivers:
               multivariate strategy: univariate
@@ -47,13 +47,13 @@ cost function:
                 - eastward_wind
                 - northward_wind
                 - air_temperature
-                - specific_humidity
+                - water_vapor_mixing_ratio_wrt_moist_air
                 - cloud_liquid_ice
                 - cloud_liquid_water
                 - ozone_mass_mixing_ratio
             - model:
                 variables:
-                - surface_pressure
+                - air_pressure_at_surface
       weight:
         value: 0.1
     - covariance:
@@ -62,7 +62,7 @@ cost function:
           template:
             datetime: 2020-12-14T21:00:00Z
             filetype: fms restart
-            state variables: &incvars [eastward_wind,northward_wind,air_temperature,surface_pressure,specific_humidity,cloud_liquid_ice,cloud_liquid_water,ozone_mass_mixing_ratio]
+            state variables: &incvars [eastward_wind,northward_wind,air_temperature,air_pressure_at_surface,water_vapor_mixing_ratio_wrt_moist_air,cloud_liquid_ice,cloud_liquid_water,ozone_mass_mixing_ratio]
             datapath: Data/inputs/gfs_c12/mem%mem%/
             filename_core: 20201214.210000.fv_core.res.nc
             filename_trcr: 20201214.210000.fv_tracer.res.nc
@@ -231,7 +231,7 @@ cost function:
     lm_do_trb: 0
     lm_do_mst: 0
     tstep: PT1H
-    model variables: [u,v,ua,va,T,DELP,sphum,ice_wat,liq_wat,o3mr,phis,
+    model variables: [u,v,ua,va,T,delp,sphum,ice_wat,liq_wat,o3mr,phis,
                       slmsk,sheleg,tsea,vtype,stype,vfrac,stc,smc,snwdph,
                       u_srf,v_srf,f10m]
   geometry:
@@ -248,9 +248,6 @@ output:
   datapath: Data/analysis/eda/gfs/mem001
   prefix: eda-4dvar-gfs
   frequency: PT3H
-final:
-  diagnostics:
-    departures: oman
 variational:
   minimizer:
     algorithm: DRPCG
@@ -264,19 +261,17 @@ variational:
       npy: 13
       npz: 127
       field metadata override: Data/fieldmetadata/gfs-restart.yaml
-    diagnostics:
-      departures: ombg
     linear model:
       name: FV3JEDITLM
       namelist filename: Data/fv3files/input_gfs_c12.nml
       linear model namelist filename: Data/fv3files/inputpert_4dvar.nml
       tstep: PT1H
-      tlm variables: [ud,vd,T,DELP,sphum,ice_wat,liq_wat,o3mr]
+      tlm variables: [ud,vd,T,delp,sphum,ice_wat,liq_wat,o3mr]
       lm_do_dyn: 1
       lm_do_trb: 0
       lm_do_mst: 0
       trajectory:
-        model variables: [ud,vd,ua,va,T,DELP,sphum,ice_wat,liq_wat,o3mr]
+        model variables: [ud,vd,ua,va,T,delp,sphum,ice_wat,liq_wat,o3mr]
   - ninner: 1
     gradient norm reduction: 1e-10
     test: on
@@ -286,16 +281,14 @@ variational:
       npy: 13
       npz: 127
       field metadata override: Data/fieldmetadata/gfs-restart.yaml
-    diagnostics:
-      departures: innov2         # output from the 2nd outer-loop
     linear model:
       name: FV3JEDITLM
       namelist filename: Data/fv3files/input_gfs_c12.nml
       linear model namelist filename: Data/fv3files/inputpert_4dvar.nml
       tstep: PT1H
-      tlm variables: [ud,vd,T,DELP,sphum,ice_wat,liq_wat,o3mr]
+      tlm variables: [ud,vd,T,delp,sphum,ice_wat,liq_wat,o3mr]
       lm_do_dyn: 1
       lm_do_trb: 0
       lm_do_mst: 0
       trajectory:
-        model variables: [ud,vd,ua,va,T,DELP,sphum,ice_wat,liq_wat,o3mr]
+        model variables: [ud,vd,ua,va,T,delp,sphum,ice_wat,liq_wat,o3mr]

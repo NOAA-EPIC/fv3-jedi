@@ -20,7 +20,6 @@ use fckit_mpi_module,           only: fckit_mpi_comm
 use fckit_configuration_module, only: fckit_configuration
 
 ! fms uses
-use fms_io_mod,                 only: nullify_domain
 use fms_mod,                    only: fms_init
 use mpp_mod,                    only: mpp_exit, mpp_pe, mpp_npes, mpp_error, FATAL, NOTE
 use mpp_domains_mod,            only: domain2D, mpp_deallocate_domain, mpp_define_layout, &
@@ -57,7 +56,6 @@ type :: fv3jedi_geom
   real(kind=kind_real) :: ptop                                                      !Pressure at top of domain
   type(domain2D) :: domain_fix                                                      !MPP domain
   type(domain2D), pointer :: domain                                                 !MPP domain
-  character(len=10) :: interp_method                                                !Interpolation type
   real(kind=kind_real) :: stretch_fac, target_lon, target_lat
   real(kind=kind_real), allocatable, dimension(:)       :: ak, bk                   !Model level coefficients
   real(kind=kind_real), allocatable, dimension(:,:)     :: grid_lon, grid_lat       !Lat/lon centers
@@ -105,6 +103,7 @@ type :: fv3jedi_geom
     procedure, public :: create
     procedure, public :: clone
     procedure, public :: delete
+    procedure, public :: is_equal
     procedure, public :: fill_bump_lonlat
     procedure, public :: set_and_fill_geometry_fields
     procedure, public :: get_data
@@ -191,12 +190,6 @@ type(fv3jedi_fmsnamelist) :: fmsnamelist
 ! Add the communicator to the geometry
 ! ------------------------------------
 self%f_comm = comm
-
-! Interpolation type
-! ------------------
-call conf%get_or_die("interpolation method",str)
-self%interp_method = str
-deallocate(str)
 
 ! Stretch factor, target_lon, and target_lat
 ! --------------
@@ -411,7 +404,6 @@ call setup_domain( self%domain_fix, self%npx-1, self%npy-1, &
                    self%ntiles, self%layout, self%io_layout, 3)
 
 self%domain => self%domain_fix
-call nullify_domain()
 
 ! Optionally write the geometry to file
 ! -------------------------------------
@@ -523,7 +515,6 @@ self%a12             = other%a12
 self%a21             = other%a21
 self%a22             = other%a22
 self%f_comm          = other%f_comm
-self%interp_method   = other%interp_method
 self%stretch_fac     = other%stretch_fac
 self%target_lon      = other%target_lon
 self%target_lat      = other%target_lat
@@ -615,6 +606,33 @@ call self%afunctionspace%final()
 call self%afunctionspace_for_bump%final()
 
 end subroutine delete
+
+! --------------------------------------------------------------------------------------------------
+
+subroutine is_equal(self, other, equal)
+
+class(fv3jedi_geom), intent(in) :: self
+class(fv3jedi_geom), intent(in) :: other
+logical, intent(out) :: equal
+
+equal = .false.
+
+! At the moment, equality is based on the fundamental integer-type members; could make more
+! rigorous by comparing more data
+if (self%npx == other%npx .and. self%npy == other%npy .and. self%npz == other%npz &
+    .and. self%ntile == other%ntile .and. self%ntiles == other%ntiles &
+    .and. self%isc == other%isc .and. self%iec == other%iec &
+    .and. self%jsc == other%jsc .and. self%jec == other%jec &
+    .and. self%kec == other%kec &
+    .and. self%layout(1) == other%layout(1) .and. self%layout(2) == other%layout(2) &
+    .and. self%layout(1) == other%layout(1) .and. self%layout(2) == other%layout(2) &
+    .and. self%stretch_fac == other%stretch_fac &
+    .and. self%target_lon == other%target_lon &
+    .and. self%target_lat == other%target_lat) then
+  equal = .true.
+end if
+
+end subroutine is_equal
 
 ! --------------------------------------------------------------------------------------------------
 
@@ -842,7 +860,7 @@ subroutine setup_domain(domain, nx, ny, ntiles, layout_in, io_layout, halo)
                          symmetry=is_symmetry, tile_id=tile_id, &
                          name='cubic_grid')
 
-  if (io_layout(1) /= 1 .or. io_layout(2) /= 1) call mpp_define_io_domain(domain, io_layout)
+  call mpp_define_io_domain(domain, io_layout)
 
   deallocate(pe_start, pe_end)
   deallocate(layout2D, global_indices)
