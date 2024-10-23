@@ -10,7 +10,7 @@ field metadata:
   io name: T
 
 - long name: air_pressure_thickness
-  io name: DELP
+  io name: delp
 
 - long name: stc
   io file: surface
@@ -49,7 +49,7 @@ field metadata:
   io name: sheleg
   io file: surface
 
-- long name: sea_surface_temperature
+- long name: skin_temperature_at_surface
   io name: tsea
   io file: surface
 
