@@ -20,7 +20,7 @@ model:
   name: UFS
   tstep: PT6H
   forecast length: *fclength
-  ufs_run_directory: Data/ModelRunDirs/UFS_warmstart
+  ufs_run_directory: Data/ModelRunDirs/UFS_warmstart_1
   model variables:
   - ua
   - va
