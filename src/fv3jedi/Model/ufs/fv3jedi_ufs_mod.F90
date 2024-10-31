@@ -403,6 +403,7 @@ contains
     call ESMF_LogWrite("after step toJedi state with "//trim(msg)//" items", &
          ESMF_LOGMSG_INFO)
     call fv3_to_state(self, state, strCurrTime)
+    call state_to_fv3(self, state, strCurrTime)
     call ESMF_LogWrite("after JEDI state write "//trim(msg)//" rc", &
          ESMF_LOGMSG_INFO)
 

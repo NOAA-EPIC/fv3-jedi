@@ -10,7 +10,7 @@ geometry:
   layout: [1,2]
   field metadata override: Data/fieldmetadata/ufs.yaml
 time window:
-  begin: &date 2021-03-23T12:00:00Z
+  begin: &date 2021-03-23T06:00:00Z
   length: PT6H
 
 Run Inline: true
