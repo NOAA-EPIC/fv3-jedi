@@ -425,6 +425,7 @@ call fv3jedi_state_registry%get(c_key_self, self)
 ! Initialize
 ind = 0
 ! Copy
+write(6,*) 'deserializing from these idxs ',isc,iec,jsc,jec
 do var = 1, self%nf
   do k = 1,self%fields(var)%npz
     do j = jsc,jec
@@ -434,12 +435,18 @@ do var = 1, self%nf
           if((j >= jsc_sg) .and. (j <= jec_sg)) then   
             self%fields(var)%array(i, j, k) = c_vect_inc(ind)
             local_ind = local_ind + 1
+!           write(6,*) i,j,k,ind,self%fields(var)%array(i, j, k)
           endif
         endif
       enddo
     enddo
   enddo
+! write(6,*) 'var number ',var
+! write(6,*) 'field(var)(1:10,1:10) ',self%fields(var)%array(1:10,1:10,1)
 enddo
+!write(6,*) 'field(1)(1:20) ',self%fields(1)%array(1:20,jsc,1)
+!write(6,*) 'c_vect_inc(1:20) ',c_vect_inc(1:20)
+write(6,*) 'deserializing final idx and vsize are ',ind,c_vsize
 local_ind = ind
 
 end subroutine fv3jedi_state_deserializeSection_c

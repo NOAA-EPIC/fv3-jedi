@@ -689,6 +689,9 @@ contains
     ! Create map between UFS name and fv3-jedi name
     ! ----------------------------------------------
     short_name = trim(item_names(i))
+    if ((trim(short_name)=="tsea")) then
+      short_name = trim("ts")
+    endif
     call ESMF_LogWrite("state_to_fv3: item name is "//short_name, ESMF_LOGMSG_INFO)
     ! DH*
     !if(trim(item_names(i)) == 't') short_name = 'air_temperature'
@@ -699,6 +702,7 @@ contains
     ! Only need to update field in UFS if fv3-jedi has it
     ! ---------------------------------------------------------
     if (state%has_field(trim(short_name))) then
+!   if ((trim(short_name)=="ua").or.(trim(short_name)=="va").or.(trim(short_name)=="u_srf").or.(trim(short_name)=="v_srf")) then
 
       !Get field from the state
       call ESMF_StateGet(self%fromJedi, item_names(i), field, rc = rc)
@@ -742,6 +746,7 @@ contains
       call state%get_field(trim(short_name), field_ptr)
 
       call ESMF_LogWrite("Got field pointer for field "//short_name, ESMF_LOGMSG_INFO)
+      write(6,*) 'indices are ',self%isc,self%iec,self%jsc,self%jec,fnpz
       write(msg, "(a,e16.7,a,e16.7)") "field_ptr for " // trim(short_name) // " has minval ", minval(field_ptr%array(self%isc:self%iec,self%jsc:self%jec,1:fnpz)), " and maxval ", maxval(field_ptr%array(self%isc:self%iec,self%jsc:self%jec,1:fnpz))
       call ESMF_LogWrite(trim(msg), ESMF_LOGMSG_INFO)
 
@@ -776,11 +781,10 @@ contains
       else
         call abor1_ftn("fv3_mod: can only handle rank 2 or rank 3 fields from UFS")
       endif
-
     else
       call ESMF_LogWrite("Not provided by JEDI is "//short_name, ESMF_LOGMSG_INFO)
     endif
-
+    call self%comm%barrier()
   end do
 
   deallocate(item_names)
