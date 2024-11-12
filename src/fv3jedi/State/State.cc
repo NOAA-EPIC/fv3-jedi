@@ -125,10 +125,12 @@ State::State(const State & other)
 {
   oops::Log::trace() << "State::State (from other) starting" << std::endl;
   std::vector indices = geom_.get_indices();
+/*
   std::cout << "in copy, the indices are "; 
   for (auto i: indices)
     std::cout << i << ' ';
   std::cout << std::endl;
+*/
   fv3jedi_state_create_f90(keyState_, geom_.toFortran(), vars_, time_);
   fv3jedi_state_copy_f90(keyState_, other.keyState_);
   oops::Log::trace() << "State::State (from other) done" << std::endl;
@@ -514,7 +516,7 @@ void State::Rtranspose(const State & DAState, const eckit::mpi::Comm & global, c
   npz_da = indices[6];
 
   oops::Log::trace() << "before transpose fcst state is " << DAState << std::endl;
-  std::cout << "mytask is " << mytask << "fcstTile is " << fcstTile << " DAtile is " << DAState.geometry().tileNum() << std::endl;
+//  std::cout << "mytask is " << mytask << "fcstTile is " << fcstTile << " DAtile is " << DAState.geometry().tileNum() << std::endl;
   for (int i = 0; i < global.size(); ++i) {
     if (i == mytask) {  // mytask is global rank
       buf[0] = fcstTile;   // The tile number that this rank holds
@@ -528,12 +530,13 @@ void State::Rtranspose(const State & DAState, const eckit::mpi::Comm & global, c
       buf[8] = iend_fc;  // the start of my i domain decomp I NEED
       buf[9] = jst_fc;   // the start of my j domain decomp I NEED
       buf[10] = jend_fc;  // the start of my j domain decomp I NEED
+/*
     std::cout << "my buffer is -- " << std::endl;
     for (const auto& i: buf)
-    std::cout << i << ' ';
+      std::cout << i << ' ';
     std::cout << std::endl;
+*/
     }
-
     global.broadcast(buf, i);                 // This is to figure out who is sending domain I NEED
     if ((buf[1] == fcstTile) &&   // *_fc indices will have larger span than *_da
 //    ((buf[2] - 1) == transNum) &&   
@@ -557,6 +560,7 @@ void State::Rtranspose(const State & DAState, const eckit::mpi::Comm & global, c
       recipients.push_back(i);
     }
   }
+/*
     std::cout << "my recipients  -- " << std::endl;
     for (const auto& i: recipients)
     std::cout << i << ' ';
@@ -565,6 +569,7 @@ void State::Rtranspose(const State & DAState, const eckit::mpi::Comm & global, c
     for (const auto& i: senders)
     std::cout << i << ' ';
     std::cout << std::endl;
+*/
 
 // ---- now  send and collect messages
   std::vector<eckit::mpi::Request> send_req_;
@@ -577,7 +582,7 @@ void State::Rtranspose(const State & DAState, const eckit::mpi::Comm & global, c
   
   std::vector<double>  zz_recv;  // vector to receive send buffer
 
-  std::cout << "serializing DAstate of size " << zz.size() << std::endl;
+//  std::cout << "serializing DAstate of size " << zz.size() << std::endl;
   for ( int k = 0; k < zz.size(); ++k ) {  // fill up recv buffers with zeros
         zz_recv.push_back(0.0);
   }
@@ -598,9 +603,9 @@ void State::Rtranspose(const State & DAState, const eckit::mpi::Comm & global, c
       zz_recv = zz;
       indx = 0;
       int size_fld = zz_recv.size();  // get the serialsize of the local tile
-      std::cout << "about to deserialize on my local tile, itask, size_fld are " << itask <<" " << size_fld << std::endl;
-      std::cout << "rcv indices are " << ist_rcv[mytask] <<" " <<iend_rcv[mytask] <<" " <<jst_rcv[mytask] <<" " <<jend_rcv[mytask] << std::endl;
-      std::cout << "fc indices are " << ist_fc <<" " <<iend_fc <<" " <<jst_fc <<" " <<jend_fc << std::endl;
+//      std::cout << "about to deserialize on my local tile, itask, size_fld are " << itask <<" " << size_fld << std::endl;
+//      std::cout << "rcv indices are " << ist_rcv[mytask] <<" " <<iend_rcv[mytask] <<" " <<jst_rcv[mytask] <<" " <<jend_rcv[mytask] << std::endl;
+//      std::cout << "fc indices are " << ist_fc <<" " <<iend_fc <<" " <<jst_fc <<" " <<jend_fc << std::endl;
       this->deserializeSection(zz_recv, size_fld, ist_da, iend_da,
          jst_da, jend_da, ist_da, iend_da, jst_da, jend_da, indx);  // deserialize state section
     }
@@ -614,13 +619,15 @@ void State::Rtranspose(const State & DAState, const eckit::mpi::Comm & global, c
     size_t itask = recv_tasks_[ireq] - 1;
     indx = 0;
     int size_fld = zz_recv.size();  // get the serialsize of the local tile
-    std::cout << "about to deserialize on my recvd tile, itask, size_fld, src are " << itask <<" " << size_fld <<" "<<rst.source()<< std::endl;
-    std::cout << "head of zz_recv is ";
+//    std::cout << "about to deserialize on my recvd tile, itask, size_fld, src are " << itask <<" " << size_fld <<" "<<rst.source()<< std::endl;
+//    std::cout << "head of zz_recv is ";
+/*
     for (size_t jj=0; jj<20; jj++) 
       std::cout << zz_recv[jj] << ' ';
       std::cout << std::endl;
     std::cout << "rcv indices are " << ist_rcv[rst.source()] <<" " <<iend_rcv[rst.source()] <<" " <<jst_rcv[rst.source()] <<" " <<jend_rcv[rst.source()] << std::endl;
     std::cout << "fc indices are " << ist_fc <<" " <<iend_fc <<" " <<jst_fc <<" " <<jend_fc << std::endl;
+*/
     this->deserializeSection(zz_recv, size_fld, 
          ist_rcv[rst.source()], iend_rcv[rst.source()],
          jst_rcv[rst.source()], jend_rcv[rst.source()],        // deserialize state section

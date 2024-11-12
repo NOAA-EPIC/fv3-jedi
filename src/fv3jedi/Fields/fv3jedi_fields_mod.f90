@@ -196,9 +196,9 @@ integer :: var
 call checksame(self%fields, other%fields, "fv3jedi_fields_mod.copy")
 
 do var = 1, self%nf
-  write(6,*) 'copying over field ',trim(other%fields(var)%long_name)
+! write(6,*) 'copying over field ',trim(other%fields(var)%long_name)
   self%fields(var)%array = other%fields(var)%array
-  write(6,*) self%fields(var)%array(self%fields(var)%isc,self%fields(var)%jsc:self%fields(var)%jec,self%fields(var)%npz)
+! write(6,*) self%fields(var)%array(self%fields(var)%isc,self%fields(var)%jsc:self%fields(var)%jec,self%fields(var)%npz)
 !write(6,*) self%fields(var)%array(self%fields(var)%isc:self%fields(var)%iec,self%fields(var)%jsc:self%fields(var)%jec,1:self%fields(var)%npz)
 enddo
 self%ntracers = other%ntracers

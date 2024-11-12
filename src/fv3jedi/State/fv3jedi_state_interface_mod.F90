@@ -425,7 +425,7 @@ call fv3jedi_state_registry%get(c_key_self, self)
 ! Initialize
 ind = 0
 ! Copy
-write(6,*) 'deserializing from these idxs ',isc,iec,jsc,jec
+!write(6,*) 'deserializing from these idxs ',isc,iec,jsc,jec
 do var = 1, self%nf
   do k = 1,self%fields(var)%npz
     do j = jsc,jec
@@ -446,7 +446,7 @@ do var = 1, self%nf
 enddo
 !write(6,*) 'field(1)(1:20) ',self%fields(1)%array(1:20,jsc,1)
 !write(6,*) 'c_vect_inc(1:20) ',c_vect_inc(1:20)
-write(6,*) 'deserializing final idx and vsize are ',ind,c_vsize
+!write(6,*) 'deserializing final idx and vsize are ',ind,c_vsize
 local_ind = ind
 
 end subroutine fv3jedi_state_deserializeSection_c

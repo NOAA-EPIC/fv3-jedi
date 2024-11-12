@@ -403,7 +403,7 @@ contains
     call ESMF_LogWrite("after step toJedi state with "//trim(msg)//" items", &
          ESMF_LOGMSG_INFO)
     call fv3_to_state(self, state, strCurrTime)
-    call state_to_fv3(self, state, strCurrTime)
+!   call state_to_fv3(self, state, strCurrTime)
     call ESMF_LogWrite("after JEDI state write "//trim(msg)//" rc", &
          ESMF_LOGMSG_INFO)
 
@@ -746,7 +746,7 @@ contains
       call state%get_field(trim(short_name), field_ptr)
 
       call ESMF_LogWrite("Got field pointer for field "//short_name, ESMF_LOGMSG_INFO)
-      write(6,*) 'indices are ',self%isc,self%iec,self%jsc,self%jec,fnpz
+!     write(6,*) 'indices are ',self%isc,self%iec,self%jsc,self%jec,fnpz
       write(msg, "(a,e16.7,a,e16.7)") "field_ptr for " // trim(short_name) // " has minval ", minval(field_ptr%array(self%isc:self%iec,self%jsc:self%jec,1:fnpz)), " and maxval ", maxval(field_ptr%array(self%isc:self%iec,self%jsc:self%jec,1:fnpz))
       call ESMF_LogWrite(trim(msg), ESMF_LOGMSG_INFO)
 
