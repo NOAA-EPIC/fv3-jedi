@@ -36,7 +36,9 @@ ModelData::~ModelData() {}
 
 const oops::Variables ModelData::defaultVariables() {
     return oops::Variables(std::vector<std::string>(
-        {"air_temperature", "air_pressure", "air_pressure_levels",
+        {"air_temperature", "air_pressure_thickness", "water_vapor_mixing_ratio_wrt_moist_air",
+         "eastward_wind", "northward_wind" }));
+   /*     {"air_temperature", "air_pressure", "air_pressure_levels",
          "water_area_fraction", "land_area_fraction", "ice_area_fraction",
          "surface_snow_area_fraction", "skin_temperature_at_surface_where_land",
          "skin_temperature_at_surface_where_ice", "skin_temperature_at_surface_where_snow",
@@ -49,6 +51,7 @@ const oops::Variables ModelData::defaultVariables() {
          "mass_content_of_cloud_ice_in_atmosphere_layer", "effective_radius_of_cloud_ice_particle",
          "wind_speed_at_surface", "wind_from_direction_at_surface",
          "eastward_wind", "northward_wind", "air_pressure_at_surface"}));
+   */
 }
 
 // -------------------------------------------------------------------------------------------------

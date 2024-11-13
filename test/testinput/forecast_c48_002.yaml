@@ -1,4 +1,4 @@
-forecast length: &fclength PT3H
+forecast length: &fclength PT1H
 geometry:
   fms initialization:
     namelist filename: Data/ModelRunDirs/c48_v16_002/input.nml
@@ -14,10 +14,10 @@ geometry:
   field metadata override: Data/fieldmetadata/ufs.yaml
 model:
   name: UFS
-  tstep: PT3H
+  tstep: PT1H
   forecast length: *fclength
   ufs_run_directory: Data/ModelRunDirs/c48_v16_002
-  model variables: [ua,va,t,delp,sphum,ice_wat,liq_wat,o3mr,phis,
+  model variables: [ua,va,t,sphum,delp,ice_wat,liq_wat,o3mr,phis,
                          slmsk,sheleg,tsea,vtype,stype,vfrac,stc,smc,snwdph,
                          u_srf,v_srf,f10m]
 initial condition:
@@ -29,7 +29,7 @@ initial condition:
   filename_sfcd: sfc_data.nc
   filename_sfcw: fv_srf_wnd.res.nc
   filename_cplr: coupler.res
-  state variables: [ua,va,t,delp,sphum,ice_wat,liq_wat,o3mr,phis,
+  state variables: [ua,va,t,sphum,delp,ice_wat,liq_wat,o3mr,phis,
                          slmsk,sheleg,tsea,vtype,stype,vfrac,stc,smc,snwdph,
                          u_srf,v_srf,f10m]
 output:

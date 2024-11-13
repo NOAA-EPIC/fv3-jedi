@@ -112,6 +112,7 @@ contains
     type(ESMF_Time)         :: currTime, stopTime
     type(ESMF_TimeInterval) :: timeStep
     character(len=ESMF_MAXSTR), allocatable :: stdnames(:)
+    character(len=ESMF_MAXSTR), allocatable :: frJedinames(:)
 
     character(len=20) :: strCurrTime, strStopTime
 
@@ -201,8 +202,13 @@ contains
     esmf_err_abort(rc)
 
     allocate(stdnames(vars%nvars()))
+    allocate(frJedinames(4))
     do var = 1, vars%nvars()
        stdnames(var) = trim(vars%variable(var))
+       if(var < 5) then
+         frJedinames(var) = trim(vars%variable(var))
+         write(6,*) 'from jedi will be ',trim(vars%variable(var))
+       endif
     enddo
     call ESMF_LogWrite("Advertising export from ESM", ESMF_LOGMSG_INFO)
     ! Advertise fields on the exportState, for data coming out of ESM component
@@ -225,7 +231,7 @@ contains
     ! Advertise fields on the importState, for data going into ESM component
     ! Note--only certain fields are available. Check ???
     call NUOPC_Advertise(self%fromJedi, &
-         StandardNames=stdnames, &
+         StandardNames=frJedinames, &
          SharePolicyField="share", &
          TransferOfferGeomObject="cannot provide", rc=rc)
     esmf_err_abort(rc)
