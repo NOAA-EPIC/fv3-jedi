@@ -264,7 +264,7 @@ namespace fv3jedi {
     md.space = "magnitude";
     addFieldMetadata(fieldsmetadata, nlev, md);
 
-    md.longName = "saturation_specific_humidity";
+    md.longName = "saturation_water_vapor_mixing_ratio_wrt_moist_air";
     md.shortName = "qsat";
     md.units = "kgkg-1";
     md.kind = "double";
@@ -494,7 +494,7 @@ namespace fv3jedi {
     md.space = "magnitude";
     addFieldMetadata(fieldsmetadata, nlev, md);
 
-    md.longName = "stream_function";
+    md.longName = "air_horizontal_streamfunction";
     md.shortName = "psi";
     md.units = "m+2s";
     md.kind = "double";
@@ -504,7 +504,7 @@ namespace fv3jedi {
     md.space = "magnitude";
     addFieldMetadata(fieldsmetadata, nlev, md);
 
-    md.longName = "velocity_potential";
+    md.longName = "air_horizontal_velocity_potential";
     md.shortName = "chi";
     md.units = "m+2s";
     md.kind = "double";
@@ -514,7 +514,7 @@ namespace fv3jedi {
     md.space = "magnitude";
     addFieldMetadata(fieldsmetadata, nlev, md);
 
-    md.longName = "vorticity";
+    md.longName = "air_upward_absolute_vorticity";
     md.shortName = "vort";
     md.units = "m+2s";
     md.kind = "double";
@@ -524,7 +524,7 @@ namespace fv3jedi {
     md.space = "magnitude";
     addFieldMetadata(fieldsmetadata, nlev, md);
 
-    md.longName = "divergence";
+    md.longName = "air_horizontal_divergence";
     md.shortName = "divg";
     md.units = "m+2s";
     md.kind = "double";

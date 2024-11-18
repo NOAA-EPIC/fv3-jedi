@@ -14,8 +14,8 @@ background:
   datetime: 2020-12-15T00:00:00Z
   filetype: fms restart
   state variables:
-  - stream_function
-  - velocity_potential
+  - air_horizontal_streamfunction
+  - air_horizontal_velocity_potential
   - air_temperature
   - air_pressure_at_surface
   - water_vapor_mixing_ratio_wrt_moist_air
@@ -61,8 +61,8 @@ background error:
       grids:
       - model:
           variables:
-          - stream_function
-          - velocity_potential
+          - air_horizontal_streamfunction
+          - air_horizontal_velocity_potential
           - air_temperature
           - water_vapor_mixing_ratio_wrt_moist_air
           - cloud_liquid_water
@@ -164,8 +164,8 @@ background error:
         smoother min effective resolution: 0.2
         initial length-scale:
         - variables:
-          - stream_function
-          - velocity_potential
+          - air_horizontal_streamfunction
+          - air_horizontal_velocity_potential
           value: 3000.0e3
         - variables:
           - air_temperature
@@ -177,8 +177,8 @@ background error:
       grids:
       - model:
           variables:
-          - stream_function
-          - velocity_potential
+          - air_horizontal_streamfunction
+          - air_horizontal_velocity_potential
           - air_temperature
           - water_vapor_mixing_ratio_wrt_moist_air
           - cloud_liquid_water
@@ -281,8 +281,8 @@ background error:
           filename_cplr: stddev.coupler.res
   - saber block name: BUMP_VerticalBalance
     active variables:
-    - stream_function
-    - velocity_potential
+    - air_horizontal_streamfunction
+    - air_horizontal_velocity_potential
     - air_temperature
     - air_pressure_at_surface
     calibration:
@@ -308,12 +308,12 @@ background error:
         averaging latitude width: 10.0
       vertical balance:
         vbal:
-        - balanced variable: velocity_potential
-          unbalanced variable: stream_function
+        - balanced variable: air_horizontal_velocity_potential
+          unbalanced variable: air_horizontal_streamfunction
         - balanced variable: air_temperature
-          unbalanced variable: stream_function
+          unbalanced variable: air_horizontal_streamfunction
         - balanced variable: air_pressure_at_surface
-          unbalanced variable: stream_function
+          unbalanced variable: air_horizontal_streamfunction
         pseudo inverse: true
         variance threshold: 0.1
 test:

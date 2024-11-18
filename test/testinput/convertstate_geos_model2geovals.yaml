@@ -77,7 +77,7 @@ variable change:
   - soil_type
   - vort
   - tropopause_pressure
-  - saturation_specific_humidity
+  - saturation_water_vapor_mixing_ratio_wrt_moist_air
 states:
 - input:
     datetime: 2020-12-14T21:00:00Z

@@ -29,8 +29,8 @@ background error:
   saber central block:
     saber block name: BUMP_NICAS
     active variables: &active_vars
-    - stream_function
-    - velocity_potential
+    - air_horizontal_streamfunction
+    - air_horizontal_velocity_potential
     - air_temperature
     - air_pressure_at_surface
     - water_vapor_mixing_ratio_wrt_moist_air
@@ -47,8 +47,8 @@ background error:
       grids:
       - model:
           variables:
-          - stream_function
-          - velocity_potential
+          - air_horizontal_streamfunction
+          - air_horizontal_velocity_potential
           - air_temperature
           - water_vapor_mixing_ratio_wrt_moist_air
           - cloud_liquid_water
@@ -77,8 +77,8 @@ background error:
         filename_cplr: 20201215.000000.stddev.coupler.res
   - saber block name: BUMP_VerticalBalance
     active variables:
-    - stream_function
-    - velocity_potential
+    - air_horizontal_streamfunction
+    - air_horizontal_velocity_potential
     - air_temperature
     - air_pressure_at_surface
     read:
@@ -93,17 +93,17 @@ background error:
         read vertical balance: true
       vertical balance:
         vbal:
-        - balanced variable: velocity_potential
-          unbalanced variable: stream_function
+        - balanced variable: air_horizontal_velocity_potential
+          unbalanced variable: air_horizontal_streamfunction
         - balanced variable: air_temperature
-          unbalanced variable: stream_function
+          unbalanced variable: air_horizontal_streamfunction
         - balanced variable: air_pressure_at_surface
-          unbalanced variable: stream_function
+          unbalanced variable: air_horizontal_streamfunction
   linear variable change:
     linear variable change name: Control2Analysis
     input variables:
-    - stream_function
-    - velocity_potential
+    - air_horizontal_streamfunction
+    - air_horizontal_velocity_potential
     - air_temperature
     - air_pressure_at_surface
     - water_vapor_mixing_ratio_wrt_moist_air

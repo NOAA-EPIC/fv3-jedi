@@ -17,8 +17,8 @@ background:
   datapath: Data/staticb/balanced/mem001/
   filename: geos.20201215.000000z.nc4
   state variables:
-  - stream_function
-  - velocity_potential
+  - air_horizontal_streamfunction
+  - air_horizontal_velocity_potential
   - air_temperature
   - air_pressure_at_surface
   - water_vapor_mixing_ratio_wrt_moist_air
@@ -45,8 +45,8 @@ background error:
         smoother min effective resolution: 0.35
         initial length-scale:
         - variables:
-          - stream_function
-          - velocity_potential
+          - air_horizontal_streamfunction
+          - air_horizontal_velocity_potential
           value: 3000.0e3
         - variables:
           - air_temperature
@@ -56,8 +56,8 @@ background error:
       grids:
       - model:
           variables:
-          - stream_function
-          - velocity_potential
+          - air_horizontal_streamfunction
+          - air_horizontal_velocity_potential
           - air_temperature
           - water_vapor_mixing_ratio_wrt_moist_air
         io:

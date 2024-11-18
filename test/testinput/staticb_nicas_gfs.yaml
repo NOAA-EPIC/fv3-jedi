@@ -14,8 +14,8 @@ background:
   datetime: 2020-12-15T00:00:00Z
   filetype: fms restart
   state variables:
-  - stream_function
-  - velocity_potential
+  - air_horizontal_streamfunction
+  - air_horizontal_velocity_potential
   - air_temperature
   - air_pressure_at_surface
   - water_vapor_mixing_ratio_wrt_moist_air
@@ -49,8 +49,8 @@ background error:
       grids:
       - model:
           variables:
-          - stream_function
-          - velocity_potential
+          - air_horizontal_streamfunction
+          - air_horizontal_velocity_potential
           - air_temperature
           - water_vapor_mixing_ratio_wrt_moist_air
           - cloud_liquid_water

@@ -15,7 +15,7 @@ time window:
 
 Run Inline: true
 inline parameters:
-  Run Forecast: false
+  Run Forecast: true
   Forecast configuration:
   - testinput/forecast_c48_001.yaml 
   - testinput/forecast_c48_002.yaml 

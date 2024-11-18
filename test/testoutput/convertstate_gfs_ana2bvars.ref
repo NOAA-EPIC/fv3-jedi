@@ -16,8 +16,8 @@ Variable change to: 8 variables: psi, chi, T, ps, sphum, ice_wat, liq_wat, o3mr
 State after variable transform: 
 ----------------------------------------------------------------------------------------------------
 State print | number of fields = 8 | cube sphere face size: C12
-stream_function                              | Min:-2.7897335876728809e+08 Max:+1.8305839182542193e+08 RMS:+4.9489239211238571e+07
-velocity_potential                           | Min:-1.2179096432877192e+08 Max:+1.4391871590569201e+08 RMS:+1.2387502324727712e+07
+air_horizontal_streamfunction                | Min:-2.7897335876728809e+08 Max:+1.8305839182542193e+08 RMS:+4.9489239211238571e+07
+air_horizontal_velocity_potential            | Min:-1.2179096432877192e+08 Max:+1.4391871590569201e+08 RMS:+1.2387502324727712e+07
 air_temperature                              | Min:+1.5865009407036410e+02 Max:+3.0653885708773061e+02 RMS:+2.4962364131438429e+02
 air_pressure_at_surface                      | Min:+5.3985382265251501e+04 Max:+1.0473542095347164e+05 RMS:+9.8984828087583708e+04
 water_vapor_mixing_ratio_wrt_moist_air       | Min:+1.2804727152986153e-09 Max:+1.8723704386097544e-02 RMS:+4.6967978850461301e-03
@@ -28,8 +28,8 @@ ozone_mass_mixing_ratio                      | Min:+2.8166011299632619e-09 Max:+
 Output state: 
 ----------------------------------------------------------------------------------------------------
 State print | number of fields = 8 | cube sphere face size: C12
-stream_function                              | Min:-2.7897335876728809e+08 Max:+1.8305839182542193e+08 RMS:+4.9489239211238571e+07
-velocity_potential                           | Min:-1.2179096432877192e+08 Max:+1.4391871590569201e+08 RMS:+1.2387502324727712e+07
+air_horizontal_streamfunction                | Min:-2.7897335876728809e+08 Max:+1.8305839182542193e+08 RMS:+4.9489239211238571e+07
+air_horizontal_velocity_potential            | Min:-1.2179096432877192e+08 Max:+1.4391871590569201e+08 RMS:+1.2387502324727712e+07
 air_temperature                              | Min:+1.5865009407036410e+02 Max:+3.0653885708773061e+02 RMS:+2.4962364131438429e+02
 air_pressure_at_surface                      | Min:+5.3985382265251501e+04 Max:+1.0473542095347164e+05 RMS:+9.8984828087583708e+04
 water_vapor_mixing_ratio_wrt_moist_air       | Min:+1.2804727152986153e-09 Max:+1.8723704386097544e-02 RMS:+4.6967978850461301e-03

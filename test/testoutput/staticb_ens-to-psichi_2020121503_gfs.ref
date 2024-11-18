@@ -16,8 +16,8 @@ Variable change to: 8 variables: psi, chi, t, ps, sphum, liq_wat, ice_wat, o3mr
 State after variable transform: 
 ----------------------------------------------------------------------------------------------------
 State print | number of fields = 8 | cube sphere face size: C12
-stream_function                              | Min:-2.8769479904947054e+08 Max:+1.7382141458841684e+08 RMS:+4.9832006819285586e+07
-velocity_potential                           | Min:-1.1251570682284379e+08 Max:+1.4113515927269787e+08 RMS:+1.1496015479877396e+07
+air_horizontal_streamfunction                | Min:-2.8769479904947054e+08 Max:+1.7382141458841684e+08 RMS:+4.9832006819285586e+07
+air_horizontal_velocity_potential            | Min:-1.1251570682284379e+08 Max:+1.4113515927269787e+08 RMS:+1.1496015479877396e+07
 air_temperature                              | Min:+1.5972471858425604e+02 Max:+3.0871541720656609e+02 RMS:+2.4963185509433359e+02
 air_pressure_at_surface                      | Min:+5.4063812476149375e+04 Max:+1.0468464029556207e+05 RMS:+9.8983349696263802e+04
 water_vapor_mixing_ratio_wrt_moist_air       | Min:+1.3767969074500562e-09 Max:+1.8453535922646300e-02 RMS:+4.6893586089918424e-03
@@ -28,8 +28,8 @@ ozone_mass_mixing_ratio                      | Min:-2.4445718191708373e-09 Max:+
 Output state: 
 ----------------------------------------------------------------------------------------------------
 State print | number of fields = 8 | cube sphere face size: C12
-stream_function                              | Min:-2.8769479904947054e+08 Max:+1.7382141458841684e+08 RMS:+4.9832006819285586e+07
-velocity_potential                           | Min:-1.1251570682284379e+08 Max:+1.4113515927269787e+08 RMS:+1.1496015479877396e+07
+air_horizontal_streamfunction                | Min:-2.8769479904947054e+08 Max:+1.7382141458841684e+08 RMS:+4.9832006819285586e+07
+air_horizontal_velocity_potential            | Min:-1.1251570682284379e+08 Max:+1.4113515927269787e+08 RMS:+1.1496015479877396e+07
 air_temperature                              | Min:+1.5972471858425604e+02 Max:+3.0871541720656609e+02 RMS:+2.4963185509433359e+02
 air_pressure_at_surface                      | Min:+5.4063812476149375e+04 Max:+1.0468464029556207e+05 RMS:+9.8983349696263802e+04
 water_vapor_mixing_ratio_wrt_moist_air       | Min:+1.3767969074500562e-09 Max:+1.8453535922646300e-02 RMS:+4.6893586089918424e-03
@@ -55,8 +55,8 @@ Variable change to: 8 variables: psi, chi, t, ps, sphum, liq_wat, ice_wat, o3mr
 State after variable transform: 
 ----------------------------------------------------------------------------------------------------
 State print | number of fields = 8 | cube sphere face size: C12
-stream_function                              | Min:-2.8776466207803124e+08 Max:+1.7260873260209587e+08 RMS:+4.9849242579870000e+07
-velocity_potential                           | Min:-1.2294504328905138e+08 Max:+1.4172742001837519e+08 RMS:+1.1514967491390873e+07
+air_horizontal_streamfunction                | Min:-2.8776466207803124e+08 Max:+1.7260873260209587e+08 RMS:+4.9849242579870000e+07
+air_horizontal_velocity_potential            | Min:-1.2294504328905138e+08 Max:+1.4172742001837519e+08 RMS:+1.1514967491390873e+07
 air_temperature                              | Min:+1.5994370386032176e+02 Max:+3.0813778309972963e+02 RMS:+2.4964129112056787e+02
 air_pressure_at_surface                      | Min:+5.4061028100368989e+04 Max:+1.0466598829008575e+05 RMS:+9.8982909981858364e+04
 water_vapor_mixing_ratio_wrt_moist_air       | Min:+6.3325390343886979e-09 Max:+1.8431563068622724e-02 RMS:+4.7035251872143370e-03
@@ -67,8 +67,8 @@ ozone_mass_mixing_ratio                      | Min:-2.6978853954215130e-09 Max:+
 Output state: 
 ----------------------------------------------------------------------------------------------------
 State print | number of fields = 8 | cube sphere face size: C12
-stream_function                              | Min:-2.8776466207803124e+08 Max:+1.7260873260209587e+08 RMS:+4.9849242579870000e+07
-velocity_potential                           | Min:-1.2294504328905138e+08 Max:+1.4172742001837519e+08 RMS:+1.1514967491390873e+07
+air_horizontal_streamfunction                | Min:-2.8776466207803124e+08 Max:+1.7260873260209587e+08 RMS:+4.9849242579870000e+07
+air_horizontal_velocity_potential            | Min:-1.2294504328905138e+08 Max:+1.4172742001837519e+08 RMS:+1.1514967491390873e+07
 air_temperature                              | Min:+1.5994370386032176e+02 Max:+3.0813778309972963e+02 RMS:+2.4964129112056787e+02
 air_pressure_at_surface                      | Min:+5.4061028100368989e+04 Max:+1.0466598829008575e+05 RMS:+9.8982909981858364e+04
 water_vapor_mixing_ratio_wrt_moist_air       | Min:+6.3325390343886979e-09 Max:+1.8431563068622724e-02 RMS:+4.7035251872143370e-03
@@ -94,8 +94,8 @@ Variable change to: 8 variables: psi, chi, t, ps, sphum, liq_wat, ice_wat, o3mr
 State after variable transform: 
 ----------------------------------------------------------------------------------------------------
 State print | number of fields = 8 | cube sphere face size: C12
-stream_function                              | Min:-2.8629805709369266e+08 Max:+1.7146371148009676e+08 RMS:+4.9860386707439676e+07
-velocity_potential                           | Min:-1.0847212845471121e+08 Max:+1.4138111299844575e+08 RMS:+1.1446266541506790e+07
+air_horizontal_streamfunction                | Min:-2.8629805709369266e+08 Max:+1.7146371148009676e+08 RMS:+4.9860386707439676e+07
+air_horizontal_velocity_potential            | Min:-1.0847212845471121e+08 Max:+1.4138111299844575e+08 RMS:+1.1446266541506790e+07
 air_temperature                              | Min:+1.5982143865682215e+02 Max:+3.0875854818143819e+02 RMS:+2.4963975630884383e+02
 air_pressure_at_surface                      | Min:+5.4075645029611216e+04 Max:+1.0469797773396278e+05 RMS:+9.8982877835233230e+04
 water_vapor_mixing_ratio_wrt_moist_air       | Min:+1.1217075454413099e-09 Max:+1.8590565613163600e-02 RMS:+4.7096783846883880e-03
@@ -106,8 +106,8 @@ ozone_mass_mixing_ratio                      | Min:-2.6970372867244319e-09 Max:+
 Output state: 
 ----------------------------------------------------------------------------------------------------
 State print | number of fields = 8 | cube sphere face size: C12
-stream_function                              | Min:-2.8629805709369266e+08 Max:+1.7146371148009676e+08 RMS:+4.9860386707439676e+07
-velocity_potential                           | Min:-1.0847212845471121e+08 Max:+1.4138111299844575e+08 RMS:+1.1446266541506790e+07
+air_horizontal_streamfunction                | Min:-2.8629805709369266e+08 Max:+1.7146371148009676e+08 RMS:+4.9860386707439676e+07
+air_horizontal_velocity_potential            | Min:-1.0847212845471121e+08 Max:+1.4138111299844575e+08 RMS:+1.1446266541506790e+07
 air_temperature                              | Min:+1.5982143865682215e+02 Max:+3.0875854818143819e+02 RMS:+2.4963975630884383e+02
 air_pressure_at_surface                      | Min:+5.4075645029611216e+04 Max:+1.0469797773396278e+05 RMS:+9.8982877835233230e+04
 water_vapor_mixing_ratio_wrt_moist_air       | Min:+1.1217075454413099e-09 Max:+1.8590565613163600e-02 RMS:+4.7096783846883880e-03
@@ -133,8 +133,8 @@ Variable change to: 8 variables: psi, chi, t, ps, sphum, liq_wat, ice_wat, o3mr
 State after variable transform: 
 ----------------------------------------------------------------------------------------------------
 State print | number of fields = 8 | cube sphere face size: C12
-stream_function                              | Min:-2.8959935957395959e+08 Max:+1.7370848992896682e+08 RMS:+4.9907017496102057e+07
-velocity_potential                           | Min:-1.1937301368375666e+08 Max:+1.4655011748482275e+08 RMS:+1.1535644051788326e+07
+air_horizontal_streamfunction                | Min:-2.8959935957395959e+08 Max:+1.7370848992896682e+08 RMS:+4.9907017496102057e+07
+air_horizontal_velocity_potential            | Min:-1.1937301368375666e+08 Max:+1.4655011748482275e+08 RMS:+1.1535644051788326e+07
 air_temperature                              | Min:+1.5927693918826100e+02 Max:+3.0841270632257641e+02 RMS:+2.4964726967891698e+02
 air_pressure_at_surface                      | Min:+5.4068032310794719e+04 Max:+1.0466400108893542e+05 RMS:+9.8984934987738554e+04
 water_vapor_mixing_ratio_wrt_moist_air       | Min:+1.0251224630590500e-09 Max:+1.8470597918966623e-02 RMS:+4.7137625908938788e-03
@@ -145,8 +145,8 @@ ozone_mass_mixing_ratio                      | Min:-2.6978237175355164e-09 Max:+
 Output state: 
 ----------------------------------------------------------------------------------------------------
 State print | number of fields = 8 | cube sphere face size: C12
-stream_function                              | Min:-2.8959935957395959e+08 Max:+1.7370848992896682e+08 RMS:+4.9907017496102057e+07
-velocity_potential                           | Min:-1.1937301368375666e+08 Max:+1.4655011748482275e+08 RMS:+1.1535644051788326e+07
+air_horizontal_streamfunction                | Min:-2.8959935957395959e+08 Max:+1.7370848992896682e+08 RMS:+4.9907017496102057e+07
+air_horizontal_velocity_potential            | Min:-1.1937301368375666e+08 Max:+1.4655011748482275e+08 RMS:+1.1535644051788326e+07
 air_temperature                              | Min:+1.5927693918826100e+02 Max:+3.0841270632257641e+02 RMS:+2.4964726967891698e+02
 air_pressure_at_surface                      | Min:+5.4068032310794719e+04 Max:+1.0466400108893542e+05 RMS:+9.8984934987738554e+04
 water_vapor_mixing_ratio_wrt_moist_air       | Min:+1.0251224630590500e-09 Max:+1.8470597918966623e-02 RMS:+4.7137625908938788e-03
@@ -172,8 +172,8 @@ Variable change to: 8 variables: psi, chi, t, ps, sphum, liq_wat, ice_wat, o3mr
 State after variable transform: 
 ----------------------------------------------------------------------------------------------------
 State print | number of fields = 8 | cube sphere face size: C12
-stream_function                              | Min:-2.8944268500332373e+08 Max:+1.7453143179200274e+08 RMS:+4.9975292153987311e+07
-velocity_potential                           | Min:-1.1863174260369547e+08 Max:+1.4493175151295894e+08 RMS:+1.1520090268562833e+07
+air_horizontal_streamfunction                | Min:-2.8944268500332373e+08 Max:+1.7453143179200274e+08 RMS:+4.9975292153987311e+07
+air_horizontal_velocity_potential            | Min:-1.1863174260369547e+08 Max:+1.4493175151295894e+08 RMS:+1.1520090268562833e+07
 air_temperature                              | Min:+1.5948941417496411e+02 Max:+3.0858883433460738e+02 RMS:+2.4962768778735273e+02
 air_pressure_at_surface                      | Min:+5.4053769606280664e+04 Max:+1.0462947632730042e+05 RMS:+9.8982193608134679e+04
 water_vapor_mixing_ratio_wrt_moist_air       | Min:+3.3864784277570368e-09 Max:+1.8508307871421180e-02 RMS:+4.6782625559367063e-03
@@ -184,8 +184,8 @@ ozone_mass_mixing_ratio                      | Min:-2.6978044366606763e-09 Max:+
 Output state: 
 ----------------------------------------------------------------------------------------------------
 State print | number of fields = 8 | cube sphere face size: C12
-stream_function                              | Min:-2.8944268500332373e+08 Max:+1.7453143179200274e+08 RMS:+4.9975292153987311e+07
-velocity_potential                           | Min:-1.1863174260369547e+08 Max:+1.4493175151295894e+08 RMS:+1.1520090268562833e+07
+air_horizontal_streamfunction                | Min:-2.8944268500332373e+08 Max:+1.7453143179200274e+08 RMS:+4.9975292153987311e+07
+air_horizontal_velocity_potential            | Min:-1.1863174260369547e+08 Max:+1.4493175151295894e+08 RMS:+1.1520090268562833e+07
 air_temperature                              | Min:+1.5948941417496411e+02 Max:+3.0858883433460738e+02 RMS:+2.4962768778735273e+02
 air_pressure_at_surface                      | Min:+5.4053769606280664e+04 Max:+1.0462947632730042e+05 RMS:+9.8982193608134679e+04
 water_vapor_mixing_ratio_wrt_moist_air       | Min:+3.3864784277570368e-09 Max:+1.8508307871421180e-02 RMS:+4.6782625559367063e-03
@@ -211,8 +211,8 @@ Variable change to: 8 variables: psi, chi, t, ps, sphum, liq_wat, ice_wat, o3mr
 State after variable transform: 
 ----------------------------------------------------------------------------------------------------
 State print | number of fields = 8 | cube sphere face size: C12
-stream_function                              | Min:-2.9037699663299435e+08 Max:+1.7254268027451938e+08 RMS:+4.9824739015136562e+07
-velocity_potential                           | Min:-1.2166082890721706e+08 Max:+1.3734828525480363e+08 RMS:+1.1364884232148243e+07
+air_horizontal_streamfunction                | Min:-2.9037699663299435e+08 Max:+1.7254268027451938e+08 RMS:+4.9824739015136562e+07
+air_horizontal_velocity_potential            | Min:-1.2166082890721706e+08 Max:+1.3734828525480363e+08 RMS:+1.1364884232148243e+07
 air_temperature                              | Min:+1.6018117637511222e+02 Max:+3.0857096378321285e+02 RMS:+2.4963652540345200e+02
 air_pressure_at_surface                      | Min:+5.4086065698563871e+04 Max:+1.0468210637078245e+05 RMS:+9.8982325450383010e+04
 water_vapor_mixing_ratio_wrt_moist_air       | Min:+1.1895311305321946e-09 Max:+1.8158242544937801e-02 RMS:+4.6770453135447192e-03
@@ -223,8 +223,8 @@ ozone_mass_mixing_ratio                      | Min:-2.6978117025094798e-09 Max:+
 Output state: 
 ----------------------------------------------------------------------------------------------------
 State print | number of fields = 8 | cube sphere face size: C12
-stream_function                              | Min:-2.9037699663299435e+08 Max:+1.7254268027451938e+08 RMS:+4.9824739015136562e+07
-velocity_potential                           | Min:-1.2166082890721706e+08 Max:+1.3734828525480363e+08 RMS:+1.1364884232148243e+07
+air_horizontal_streamfunction                | Min:-2.9037699663299435e+08 Max:+1.7254268027451938e+08 RMS:+4.9824739015136562e+07
+air_horizontal_velocity_potential            | Min:-1.2166082890721706e+08 Max:+1.3734828525480363e+08 RMS:+1.1364884232148243e+07
 air_temperature                              | Min:+1.6018117637511222e+02 Max:+3.0857096378321285e+02 RMS:+2.4963652540345200e+02
 air_pressure_at_surface                      | Min:+5.4086065698563871e+04 Max:+1.0468210637078245e+05 RMS:+9.8982325450383010e+04
 water_vapor_mixing_ratio_wrt_moist_air       | Min:+1.1895311305321946e-09 Max:+1.8158242544937801e-02 RMS:+4.6770453135447192e-03
@@ -250,8 +250,8 @@ Variable change to: 8 variables: psi, chi, t, ps, sphum, liq_wat, ice_wat, o3mr
 State after variable transform: 
 ----------------------------------------------------------------------------------------------------
 State print | number of fields = 8 | cube sphere face size: C12
-stream_function                              | Min:-2.8812154515618449e+08 Max:+1.6964947902766392e+08 RMS:+4.9969931325024225e+07
-velocity_potential                           | Min:-1.1491881373287545e+08 Max:+1.3769157763457289e+08 RMS:+1.1600732340164239e+07
+air_horizontal_streamfunction                | Min:-2.8812154515618449e+08 Max:+1.6964947902766392e+08 RMS:+4.9969931325024225e+07
+air_horizontal_velocity_potential            | Min:-1.1491881373287545e+08 Max:+1.3769157763457289e+08 RMS:+1.1600732340164239e+07
 air_temperature                              | Min:+1.5933181595810530e+02 Max:+3.0977878529955302e+02 RMS:+2.4963500174341223e+02
 air_pressure_at_surface                      | Min:+5.4053958714395587e+04 Max:+1.0465801966351677e+05 RMS:+9.8985048747732420e+04
 water_vapor_mixing_ratio_wrt_moist_air       | Min:+1.4322570602022207e-09 Max:+1.8650035621635343e-02 RMS:+4.7021337914017278e-03
@@ -262,8 +262,8 @@ ozone_mass_mixing_ratio                      | Min:-2.6979161538656778e-09 Max:+
 Output state: 
 ----------------------------------------------------------------------------------------------------
 State print | number of fields = 8 | cube sphere face size: C12
-stream_function                              | Min:-2.8812154515618449e+08 Max:+1.6964947902766392e+08 RMS:+4.9969931325024225e+07
-velocity_potential                           | Min:-1.1491881373287545e+08 Max:+1.3769157763457289e+08 RMS:+1.1600732340164239e+07
+air_horizontal_streamfunction                | Min:-2.8812154515618449e+08 Max:+1.6964947902766392e+08 RMS:+4.9969931325024225e+07
+air_horizontal_velocity_potential            | Min:-1.1491881373287545e+08 Max:+1.3769157763457289e+08 RMS:+1.1600732340164239e+07
 air_temperature                              | Min:+1.5933181595810530e+02 Max:+3.0977878529955302e+02 RMS:+2.4963500174341223e+02
 air_pressure_at_surface                      | Min:+5.4053958714395587e+04 Max:+1.0465801966351677e+05 RMS:+9.8985048747732420e+04
 water_vapor_mixing_ratio_wrt_moist_air       | Min:+1.4322570602022207e-09 Max:+1.8650035621635343e-02 RMS:+4.7021337914017278e-03
@@ -289,8 +289,8 @@ Variable change to: 8 variables: psi, chi, t, ps, sphum, liq_wat, ice_wat, o3mr
 State after variable transform: 
 ----------------------------------------------------------------------------------------------------
 State print | number of fields = 8 | cube sphere face size: C12
-stream_function                              | Min:-2.8874342144649202e+08 Max:+1.7675015423419240e+08 RMS:+5.0004661114406653e+07
-velocity_potential                           | Min:-1.1756167883054318e+08 Max:+1.4286431268072551e+08 RMS:+1.1449547822186839e+07
+air_horizontal_streamfunction                | Min:-2.8874342144649202e+08 Max:+1.7675015423419240e+08 RMS:+5.0004661114406653e+07
+air_horizontal_velocity_potential            | Min:-1.1756167883054318e+08 Max:+1.4286431268072551e+08 RMS:+1.1449547822186839e+07
 air_temperature                              | Min:+1.5926738597747232e+02 Max:+3.0907851202481845e+02 RMS:+2.4962649151892944e+02
 air_pressure_at_surface                      | Min:+5.4058837794995408e+04 Max:+1.0470388405005874e+05 RMS:+9.8985085205845462e+04
 water_vapor_mixing_ratio_wrt_moist_air       | Min:+1.9764746974411260e-09 Max:+1.8503309122687574e-02 RMS:+4.6946904742653289e-03
@@ -301,8 +301,8 @@ ozone_mass_mixing_ratio                      | Min:-2.0223658558767769e-09 Max:+
 Output state: 
 ----------------------------------------------------------------------------------------------------
 State print | number of fields = 8 | cube sphere face size: C12
-stream_function                              | Min:-2.8874342144649202e+08 Max:+1.7675015423419240e+08 RMS:+5.0004661114406653e+07
-velocity_potential                           | Min:-1.1756167883054318e+08 Max:+1.4286431268072551e+08 RMS:+1.1449547822186839e+07
+air_horizontal_streamfunction                | Min:-2.8874342144649202e+08 Max:+1.7675015423419240e+08 RMS:+5.0004661114406653e+07
+air_horizontal_velocity_potential            | Min:-1.1756167883054318e+08 Max:+1.4286431268072551e+08 RMS:+1.1449547822186839e+07
 air_temperature                              | Min:+1.5926738597747232e+02 Max:+3.0907851202481845e+02 RMS:+2.4962649151892944e+02
 air_pressure_at_surface                      | Min:+5.4058837794995408e+04 Max:+1.0470388405005874e+05 RMS:+9.8985085205845462e+04
 water_vapor_mixing_ratio_wrt_moist_air       | Min:+1.9764746974411260e-09 Max:+1.8503309122687574e-02 RMS:+4.6946904742653289e-03
@@ -328,8 +328,8 @@ Variable change to: 8 variables: psi, chi, t, ps, sphum, liq_wat, ice_wat, o3mr
 State after variable transform: 
 ----------------------------------------------------------------------------------------------------
 State print | number of fields = 8 | cube sphere face size: C12
-stream_function                              | Min:-2.8831656859375709e+08 Max:+1.7298749044085363e+08 RMS:+4.9886186330369219e+07
-velocity_potential                           | Min:-1.1122407690436228e+08 Max:+1.3663725129891941e+08 RMS:+1.1296476779469026e+07
+air_horizontal_streamfunction                | Min:-2.8831656859375709e+08 Max:+1.7298749044085363e+08 RMS:+4.9886186330369219e+07
+air_horizontal_velocity_potential            | Min:-1.1122407690436228e+08 Max:+1.3663725129891941e+08 RMS:+1.1296476779469026e+07
 air_temperature                              | Min:+1.5892900013468406e+02 Max:+3.0904151064228262e+02 RMS:+2.4963151716687315e+02
 air_pressure_at_surface                      | Min:+5.4072919391473421e+04 Max:+1.0467205880124759e+05 RMS:+9.8983634320032259e+04
 water_vapor_mixing_ratio_wrt_moist_air       | Min:+1.3778866294907439e-09 Max:+1.8299834889024667e-02 RMS:+4.7079600975830698e-03
@@ -340,8 +340,8 @@ ozone_mass_mixing_ratio                      | Min:-1.6776396530833948e-09 Max:+
 Output state: 
 ----------------------------------------------------------------------------------------------------
 State print | number of fields = 8 | cube sphere face size: C12
-stream_function                              | Min:-2.8831656859375709e+08 Max:+1.7298749044085363e+08 RMS:+4.9886186330369219e+07
-velocity_potential                           | Min:-1.1122407690436228e+08 Max:+1.3663725129891941e+08 RMS:+1.1296476779469026e+07
+air_horizontal_streamfunction                | Min:-2.8831656859375709e+08 Max:+1.7298749044085363e+08 RMS:+4.9886186330369219e+07
+air_horizontal_velocity_potential            | Min:-1.1122407690436228e+08 Max:+1.3663725129891941e+08 RMS:+1.1296476779469026e+07
 air_temperature                              | Min:+1.5892900013468406e+02 Max:+3.0904151064228262e+02 RMS:+2.4963151716687315e+02
 air_pressure_at_surface                      | Min:+5.4072919391473421e+04 Max:+1.0467205880124759e+05 RMS:+9.8983634320032259e+04
 water_vapor_mixing_ratio_wrt_moist_air       | Min:+1.3778866294907439e-09 Max:+1.8299834889024667e-02 RMS:+4.7079600975830698e-03
@@ -367,8 +367,8 @@ Variable change to: 8 variables: psi, chi, t, ps, sphum, liq_wat, ice_wat, o3mr
 State after variable transform: 
 ----------------------------------------------------------------------------------------------------
 State print | number of fields = 8 | cube sphere face size: C12
-stream_function                              | Min:-2.9018846372799826e+08 Max:+1.7457906916418844e+08 RMS:+4.9937920072629236e+07
-velocity_potential                           | Min:-1.1430670050456131e+08 Max:+1.3817751201591733e+08 RMS:+1.1293140248366168e+07
+air_horizontal_streamfunction                | Min:-2.9018846372799826e+08 Max:+1.7457906916418844e+08 RMS:+4.9937920072629236e+07
+air_horizontal_velocity_potential            | Min:-1.1430670050456131e+08 Max:+1.3817751201591733e+08 RMS:+1.1293140248366168e+07
 air_temperature                              | Min:+1.5976018442934699e+02 Max:+3.0867003686857436e+02 RMS:+2.4963139561563187e+02
 air_pressure_at_surface                      | Min:+5.4047949561970374e+04 Max:+1.0470101775990454e+05 RMS:+9.8982460840468077e+04
 water_vapor_mixing_ratio_wrt_moist_air       | Min:+2.1853567059287031e-09 Max:+1.8336426325834820e-02 RMS:+4.6910450751475969e-03
@@ -379,8 +379,8 @@ ozone_mass_mixing_ratio                      | Min:-2.6978571258195018e-09 Max:+
 Output state: 
 ----------------------------------------------------------------------------------------------------
 State print | number of fields = 8 | cube sphere face size: C12
-stream_function                              | Min:-2.9018846372799826e+08 Max:+1.7457906916418844e+08 RMS:+4.9937920072629236e+07
-velocity_potential                           | Min:-1.1430670050456131e+08 Max:+1.3817751201591733e+08 RMS:+1.1293140248366168e+07
+air_horizontal_streamfunction                | Min:-2.9018846372799826e+08 Max:+1.7457906916418844e+08 RMS:+4.9937920072629236e+07
+air_horizontal_velocity_potential            | Min:-1.1430670050456131e+08 Max:+1.3817751201591733e+08 RMS:+1.1293140248366168e+07
 air_temperature                              | Min:+1.5976018442934699e+02 Max:+3.0867003686857436e+02 RMS:+2.4963139561563187e+02
 air_pressure_at_surface                      | Min:+5.4047949561970374e+04 Max:+1.0470101775990454e+05 RMS:+9.8982460840468077e+04
 water_vapor_mixing_ratio_wrt_moist_air       | Min:+2.1853567059287031e-09 Max:+1.8336426325834820e-02 RMS:+4.6910450751475969e-03
