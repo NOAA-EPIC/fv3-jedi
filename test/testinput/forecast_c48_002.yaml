@@ -17,9 +17,7 @@ model:
   tstep: PT1H
   forecast length: *fclength
   ufs_run_directory: Data/ModelRunDirs/c48_v16_002
-  model variables: [ua,va,t,sphum,delp,ice_wat,liq_wat,o3mr,phis,
-                         slmsk,sheleg,tsea,vtype,stype,vfrac,stc,smc,snwdph,
-                         u_srf,v_srf,f10m]
+  model variables: [ua,va,t]
 initial condition:
   datetime: 2020-12-14T18:00:00Z
   filetype: fms restart

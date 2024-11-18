@@ -28,8 +28,9 @@ static oops::interface::ModelMaker<Traits, ModelUFS> makermodel_("UFS");
 ModelUFS::ModelUFS(const Geometry & resol, const eckit::Configuration & modelConf)
   : keyConfig_(0), tstep_(modelConf.getString("tstep")),
     fclength_(modelConf.getString("forecast length")), geom_(resol),
-    vars_(geom_.fieldsMetaData().getLongNameFromAnyName(oops::Variables(modelConf,
-                                                                        "model variables")))
+    vars_(oops::Variables(modelConf, "model variables"))
+//  vars_(geom_.fieldsMetaData().getLongNameFromAnyName(oops::Variables(modelConf,
+//                                                                      "model variables")))
 {
   const eckit::LocalConfiguration confcopy(modelConf);
   oops::Log::trace() << "ModelUFS::ModelUFS starting" << std::endl;
@@ -49,6 +50,8 @@ ModelUFS::~ModelUFS() {
 // -------------------------------------------------------------------------------------------------
 void ModelUFS::initialize(State & xx) const {
   oops::Log::trace() << "ModelUFS::initialize starting" << std::endl;
+  oops::Log::trace() << "ModelUFS::initialize xx has vars " << xx.variables() << std::endl;
+  oops::Log::trace() << "ModelUFS::initialize class has these vars " << this->variables() << std::endl;
   oops::Log::trace() << "ModelUFS::cd to " << ufsdir_ << std::endl;
   chdir(ufsdir_);
 
@@ -60,7 +63,7 @@ void ModelUFS::initialize(State & xx) const {
   oops::Log::trace() << "initialize Forecast stop time is " << stop << std::endl;
 
   // stdvariables is the list of "standard names" needed by NUOPC_Advertise
-  fv3jedi_ufs_initialize_f90(keyConfig_, xx.toFortran(), xx.stdvariables(), &dtp1, &dtp2);
+  fv3jedi_ufs_initialize_f90(keyConfig_, xx.toFortran(), xx.stdvariables(), this->variables(), &dtp1, &dtp2);
   oops::Log::trace() << "ModelUFS::initialize done" << std::endl;
 }
 // -------------------------------------------------------------------------------------------------

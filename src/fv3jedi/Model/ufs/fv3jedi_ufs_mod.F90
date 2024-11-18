@@ -96,13 +96,14 @@ contains
 
 ! --------------------------------------------------------------------------------------------------
 
-  subroutine initialize(self, state, vars, vdate_start, vdate_final)
+  subroutine initialize(self, state, toJediVars, fromJediVars, vdate_start, vdate_final)
 
     implicit none
 
     class(model_ufs),    intent(inout) :: self
     type(fv3jedi_state), intent(in)    :: state
-    type(oops_variables),  intent(in)    :: vars
+    type(oops_variables),  intent(in)    :: toJediVars
+    type(oops_variables),  intent(in)    :: fromJediVars
 
     type(datetime),      intent(in)    :: vdate_start
     type(datetime),      intent(in)    :: vdate_final
@@ -111,8 +112,8 @@ contains
 
     type(ESMF_Time)         :: currTime, stopTime
     type(ESMF_TimeInterval) :: timeStep
-    character(len=ESMF_MAXSTR), allocatable :: stdnames(:)
-    character(len=ESMF_MAXSTR), allocatable :: frJedinames(:)
+    character(len=ESMF_MAXSTR), allocatable :: toJediNames(:)
+    character(len=ESMF_MAXSTR), allocatable :: frJediNames(:)
 
     character(len=20) :: strCurrTime, strStopTime
 
@@ -201,21 +202,23 @@ contains
          rc=rc)
     esmf_err_abort(rc)
 
-    allocate(stdnames(vars%nvars()))
-    allocate(frJedinames(4))
-    do var = 1, vars%nvars()
-       stdnames(var) = trim(vars%variable(var))
-       if(var < 5) then
-         frJedinames(var) = trim(vars%variable(var))
-         write(6,*) 'from jedi will be ',trim(vars%variable(var))
-       endif
+    write(6,*) 'allocating to/fr names of sizes ',toJediVars%nvars(),fromJediVars%nvars()
+    allocate(toJediNames(toJediVars%nvars()))
+    allocate(frJediNames(fromJediVars%nvars()))
+    do var = 1, toJediVars%nvars()
+       toJediNames(var) = trim(toJediVars%variable(var))
+       write(6,*)  'to names ',trim(toJediNames(var))
+    enddo
+    do var = 1, fromJediVars%nvars()
+       frJediNames(var) = trim(fromJediVars%variable(var))
+       write(6,*) 'from names ', trim(frJediNames(var))
     enddo
     call ESMF_LogWrite("Advertising export from ESM", ESMF_LOGMSG_INFO)
     ! Advertise fields on the exportState, for data coming out of ESM component
     ! Note--only certain fields are available. Check in GFS_surface_generic to see if they are filled
     ! Do only for very first initialization
     call NUOPC_Advertise(self%toJedi, &
-         StandardNames=stdnames, &
+         StandardNames=toJediNames, &
          SharePolicyField="share", &
          TransferOfferGeomObject="cannot provide", rc=rc)
     esmf_err_abort(rc)
@@ -231,7 +234,7 @@ contains
     ! Advertise fields on the importState, for data going into ESM component
     ! Note--only certain fields are available. Check ???
     call NUOPC_Advertise(self%fromJedi, &
-         StandardNames=frJedinames, &
+         StandardNames=frJediNames, &
          SharePolicyField="share", &
          TransferOfferGeomObject="cannot provide", rc=rc)
     esmf_err_abort(rc)
@@ -276,7 +279,7 @@ contains
     esmf_err_abort(rc)
 
     deallocate(connectors)
-    deallocate(stdnames)
+    deallocate(toJediNames)
 
     ! call ExternalRealize phase
     call NUOPC_CompSearchPhaseMap(self%esmComp, &
