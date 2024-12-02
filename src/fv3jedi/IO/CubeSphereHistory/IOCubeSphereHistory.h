@@ -84,18 +84,6 @@ class IOCubeSphereHistoryParameters : public IOParametersBase {
                                                                   "names of the fields to write",
                                                                   this};
 
-  // Optional list of UFS fields to split by level
-  oops::OptionalParameter<std::vector<std::string>> \
-    UFSfieldsToSplitByLevel{"ufs fields split by level",
-                            "names of the fields to split by level in ufs history files",
-                            this};
-
-  // Number of UFS soil levels
-  oops::Parameter<int> nlevSoilUFS{"ufs soil nlev",
-                                   "number of soil levels in UFS",
-                                   4,
-                                   this};
-
   // Floating point precision in bytes for NetCDF write
   oops::OptionalParameter<int> floatPrecision{"float precision in bytes",
                                               "number of bytes of floating point precision",

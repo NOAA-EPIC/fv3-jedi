@@ -1,4 +1,4 @@
-! (C) Copyright 2017-2022 UCAR
+! (C) Copyright 2017- UCAR
 !
 ! This software is licensed under the terms of the Apache Licence Version 2.0
 ! which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -24,6 +24,7 @@ use fv3jedi_field_mod,        only: fv3jedi_field, field_clen
 use fv3jedi_io_utils_mod
 use fv3jedi_kinds_mod,        only: kind_real
 use fv3jedi_netcdf_utils_mod, only: nccheck
+use fv3jedi_tile_comms_mod,   only: fv3jedi_tile_comms
 
 implicit none
 private
@@ -48,12 +49,6 @@ type fv3jedi_io_csh_conf
 
   ! Optional list of fields to write out
   character(len=:), allocatable :: fields_to_write(:)
-
-  ! Optional list of land fields that are split by level in UFS
-  character(len=:), dimension(:), allocatable :: ufs_fields_to_split
-
-  ! Number of soil levels in UFS
-  integer :: ufs_soil_nlev
 
   ! NetCDF floating point type
   integer :: float_type
@@ -99,8 +94,7 @@ type fv3jedi_io_cube_sphere_history
  ! Communicators for read/write gathering
  logical :: iam_io_proc
  type(fckit_mpi_comm) :: ccomm
- integer :: tcomm, ocomm       !Communicator for each tile and for output
- integer :: trank, tsize       !Tile come info
+ integer :: ocomm       !Communicator for each tile and for output
  integer :: crank, csize       !Component comm info
  integer :: orank, osize       !Output comm info
 
@@ -121,6 +115,9 @@ type fv3jedi_io_cube_sphere_history
  real(kind=kind_real), allocatable :: grid_lat(:,:), grid_lon(:,:)
  real(kind=kind_real), allocatable :: ak(:), bk(:)
  logical :: input_is_date_templated
+
+ ! Tile comms
+ type(fv3jedi_tile_comms) :: tile_comms
 
  contains
   procedure :: create
@@ -145,7 +142,7 @@ type(fv3jedi_geom),                    intent(in)    :: geom
 type(fckit_configuration),             intent(in)    :: conf
 
 ! Locals
-integer :: ierr, n, var
+integer :: ierr, n, var, trank
 integer :: tileoffset, dt_in_name
 character(len=4) :: yyyy
 character(len=2) :: mm, dd, hh, min, ss
@@ -193,17 +190,16 @@ self%iam_io_proc = .true.
 
 if (self%csize > 6) then
 
-  ! Communicator for all procs on each tile. To communicate to tiles write proc
-  call mpi_comm_split(self%ccomm%communicator(), geom%ntile, self%ccomm%rank(), self%tcomm, ierr)
-  call mpi_comm_rank(self%tcomm, self%trank, ierr)
-  call mpi_comm_size(self%tcomm, self%tsize, ierr)
+  ! Create the tile communicator object
+  call self%tile_comms%create(geom)
+  trank = self%tile_comms%get_rank()
 
   ! Communicator for procs that will write, one per tile
-  call mpi_comm_split(self%ccomm%communicator(), self%trank, geom%ntile, self%ocomm, ierr)
+  call mpi_comm_split(self%ccomm%communicator(), trank, geom%ntile, self%ocomm, ierr)
   call mpi_comm_rank(self%ocomm, self%orank, ierr)
   call mpi_comm_size(self%ocomm, self%osize, ierr)
 
-  if (self%trank .ne. 0) self%iam_io_proc = .false.
+  if (trank .ne. 0) self%iam_io_proc = .false.
 
 else
 
@@ -413,18 +409,6 @@ else
   self%conf%fields_to_write(1)='All'
 endif
 
-! Are there fields to be concatenated?
-! ------------------------------------
-if (conf%has('ufs fields split by level')) then
-  call conf%get_or_die('ufs fields split by level', self%conf%ufs_fields_to_split)
-end if
-
-! How many soil levels does UFS have?
-! -----------------------------------
-if (conf%has('ufs soil nlev')) then
-  call conf%get_or_die('ufs soil nlev', self%conf%ufs_soil_nlev)
-end if
-
 ! What is the floating point write precision in bytes for NetCDF?
 ! ---------------------------------------------------------------
 if (conf%has('float precision in bytes')) then
@@ -439,7 +423,7 @@ if (conf%has('float precision in bytes')) then
    case (8)
       self%conf%float_type = nf90_double
    case default
-      call abor1_ftn("Invalid floating point precision for NetCDF write")             
+      call abor1_ftn("Invalid floating point precision for NetCDF write")
    end select
 else
    ! Default to double precision
@@ -532,7 +516,7 @@ deallocate(self%bk)
 
 ! Release split comms
 ! -------------------
-if (self%csize > 6) call MPI_Comm_free(self%tcomm, ierr)
+if (self%csize > 6) call self%tile_comms%delete()
 call MPI_Comm_free(self%ocomm, ierr)
 
 end subroutine delete
@@ -721,47 +705,45 @@ type(fv3jedi_field),                          intent(inout) :: fields(:)
 
 ! Locals
 integer, allocatable :: file_index(:), varid(:)
-integer :: var, lev, n, ifield
-logical :: tile_is_a_dimension, cat_field
+integer :: var, n, maxlev
+logical :: tile_is_a_dimension
 integer, pointer :: istart(:), icount(:)
-integer, allocatable, target :: is_r3_tile(:), is_r3_noti(:)
-real(kind=kind_real), allocatable :: arrayg(:,:)
-character(len=field_clen) :: io_name_local
-
+real(kind=kind_real), allocatable :: arrayg(:,:,:)
 
 ! Get ncid and varid for each field
 ! ---------------------------------
 allocate(file_index(size(fields)))
 allocate(varid(size(fields)))
+
+! Get variable IDs
 call get_field_ncid_varid(self, fields, file_index, varid)
 
-! Local copy of starts for rank 3 in order to do one level at a time
-! ------------------------------------------------------------------
-allocate(is_r3_tile(size(self%is_r3_tile)))
-is_r3_tile = self%is_r3_tile
-allocate(is_r3_noti(size(self%is_r3_noti)))
-is_r3_noti = self%is_r3_noti
-
-
-! Array for level of whole tile
-! -----------------------------
-allocate(arrayg(1:self%npx-1,1:self%npy-1))
-
+! Get max levels
+! --------------
+call get_max_levels(fields, maxlev)
 
 ! Loop over fields
 ! ----------------
 do var = 1,size(fields)
 
-
   ! Set pointers to the appropriate array ranges
   ! --------------------------------------------
   if (self%iam_io_proc) then
 
+    ! Check if tile is a dimension for file housing this variable
     tile_is_a_dimension = self%conf%tile_is_a_dimension(file_index(var))
 
+    ! Nullify any existing pointers
     if (associated(istart)) nullify(istart)
     if (associated(icount)) nullify(icount)
 
+    ! Change the counts to match the correct number of levels for 3D fields
+    if (fields(var)%npz > 1) then
+      self%ic_r3_tile(self%vindex_tile) = fields(var)%npz
+      self%ic_r3_noti(self%vindex_noti) = fields(var)%npz
+    endif
+
+    ! Set istart and icount based on whether field is rank 2 or rank 3 and whether tile is a dimension
     if (fields(var)%npz == 1) then
       if (tile_is_a_dimension) then
         istart => self%is_r2_tile
@@ -772,79 +754,57 @@ do var = 1,size(fields)
       endif
     elseif (fields(var)%npz > 1) then
       if (tile_is_a_dimension) then
-        istart => is_r3_tile;
+        istart => self%is_r3_tile
         icount => self%ic_r3_tile
       else
-        istart => is_r3_noti
+        istart => self%is_r3_noti
         icount => self%ic_r3_noti
       endif
     endif
-  endif
 
-  ! Determine whether field is multi-level UFS surface variable
-  cat_field = .false.
-  if ( trim(self%conf%provider) == 'ufs' .and. allocated(self%conf%ufs_fields_to_split) ) then
-     do ifield = 1,size(self%conf%ufs_fields_to_split)
-        if ( trim(self%conf%ufs_fields_to_split(ifield)) == trim(fields(var)%long_name) .or. &
-             trim(self%conf%ufs_fields_to_split(ifield)) == trim(fields(var)%short_name) ) then
-             cat_field = .true.
-             exit
-        end if
-     end do
-  end if
-
-  ! Loop over level and read the data
-  ! ---------------------------------
-  do lev = 1,fields(var)%npz
-
+    ! Whole tile array that can accomodate any of the fields
+    ! ------------------------------------------------------
+    if (.not.allocated(arrayg)) allocate(arrayg(1:self%npx-1,1:self%npy-1,1:maxlev))
     arrayg = 0.0_kind_real
 
-    if (self%iam_io_proc) then
+    ! If not a concatenated field, read all levels
+    call nccheck ( nf90_get_var( self%ncid(file_index(var)), varid(var), &
+                   arrayg(1:self%npx-1,1:self%npy-1,1:fields(var)%npz), istart, icount), &
+                   "nf90_get_var "//trim(fields(var)%io_name) )
 
-      !Set start to current level
-      is_r3_tile(self%vindex_tile) = lev
-      is_r3_noti(self%vindex_noti) = lev
+  endif
 
-      ! Special case of land variable levels split into separate variables
-      if ( cat_field ) then
-         ! Set to read only one level
-         if ( tile_is_a_dimension ) then
-            istart => self%is_r2_tile
-            icount => self%ic_r2_tile
-         else
-            istart => self%is_r2_noti
-            icount => self%ic_r2_noti
-         endif
-
-         ! Get UFS multi-level surface variable name
-         write (io_name_local, "(A5,I1)") fields(var)%io_name, lev
-
-         ! Get varid
-         call nccheck( nf90_inq_varid(self%ncid(file_index(var)), io_name_local, varid(var)) )
-      else
-         io_name_local = fields(var)%io_name
-      end if
-
-      ! Read the level
-      call nccheck ( nf90_get_var( self%ncid(file_index(var)), varid(var), arrayg, istart, icount), &
-                    "nf90_get_var "//trim(io_name_local) )
-    endif
-
-    ! Scatter the field to all processors on the tile
-    ! -----------------------------------------------
-    if (self%csize > 6) then
-      call scatter_tile(self%isc, self%iec, self%jsc, self%jec, self%npx, self%npy, self%tcomm, &
-                        1, arrayg, fields(var)%array(self%isc:self%iec,self%jsc:self%jec,lev))
-    else
-      fields(var)%array(self%isc:self%iec,self%jsc:self%jec,lev) = &
-                                                        arrayg(self%isc:self%iec,self%jsc:self%jec)
-    endif
-
-  enddo
+  ! Scatter the field to all processors on the tile
+  ! -----------------------------------------------
+  if (self%csize > 6) then
+    call self%tile_comms%scatter_tile(fields(var)%npz, arrayg, &
+                           fields(var)%array(self%isc:self%iec,self%jsc:self%jec,1:fields(var)%npz))
+  else
+    fields(var)%array(self%isc:self%iec,self%jsc:self%jec,1:fields(var)%npz) = &
+                                       arrayg(self%isc:self%iec,self%jsc:self%jec,1:fields(var)%npz)
+  endif
 
 enddo
 
 end subroutine read_fields
+
+! --------------------------------------------------------------------------------------------------
+
+subroutine get_max_levels(fields, maxlev)
+
+! Arguments
+type(fv3jedi_field), intent(in)  :: fields(:)
+integer,             intent(out) :: maxlev
+
+! Locals
+integer :: f
+
+maxlev = 0
+do f = 1, size(fields)
+  maxlev = max(maxlev, fields(f)%npz)
+end do
+
+end subroutine get_max_levels
 
 ! --------------------------------------------------------------------------------------------------
 
@@ -858,10 +818,9 @@ integer,                              intent(inout) :: varid(size(fields(:)))
 
 ! Locals
 integer :: f, ff, n
-integer :: status, varid_local, ifield
+integer :: status, varid_local
 integer, allocatable :: found(:)
-character(len=field_clen) :: io_name_local
-logical :: cat_field, matches_io_file
+logical :: matches_io_file
 
 ! Array to keep track of all the files the variable was found in
 allocate(found(self%nfiles))
@@ -870,25 +829,13 @@ do f = 1, size(fields)
 
   found = 0
 
-  ! Determine whether field is multi-level UFS soil variable
-  cat_field = .false.
-  if ( trim(self%conf%provider) == 'ufs' .and. allocated(self%conf%ufs_fields_to_split) ) then
-     do ifield = 1,size(self%conf%ufs_fields_to_split)
-        if ( trim(self%conf%ufs_fields_to_split(ifield)) == trim(fields(f)%long_name) .or. &
-             trim(self%conf%ufs_fields_to_split(ifield)) == trim(fields(f)%short_name) ) then
-             cat_field = .true.
-             exit
-        end if
-     end do
-  end if
-
   do n = 1, self%nfiles
 
      ! Check if filename matches IO file specified in fields metadata
      matches_io_file = .true. ! Default to true for unknown or unspecified provider
      if ( trim(self%conf%provider) == 'ufs' ) then
-        select case ( trim(fields(f)%io_file) ) 
-        case ( 'default' ) ! No IO file specified in metadata for this field 
+        select case ( trim(fields(f)%io_file) )
+        case ( 'default' ) ! No IO file specified in metadata for this field
            matches_io_file = .true.
         case ( 'surface' )
            matches_io_file = ( index(trim(self%filenames(n)),'sfc') /= 0 )
@@ -898,19 +845,11 @@ do f = 1, size(fields)
            call abor1_ftn( "fv3jedi_io_cube_sphere_history_mod error: Unknown IO file for field, " // trim(fields(f)%long_name) )
         end select
      end if
-             
-     ! Get IO name of first level if UFS multi-level surface variable
-     if ( cat_field ) then
-        ! Use to first level since this is just a placeholder for the entire field
-        write (io_name_local, "(A5,I1)") trim(fields(f)%io_name), 1
-     else
-        io_name_local = fields(f)%io_name 
-     end if
-     
-     if ( matches_io_file ) then       
+
+     if ( matches_io_file ) then
         ! Get the varid
-        status = nf90_inq_varid(self%ncid(n), io_name_local, varid_local)
-        
+        status = nf90_inq_varid(self%ncid(n), fields(f)%io_name, varid_local)
+
         ! If found then fill the array
         if (status == nf90_noerr) then
            found(n) = 1
@@ -919,17 +858,17 @@ do f = 1, size(fields)
         endif
      end if
   enddo
-    
+
   ! Check that the field was not found more than once
   if (sum(found) > 1) &
        call abor1_ftn("fv3jedi_io_cube_sphere_history_mod.read_fields.get_field_ncid_varid: "// &
-                      "Field "//trim(io_name_local)//" was found in multiple input files. "// &
+                      "Field "//trim(fields(f)%io_name)//" was found in multiple input files. "// &
                       "Should only be present in one file that is read.")
 
   ! Check that the field was found
   if (sum(found) == 0) then
      call abor1_ftn("fv3jedi_io_cube_sphere_history_mod.read_fields.get_field_ncid_varid: "// &
-                    "Field "//trim(io_name_local)//" was not found in any files. "// &
+                    "Field "//trim(fields(f)%io_name)//" was not found in any files. "// &
                     "Should only be present in one file that is read.")
   end if
 enddo
@@ -968,10 +907,8 @@ allocate(latg(1:self%npx-1,1:self%npy-1))
 allocate(long(1:self%npx-1,1:self%npy-1))
 
 if (self%csize > 6) then
-  call gather_tile(self%isc, self%iec, self%jsc, self%jec, self%npx, self%npy, self%tcomm, 1, &
-                   self%grid_lat, latg)
-  call gather_tile(self%isc, self%iec, self%jsc, self%jec, self%npx, self%npy, self%tcomm, 1, &
-                   self%grid_lon, long)
+  call self%tile_comms%gather_tile(self%grid_lat, latg)
+  call self%tile_comms%gather_tile(self%grid_lon, long)
 else
   latg = self%grid_lat
   long = self%grid_lon
@@ -1070,8 +1007,8 @@ if (self%iam_io_proc) then
 
       ! In case that UFS multi-level surface fields need to be written
       do var = 1,size(fields)
-        if (fields(var)%npz == self%conf%ufs_soil_nlev) then
-          call nccheck ( nf90_def_dim(self%ncid(n), "lev4", self%conf%ufs_soil_nlev, self%f_dimid), "nf90_def_dim lev"  )
+        if (fields(var)%npz == 4) then
+          call nccheck ( nf90_def_dim(self%ncid(n), "lev4", 4, self%f_dimid), "nf90_def_dim lev"  )
           exit
         endif
       enddo
@@ -1300,34 +1237,20 @@ type(fv3jedi_field),                          intent(in)    :: fields(:)
 type(datetime),                               intent(in)    :: vdate
 
 ! Locals
-integer :: var, lev, n, ncid, ilev_soil, nlev_soil, ifield
+integer :: var, n, ncid, maxlev
 integer, target :: dimids2_tile(4), dimids3_tile(5), dimidse_tile(5), dimids4_tile(5)
 integer, target :: dimids2_noti(3), dimids3_noti(4), dimidse_noti(4), dimids4_noti(4)
 integer, pointer :: dimids2(:), dimids3(:), dimidse(:), dimids4(:), dimids(:)
-integer, allocatable, target :: is_r3_tile(:), is_r3_noti(:)
-real(kind=kind_real), allocatable :: arrayg(:,:)
+real(kind=kind_real), allocatable :: arrayg(:,:,:)
 integer, pointer :: istart(:), icount(:)
-integer, allocatable :: varid(:)
+integer :: varid
 character(10) :: coordstr
 logical :: write_field
-character(len=field_clen) :: io_name_local
 
 
-! Whole level of tile array
-! -------------------------
-allocate(arrayg(1:self%npx-1,1:self%npy-1))
-
-
-! Local counts for 3 to allow changing start point
-! ------------------------------------------------
-allocate(is_r3_tile(size(self%is_r3_tile)))
-is_r3_tile = self%is_r3_tile
-allocate(is_r3_noti(size(self%is_r3_noti)))
-is_r3_noti = self%is_r3_noti
-
-! Allocate NetCDF varid array 
-! ---------------------------
-allocate(varid(self%conf%ufs_soil_nlev))
+! Get max levels
+! --------------
+call get_max_levels(fields, maxlev)
 
 ! Dimension ID arrays for the various fields with and without tile dimension
 ! --------------------------------------------------------------------------
@@ -1349,7 +1272,7 @@ else if (trim(self%conf%provider) == 'ufs') then
 end if
 
 ! UFS/GEOS specific things
-! --------------------------------------------------------------------------
+! ------------------------
 if (trim(self%conf%provider) == 'geos') then
   coordstr = "lons lats"
 else if (trim(self%conf%provider) == 'ufs') then
@@ -1378,19 +1301,6 @@ do var = 1,size(fields)
       ! -------------------
       ncid = self%ncid(1)
 
-      ! Determine whether field is multi-level UFS surface variable
-      ! ----------------------------------------------------------
-      nlev_soil = 1
-      if ( trim(self%conf%provider) == 'ufs' .and. allocated(self%conf%ufs_fields_to_split) ) then
-         do ifield = 1,size(self%conf%ufs_fields_to_split)
-            if ( trim(self%conf%ufs_fields_to_split(ifield)) == trim(fields(var)%long_name) .or. &
-                 trim(self%conf%ufs_fields_to_split(ifield)) == trim(fields(var)%short_name) ) then
-               nlev_soil = self%conf%ufs_soil_nlev
-               exit
-            end if
-         end do
-      end if
-
       ! Redefine
       ! --------
       if (self%conf%clobber(1)) then
@@ -1418,8 +1328,10 @@ do var = 1,size(fields)
 
         if (associated(dimids)) nullify (dimids)
 
-        if (fields(var)%npz == 1 .or. fields(var)%npz == self%conf%ufs_soil_nlev ) then
+        if (fields(var)%npz == 1 ) then
           dimids => dimids2
+        elseif (fields(var)%npz == 4 ) then
+          dimids => dimids4
         elseif (fields(var)%npz == self%npz) then
           dimids => dimids3
         elseif (fields(var)%npz == self%npz+1) then
@@ -1428,48 +1340,30 @@ do var = 1,size(fields)
           call abor1_ftn("write_cube_sphere_history: vertical dimension not supported")
         endif
 
-        ! Loop through soil levels if fields is multi-level soil variable
-        ! Defaults to nlev_soil=1 otherwise
-        do ilev_soil = 1,nlev_soil
-           if ( nlev_soil > 1 ) then
-              ! Get UFS land variable name
-              write (io_name_local, "(A5,I1)") fields(var)%io_name, ilev_soil
-           else
-              ! Get variable name
-              io_name_local = fields(var)%io_name
-           end if
+        ! Define field
+        call nccheck( nf90_def_var(ncid, trim(fields(var)%io_name), self%conf%float_type, dimids, varid), &
+                       "nf90_def_var "//trim(fields(var)%io_name))
 
-           ! Define field
-           call nccheck( nf90_def_var(ncid, trim(io_name_local), self%conf%float_type, dimids, varid(ilev_soil)), &
-                         "nf90_def_var "//trim(io_name_local))
+        ! Long name and units
+        call nccheck( nf90_put_att(ncid, varid, "long_name"    , trim(fields(var)%long_name) ), "nf90_put_att" )
+        call nccheck( nf90_put_att(ncid, varid, "units"        , trim(fields(var)%units)     ), "nf90_put_att" )
 
-           ! Long name and units
-           call nccheck( nf90_put_att(ncid, varid(ilev_soil), "long_name"    , trim(fields(var)%long_name) ), "nf90_put_att" )
-           call nccheck( nf90_put_att(ncid, varid(ilev_soil), "units"        , trim(fields(var)%units)     ), "nf90_put_att" )
+        ! Additional attributes for history and or plotting compatibility
+        call nccheck( nf90_put_att(ncid, varid, "standard_name", trim(fields(var)%long_name) ), "nf90_put_att" )
+        call nccheck( nf90_put_att(ncid, varid, "coordinates"  , trim(coordstr)              ), "nf90_put_att" )
+        call nccheck( nf90_put_att(ncid, varid, "grid_mapping" , "cubed_sphere"              ), "nf90_put_att" )
 
-           ! Additional attributes for history and or plotting compatibility
-           call nccheck( nf90_put_att(ncid, varid(ilev_soil), "standard_name", trim(fields(var)%long_name) ), "nf90_put_att" )
-           call nccheck( nf90_put_att(ncid, varid(ilev_soil), "coordinates"  , trim(coordstr)              ), "nf90_put_att" )
-           call nccheck( nf90_put_att(ncid, varid(ilev_soil), "grid_mapping" , "cubed_sphere"              ), "nf90_put_att" )
+        ! End define mode
+        call nccheck( nf90_enddef(ncid), "nf90_enddef" )
 
-           ! End define mode
-           call nccheck( nf90_enddef(ncid), "nf90_enddef" )
-        end do
-      else
-        do ilev_soil = 1,nlev_soil
-           if ( nlev_soil > 1 ) then
-              ! Get UFS multi-level surface variable name
-              write (io_name_local, "(A5,I1)") fields(var)%io_name, ilev_soil
-           else
-              ! Get variable name
-              io_name_local = fields(var)%io_name
-           end if
+      else  ! No clobber
 
-           ! Get existing variable id to write to
-           call nccheck ( nf90_inq_varid (ncid, trim(io_name_local), varid(ilev_soil)), &
-                          "nf90_inq_varid "//trim(io_name_local) )
-        end do
-      endif
+        ! Get existing variable id to write to
+        call nccheck ( nf90_inq_varid (ncid, trim(fields(var)%io_name), varid), &
+                       "nf90_inq_varid "//trim(fields(var)%io_name) )
+
+      endif  ! Clobber
+
 
       ! Set starts and counts based on levels and tiledim flag
       ! ------------------------------------------------------
@@ -1477,7 +1371,13 @@ do var = 1,size(fields)
       if (associated(istart)) nullify(istart)
       if (associated(icount)) nullify(icount)
 
-      if ( fields(var)%npz == 1  .or. nlev_soil > 1 ) then
+      ! Change the counts to match the correct number of levels for 3D fields
+      if (fields(var)%npz > 1) then
+        self%ic_r3_tile(self%vindex_tile) = fields(var)%npz
+        self%ic_r3_noti(self%vindex_noti) = fields(var)%npz
+      endif
+
+      if ( fields(var)%npz == 1 ) then
         if (self%conf%tile_is_a_dimension(1)) then
           istart => self%is_r2_tile; icount => self%ic_r2_tile
         else
@@ -1485,229 +1385,44 @@ do var = 1,size(fields)
         endif
       elseif (fields(var)%npz > 1) then
         if (self%conf%tile_is_a_dimension(1)) then
-          istart => is_r3_tile; icount => self%ic_r3_tile
+          istart => self%is_r3_tile; icount => self%ic_r3_tile
         else
-          istart => is_r3_noti; icount => self%ic_r3_noti
+          istart => self%is_r3_noti; icount => self%ic_r3_noti
         endif
       endif
 
+      ! Whole tile array that can accomodate any of the fields
+      ! ------------------------------------------------------
+      if (.not.allocated(arrayg)) allocate(arrayg(1:self%npx-1,1:self%npy-1,1:maxlev))
+      arrayg = 0.0_kind_real
+
+    endif  ! io_proc
+
+    ! Gather the tiles to the write processors
+    if (self%csize > 6) then
+      call self%tile_comms%gather_tile(fields(var)%npz, &
+                                       fields(var)%array(self%isc:self%iec,self%jsc:self%jec,1:fields(var)%npz), &
+                                       arrayg)
+    else
+      arrayg(self%isc:self%iec,self%jsc:self%jec,1:fields(var)%npz) = &
+                            fields(var)%array(self%isc:self%iec,self%jsc:self%jec,1:fields(var)%npz)
     endif
 
-    do lev = 1,fields(var)%npz
+    ! Write the field to file
+    if (self%iam_io_proc) then
+        call nccheck( nf90_put_var( ncid, varid, arrayg(1:self%npx-1,1:self%npy-1,1:fields(var)%npz), start = istart, &
+                                    count = icount ), "nf90_put_var "//trim(fields(var)%io_name) )
+    endif
 
-      if (self%csize > 6) then
-        call gather_tile(self%isc, self%iec, self%jsc, self%jec, self%npx, self%npy, self%tcomm, 1, &
-                         fields(var)%array(self%isc:self%iec,self%jsc:self%jec,lev), arrayg)
-      else
-        arrayg = fields(var)%array(self%isc:self%iec,self%jsc:self%jec,lev)
-      endif
+  endif  ! write_field
 
-      if (self%iam_io_proc) then
-
-        is_r3_tile(self%vindex_tile) = lev
-        is_r3_noti(self%vindex_noti) = lev
-
-        if ( nlev_soil == 1 ) then
-           call nccheck( nf90_put_var( ncid, varid(1), arrayg, start = istart, count = icount ), &
-                                       "nf90_put_var "//trim(io_name_local) )
-        else
-           call nccheck( nf90_put_var( ncid, varid(lev), arrayg, start = istart, count = icount ), &
-                                       "nf90_put_var "//trim(io_name_local) )
-        end if
-      endif
-
-    enddo
-  endif
 enddo
 
 ! Deallocate locals
 ! -----------------
-deallocate(is_r3_tile,is_r3_noti)
-deallocate(arrayg)
+if (allocated(arrayg)) deallocate(arrayg)
 
 end subroutine write_fields
-
-! --------------------------------------------------------------------------------------------------
-
-subroutine gather_tile(isc, iec, jsc, jec, npx, npy, comm, nlev, array_l, array_g)
-
-! Arguments
-integer,              intent(in)    :: isc, iec, jsc, jec, npx, npy
-integer,              intent(in)    :: comm
-integer,              intent(in)    :: nlev
-real(kind=kind_real), intent(in)    :: array_l(isc:iec,jsc:jec,1:nlev)  ! Local array
-real(kind=kind_real), intent(inout) :: array_g(1:npx-1,1:npy-1,1:nlev)            ! Gathered array (only valid on root)
-
-! Locals
-real(kind=kind_real), allocatable :: vector_g(:), vector_l(:)
-integer :: comm_size, ierr
-integer :: ji, jj, jk, jc, n
-integer :: npx_g, npy_g, npx_l, npy_l
-integer, allocatable :: isc_l(:), iec_l(:), jsc_l(:), jec_l(:)
-integer, allocatable :: counts(:), displs(:), vectorcounts(:), vectordispls(:)
-
-!Get comm size
-call mpi_comm_size(comm, comm_size, ierr)
-
-!Array of counts and displacement
-allocate(counts(comm_size), displs(comm_size))
-do n = 1,comm_size
-   displs(n) = n-1
-   counts(n) = 1
-enddo
-
-!Horizontal size for global and local
-npx_g = npx-1
-npy_g = npy-1
-npx_l = iec-isc+1
-npy_l = jec-jsc+1
-
-!Gather local dimensions
-allocate(isc_l(comm_size), iec_l(comm_size), jsc_l(comm_size), jec_l(comm_size))
-call mpi_allgatherv(isc, 1, mpi_int, isc_l, counts, displs, mpi_int, comm, ierr)
-call mpi_allgatherv(iec, 1, mpi_int, iec_l, counts, displs, mpi_int, comm, ierr)
-call mpi_allgatherv(jsc, 1, mpi_int, jsc_l, counts, displs, mpi_int, comm, ierr)
-call mpi_allgatherv(jec, 1, mpi_int, jec_l, counts, displs, mpi_int, comm, ierr)
-deallocate(counts,displs)
-
-! Pack whole tile array into vector
-allocate(vectorcounts(comm_size), vectordispls(comm_size))
-
-!Gather counts and displacement
-n = 0
-do jc = 1,comm_size
-  vectordispls(jc) = n
-  do jk = 1,nlev
-    do jj = jsc_l(jc),jec_l(jc)
-      do ji = isc_l(jc),iec_l(jc)
-        n = n+1
-      enddo
-    enddo
-  enddo
-  vectorcounts(jc) = n - vectordispls(jc)
-enddo
-
-! Pack local array into vector
-allocate(vector_l(npx_l*npy_l*nlev))
-n = 0
-do jk = 1,nlev
-  do jj = jsc,jec
-    do ji = isc,iec
-      n = n+1
-      vector_l(n) = array_l(ji,jj,jk)
-    enddo
-  enddo
-enddo
-
-! Gather the full field
-allocate(vector_g(npx_g*npy_g*nlev))
-call mpi_gatherv( vector_l, npx_l*npy_l, mpi_double_precision, &
-                  vector_g, vectorcounts, vectordispls, mpi_double_precision, &
-                  0, comm, ierr)
-deallocate(vector_l,vectorcounts,vectordispls)
-
-!Unpack global vector into array
-n = 0
-do jc = 1,comm_size
-  do jk = 1,nlev
-    do jj = jsc_l(jc),jec_l(jc)
-      do ji = isc_l(jc),iec_l(jc)
-        n = n+1
-        array_g(ji,jj,jk) = vector_g(n)
-      enddo
-    enddo
-  enddo
-enddo
-deallocate(isc_l, iec_l, jsc_l, jec_l)
-
-deallocate(vector_g)
-
-end subroutine gather_tile
-
-! --------------------------------------------------------------------------------------------------
-
-subroutine scatter_tile(isc, iec, jsc, jec, npx, npy, comm, nlev, array_g, array_l)
-
-! Arguments
-integer,              intent(in)    :: isc, iec, jsc, jec, npx, npy
-integer,              intent(in)    :: comm
-integer,              intent(in)    :: nlev
-real(kind=kind_real), intent(in)    :: array_g(1:npx-1,1:npy-1,nlev)            ! Gathered array (only valid on root)
-real(kind=kind_real), intent(inout) :: array_l(isc:iec,jsc:jec,nlev)  ! Local array
-
-! Locals
-real(kind=kind_real), allocatable :: vector_g(:), vector_l(:)
-integer :: comm_size, ierr
-integer :: ji, jj, jk, jc, n
-integer :: npx_g, npy_g, npx_l, npy_l
-integer, allocatable :: isc_l(:), iec_l(:), jsc_l(:), jec_l(:)
-integer, allocatable :: counts(:), displs(:), vectorcounts(:), vectordispls(:)
-
-!Get comm size
-call mpi_comm_size(comm, comm_size, ierr)
-
-!Array of counts and displacement
-allocate(counts(comm_size), displs(comm_size))
-do n = 1,comm_size
-   displs(n) = n-1
-   counts(n) = 1
-enddo
-
-!Horizontal size for global and local
-npx_g = npx-1
-npy_g = npy-1
-npx_l = iec-isc+1
-npy_l = jec-jsc+1
-
-!Gather local dimensions
-allocate(isc_l(comm_size), iec_l(comm_size), jsc_l(comm_size), jec_l(comm_size))
-call mpi_allgatherv(isc, 1, mpi_int, isc_l, counts, displs, mpi_int, comm, ierr)
-call mpi_allgatherv(iec, 1, mpi_int, iec_l, counts, displs, mpi_int, comm, ierr)
-call mpi_allgatherv(jsc, 1, mpi_int, jsc_l, counts, displs, mpi_int, comm, ierr)
-call mpi_allgatherv(jec, 1, mpi_int, jec_l, counts, displs, mpi_int, comm, ierr)
-deallocate(counts,displs)
-
-! Pack whole tile array into vector
-allocate(vector_g(npx_g*npy_g*nlev))
-allocate(vectorcounts(comm_size), vectordispls(comm_size))
-
-n = 0
-do jc = 1,comm_size
-  vectordispls(jc) = n
-  do jk = 1,nlev
-    do jj = jsc_l(jc),jec_l(jc)
-      do ji = isc_l(jc),iec_l(jc)
-        n = n+1
-        vector_g(n) = array_g(ji,jj,jk)
-      enddo
-    enddo
-  enddo
-  vectorcounts(jc) = n - vectordispls(jc)
-enddo
-deallocate(isc_l, iec_l, jsc_l, jec_l)
-
-! Scatter tile array to processors
-allocate(vector_l(npx_l*npy_l*nlev))
-
-call mpi_scatterv( vector_g, vectorcounts, vectordispls, mpi_double_precision, &
-                   vector_l, npx_l*npy_l, mpi_double_precision, &
-                   0, comm, ierr )
-
-deallocate(vector_g,vectorcounts,vectordispls)
-
-! Unpack local vector into array
-n = 0
-do jk = 1,nlev
-  do jj = jsc,jec
-    do ji = isc,iec
-      n = n+1
-      array_l(ji,jj,jk) = vector_l(n)
-    enddo
-  enddo
-enddo
-deallocate(vector_l)
-
-end subroutine scatter_tile
 
 ! --------------------------------------------------------------------------------------------------
 

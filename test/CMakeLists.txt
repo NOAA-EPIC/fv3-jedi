@@ -994,7 +994,7 @@ if ( HAS_FMS2_IO )
                     ARGS     testinput/convertstate_gfs_fms_nonrestart2restart.yaml
                     COMMAND  fv3jedi_convertstate.x
                     TEST_DEPENDS fv3jedi_test_tier1_convertstate_gfs_restart2fms_nonrestart )
-endif()		  
+endif()
 
 if( FV3_FORECAST_MODEL MATCHES "FV3CORE" )
   ecbuild_add_test( TARGET   fv3jedi_test_tier1_convertstate_gfs_coldstartwinds
@@ -1046,7 +1046,7 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_converttogauss_gfs
 
 # CompareStates tests
 # -------------------
-ecbuild_add_test( TARGET   fv3jedi_test_tier1_comparestates_gfs_restart2history2restart.yaml
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_comparestates_gfs_restart2history2restart
                   MPI      6
                   ARGS     testinput/comparestates_gfs_restart2history2restart.yaml
                   COMMAND  test_fv3jedi_comparestates.x
