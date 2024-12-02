@@ -13,9 +13,8 @@ time window:
   begin: &date 2021-03-23T12:00:00Z
   length: PT6H
 
-Run Inline: true
+Run Inline: True
 inline parameters:
-  Run Forecast: true
   Forecast configuration:
   - testinput/forecast_c48_001.yaml 
   - testinput/forecast_c48_002.yaml 

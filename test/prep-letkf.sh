@@ -12,9 +12,19 @@ echo "&ensemble_nml
 /
 " >> Data/ModelRunDirs/c48_001/input.nml
 cp  Data/ModelRunDirs/c48_001/input.nml  Data/ModelRunDirs/c48_002
-
-cd Data/ModelRunDirs/UFS_warmstart_1/RESTART
+cd Data/ModelRunDirs/c48_001
+mkdir INPUT
+ln -s ../UFS_warmstart_1/* .
+cd INPUT
+cp -r ../../UFS_warmstart_1/INPUT/* .
 for file in *tile*.nc; do new=`echo $file | sed 's/tile/ens_01.tile/g'`; ln -s $file $new; done
-cd ../../UFS_warmstart_2/RESTART
+ln -s fv_core.res.nc fv_core.res.ens_01.nc
+
+cd ../../c48_002
+mkdir INPUT
+ln -s ../UFS_warmstart_2/* .
+cd INPUT
+cp -r ../../UFS_warmstart_2/INPUT/* .
 for file in *tile*.nc; do new=`echo $file | sed 's/tile/ens_02.tile/g'`; ln -s $file $new; done
+ln -s fv_core.res.nc fv_core.res.ens_02.nc
 
