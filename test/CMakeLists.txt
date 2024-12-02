@@ -1166,7 +1166,7 @@ ecbuild_add_test( TARGET  fv3jedi_setup_letkf_ufs_rundir
                       ARGS    ${FV3_FORECAST_MODEL_RUNDIR_WARMSTART} ${FV3_FORECAST_MODEL_TESTDIR_WARMSTART}
                       TEST_DEPENDS fv3jedi_test_tier1_EnsGETKF_ufs_warmstart )
 
-ecbuild_add_test( TARGET   fv3jedi_test_tier1_letfk_inline_ufs 
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_letkf_inline_ufs 
                   MPI      12
                   ARGS     testinput/letkf-inline-c48.yaml
                   COMMAND  fv3jedi_letkf.x
