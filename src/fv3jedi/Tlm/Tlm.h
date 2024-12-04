@@ -73,6 +73,7 @@ class Tlm: public oops::interface::LinearModelBase<Traits>,
 
   // Accessor functions
   const util::Duration & timeResolution() const override {return tstep_;}
+  const util::Duration & stepTrajectory() const override {return tstep_;}
 
  private:
   void print(std::ostream &) const override;
