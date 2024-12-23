@@ -346,8 +346,12 @@ void State::deserializeSection(const std::vector<double> & vect, int & size_fld,
   oops::Log::trace() << "State deserialize starting" << std::endl;
   fv3jedi_state_deserializeSection_f90(keyState_, size_fld, vect.data(), isc, iec, jsc, jec,
            isc_sg, iec_sg, jsc_sg, jec_sg, ind_local);
-
+/*
   ASSERT(vect.at(ind_local) == -54321.56789);
+*/
+  if(vect.at(ind_local) != -54321.56789) {
+    std::cout << "Uh oh. vect @ " << ind_local << " does not equal -54321.56789. it is " << vect.at(ind_local) << std::endl;
+  }
   oops::Log::trace() << "State deserializeSection done" << std::endl;
 }
 
@@ -488,9 +492,10 @@ void State::Rtranspose(const State & DAState, const eckit::mpi::Comm & global, c
   std::vector<int> local_ens;
   size_t dataSize = this->serialSize()-3;  // would be good to make this a method
   std::vector<double> zz;
-  std::vector<int> buf(11);
+  std::vector<int> buf(12);
   std::vector<int> recipients;  // This will contain list of mpi tasks where local tile will be sent
   std::vector<int> senders;  // This will contain list of mpi tasks which will be sending data to me
+  std::map<int, int> mesgSize;  // This will contain list of mpi tasks which will be sending data to me
   std::vector<int> tileEnsNum;  // This will contain list of ensemble numbers that I am receiving
   int fcstTile = this->geometry().tileNum();
   std::vector<int> global_indices = this->geometry().get_indices();  // pull from this geom and
@@ -505,7 +510,7 @@ void State::Rtranspose(const State & DAState, const eckit::mpi::Comm & global, c
   int nxg = iend_fc - ist_fc + 1;
   int nyg = jend_fc - jst_fc + 1;
   int nvars = this->variables().size();  // number of variable state
-
+  int size_fld;
   std::vector<int> indices = DAState.geometry().get_indices();
   ist_da = indices[0];  // indices for the da geometry
   iend_da = indices[1];
@@ -515,6 +520,7 @@ void State::Rtranspose(const State & DAState, const eckit::mpi::Comm & global, c
   kend_da = indices[5];
   npz_da = indices[6];
 
+  int maxSize = 0;
   oops::Log::trace() << "before transpose fcst state is " << DAState << std::endl;
 //  std::cout << "mytask is " << mytask << "fcstTile is " << fcstTile << " DAtile is " << DAState.geometry().tileNum() << std::endl;
   for (int i = 0; i < global.size(); ++i) {
@@ -530,6 +536,7 @@ void State::Rtranspose(const State & DAState, const eckit::mpi::Comm & global, c
       buf[8] = iend_fc;  // the start of my i domain decomp I NEED
       buf[9] = jst_fc;   // the start of my j domain decomp I NEED
       buf[10] = jend_fc;  // the start of my j domain decomp I NEED
+      buf[11] = DAState.serialSize();  // the size of the DAstate I will be sending
 /*
     std::cout << "my buffer is -- " << std::endl;
     for (const auto& i: buf)
@@ -549,6 +556,11 @@ void State::Rtranspose(const State & DAState, const eckit::mpi::Comm & global, c
       iend_rcv[i] = buf[4];    // because they may be different than the tile currently held
       jst_rcv[i] = buf[5];
       jend_rcv[i] = buf[6];
+      mesgSize[i] = buf[11];
+      if(buf[11] > maxSize) {
+          maxSize = buf[11];
+      }
+      std::cout << "I will receive states with size of " << mesgSize[i] << " from " << i << std::endl;
 //      std::cout << "will receive from task " << i << " indices " << ist_rcv <<", "<<iend_rcv<<", "<< jst_rcv <<", "<<jend_rcv<<", "<<std::endl;
       tileEnsNum.push_back(buf[2]);
     }
@@ -560,7 +572,6 @@ void State::Rtranspose(const State & DAState, const eckit::mpi::Comm & global, c
       recipients.push_back(i);
     }
   }
-/*
     std::cout << "my recipients  -- " << std::endl;
     for (const auto& i: recipients)
     std::cout << i << ' ';
@@ -569,6 +580,7 @@ void State::Rtranspose(const State & DAState, const eckit::mpi::Comm & global, c
     for (const auto& i: senders)
     std::cout << i << ' ';
     std::cout << std::endl;
+/*
 */
 
 // ---- now  send and collect messages
@@ -578,14 +590,19 @@ void State::Rtranspose(const State & DAState, const eckit::mpi::Comm & global, c
   size_t indx = 0;
   std::vector<double> yy;
 
-  DAState.serialize(zz);  // serialize the DA state in time 0 and local_ens_number 0
   
+  DAState.serialize(zz);  // serialize the DA state in time 0 and local_ens_number 0
+
   std::vector<double>  zz_recv;  // vector to receive send buffer
 
-//  std::cout << "serializing DAstate of size " << zz.size() << std::endl;
-  for ( int k = 0; k < zz.size(); ++k ) {  // fill up recv buffers with zeros
+  std::cout << "serializing DAstate of size " << zz.size() << std::endl;
+  for ( int k = 0; k < maxSize; ++k ) {  // fill up recv buffers with zeros
         zz_recv.push_back(0.0);
   }
+  for ( int k = zz.size(); k < maxSize; ++k ) {
+     zz.push_back(0.0);
+  }
+  std::cout << "DAstate is now size " << zz.size() << std::endl;
 
   for ( int j = 0; j < recipients.size(); ++j ) {  // loop through list of rcpts/sndrs and send/recv
     if (recipients[j] != mytask) {  // dont send anything to myself
@@ -595,15 +612,16 @@ void State::Rtranspose(const State & DAState, const eckit::mpi::Comm & global, c
 
   for ( int j = 0; j < senders.size(); ++j ) {  // loop through list of rcpts/sndrs and send/recv
     if (senders[j] != mytask) {  // dont need to receive from myself
-        recv_req_.push_back(global.iReceive(&zz_recv[0], zz.size(), senders[j], tileEnsNum[j]));
+        std::cout << "looking for message from " << senders[j] << " with size of " << mesgSize[senders[j]] << std::endl;
+        recv_req_.push_back(global.iReceive(&zz_recv[0], maxSize, senders[j], tileEnsNum[j]));
         recv_tasks_.push_back(tileEnsNum[j]);
     } else {  // I already have this DA state
       // copy from my local version
       size_t itask = ensNum-1;
       zz_recv = zz;
       indx = 0;
-      int size_fld = zz_recv.size();  // get the serialsize of the local tile
-//      std::cout << "about to deserialize on my local tile, itask, size_fld are " << itask <<" " << size_fld << std::endl;
+      int size_fld = DAState.serialSize();  // get the serialsize of the local tile
+      std::cout << "about to deserialize on my local tile, itask, size_fld are " << itask <<" " << size_fld << std::endl;
 //      std::cout << "rcv indices are " << ist_rcv[mytask] <<" " <<iend_rcv[mytask] <<" " <<jst_rcv[mytask] <<" " <<jend_rcv[mytask] << std::endl;
 //      std::cout << "fc indices are " << ist_fc <<" " <<iend_fc <<" " <<jst_fc <<" " <<jend_fc << std::endl;
       this->deserializeSection(zz_recv, size_fld, ist_da, iend_da,
@@ -618,16 +636,9 @@ void State::Rtranspose(const State & DAState, const eckit::mpi::Comm & global, c
     ASSERT(rst.error() == 0);
     size_t itask = recv_tasks_[ireq] - 1;
     indx = 0;
-    int size_fld = zz_recv.size();  // get the serialsize of the local tile
-//    std::cout << "about to deserialize on my recvd tile, itask, size_fld, src are " << itask <<" " << size_fld <<" "<<rst.source()<< std::endl;
-//    std::cout << "head of zz_recv is ";
-/*
-    for (size_t jj=0; jj<20; jj++) 
-      std::cout << zz_recv[jj] << ' ';
-      std::cout << std::endl;
-    std::cout << "rcv indices are " << ist_rcv[rst.source()] <<" " <<iend_rcv[rst.source()] <<" " <<jst_rcv[rst.source()] <<" " <<jend_rcv[rst.source()] << std::endl;
-    std::cout << "fc indices are " << ist_fc <<" " <<iend_fc <<" " <<jst_fc <<" " <<jend_fc << std::endl;
-*/
+    size_fld = mesgSize[rst.source()]; 
+//    int size_fld = zz_recv.size();  // get the serialsize of the local tile
+    std::cout << "about to deserialize on my recvd tile, itask, size_fld, src are " << itask <<" " << size_fld <<" "<<rst.source()<< std::endl;
     this->deserializeSection(zz_recv, size_fld, 
          ist_rcv[rst.source()], iend_rcv[rst.source()],
          jst_rcv[rst.source()], jend_rcv[rst.source()],        // deserialize state section
@@ -635,6 +646,7 @@ void State::Rtranspose(const State & DAState, const eckit::mpi::Comm & global, c
          jst_rcv[rst.source()], jend_rcv[rst.source()], indx); 
   }
   oops::mpi::world().barrier();
+  std::cout << "finished with Rtranspose. " << std::endl;
 //  oops::Log::trace() << "after transpose fcst state is " << *this << std::endl;
 }
 // -------------------------------------------------------------------------------------------------
@@ -643,12 +655,16 @@ void State::serialize(std::vector<double> & vect) const {
   oops::Log::trace() << "State serialize starting" << std::endl;
   int size_fld = this->serialSize() - 3;
   std::vector<double> v_fld(size_fld, 0);
-
+  std::cout << "size of field for serialize is " << size_fld << std::endl;
   fv3jedi_state_serialize_f90(keyState_, size_fld, v_fld.data());
   vect.insert(vect.end(), v_fld.begin(), v_fld.end());
 
   // Serialize the date and time
-  vect.push_back(-54321.56789);
+  if(vect.size() < size_fld) {
+    vect.push_back(-54321.56789);
+  } else {
+    vect[size_fld] = -54321.56789;
+  }
   time_.serialize(vect);
 
   oops::Log::trace() << "State serialize done" << std::endl;
