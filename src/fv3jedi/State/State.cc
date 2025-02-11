@@ -595,7 +595,7 @@ void State::Rtranspose(const State & DAState, const eckit::mpi::Comm & global, c
 
   std::vector<double>  zz_recv;  // vector to receive send buffer
 
-  std::cout << "serializing DAstate of size " << zz.size() << std::endl;
+  std::cout << "serializing DAstate of size " << zz.size() << " -4 is " << zz[zz.size()-4] << std::endl;
   for ( int k = 0; k < maxSize; ++k ) {  // fill up recv buffers with zeros
         zz_recv.push_back(0.0);
   }
@@ -659,8 +659,10 @@ void State::serialize(std::vector<double> & vect) const {
   fv3jedi_state_serialize_f90(keyState_, size_fld, v_fld.data());
   vect.insert(vect.end(), v_fld.begin(), v_fld.end());
 
+  
+  std::cout << "vect size and size_fld are " << vect.size() << " " << size_fld << std::endl;
   // Serialize the date and time
-  if(vect.size() < size_fld) {
+  if(vect.size() <= size_fld) {  
     vect.push_back(-54321.56789);
   } else {
     vect[size_fld] = -54321.56789;
