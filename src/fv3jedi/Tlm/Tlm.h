@@ -73,6 +73,7 @@ class Tlm: public oops::interface::LinearModelBase<Traits>,
 
   // Accessor functions
   const util::Duration & timeResolution() const override {return tstep_;}
+  const util::Duration & stepTrajectory() const override {return tstep_;}
 
  private:
   void print(std::ostream &) const override;
@@ -80,12 +81,11 @@ class Tlm: public oops::interface::LinearModelBase<Traits>,
   typedef std::map< util::DateTime, int >::const_iterator trajICst;
 
 // Data
+  const Geometry & geom_;
   F90model keySelf_;
   util::Duration tstep_;
   std::map<util::DateTime, F90traj> trajmap_;
   oops::Variables linvars_;
-  std::unique_ptr<LinearVariableChange> an2model_;
-  mutable std::unique_ptr<const oops::Variables> finalVars_;
 };
 // -------------------------------------------------------------------------------------------------
 

@@ -1,8 +1,8 @@
-forecast length: &fclength PT1H
+forecast length: &fclength PT6H
 geometry:
   fms initialization:
-    namelist filename: Data/ModelRunDirs/c48_v16_002/input.nml
-    field table filename: Data/ModelRunDirs/c48_v16_002/field_table
+    namelist filename: Data/ModelRunDirs/c48_002/input.nml
+    field table filename: Data/ModelRunDirs/c48_002/field_table
   akbk: Data/fv3files/akbk127.nc4
   layout: [1,1]
   io_layout: [1,1]
@@ -14,26 +14,28 @@ geometry:
   field metadata override: Data/fieldmetadata/ufs.yaml
 model:
   name: UFS
-  tstep: PT1H
+  tstep: PT6H
   forecast length: *fclength
-  ufs_run_directory: Data/ModelRunDirs/c48_v16_002
-  model variables: [ua,va,t]
+  ufs_run_directory: Data/ModelRunDirs/c48_002
+  model variables: [ua,va,t,delp,sphum,ice_wat,liq_wat,o3mr,phis,
+                         slmsk,sheleg,tsea,vtype,stype,vfrac,stc,smc,snwdph,
+                         u_srf,v_srf,f10m]
 initial condition:
-  datetime: 2020-12-14T18:00:00Z
+  datetime: 2021-03-23T06:00:00Z
   filetype: fms restart
-  datapath: Data/ModelRunDirs/c48_v16_002/INPUT
+  datapath: Data/ModelRunDirs/c48_002/INPUT
   filename_core: fv_core.res.nc
   filename_trcr: fv_tracer.res.nc
   filename_sfcd: sfc_data.nc
   filename_sfcw: fv_srf_wnd.res.nc
   filename_cplr: coupler.res
-  state variables: [ua,va,t,sphum,delp,ice_wat,liq_wat,o3mr,phis,
+  state variables: [ua,va,t,delp,sphum,ice_wat,liq_wat,o3mr,phis,
                          slmsk,sheleg,tsea,vtype,stype,vfrac,stc,smc,snwdph,
                          u_srf,v_srf,f10m]
 output:
   filetype: fms restart
   datapath: ../../../Data/forecast
   prefix: forecast.jediex.
-  first: PT1H
-  frequency: PT1H
+  first: PT6H
+  frequency: PT6H
 

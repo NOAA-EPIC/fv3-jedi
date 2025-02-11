@@ -16,7 +16,6 @@
 
 #include "oops/base/ParameterTraitsVariables.h"
 #include "oops/base/Variables.h"
-#include "oops/base/WriteParametersBase.h"
 #include "oops/util/ObjectCounter.h"
 #include "oops/util/Printable.h"
 
@@ -62,9 +61,17 @@ class StateParameters : public oops::Parameters {
 
 // -------------------------------------------------------------------------------------------------
 
-class StateWriteParameters : public oops::WriteParametersBase {
-  OOPS_CONCRETE_PARAMETERS(StateWriteParameters, WriteParametersBase)
+class StateWriteParameters : public oops::Parameters {
+  OOPS_CONCRETE_PARAMETERS(StateWriteParameters, Parameters)
  public:
+  oops::OptionalParameter<std::string> type{"type", this};
+  oops::OptionalParameter<std::string> exp{"exp", this};
+  oops::OptionalParameter<int> member{"member", this};
+  oops::OptionalParameter<std::string> memberPattern{"member pattern", this};
+  oops::OptionalParameter<util::DateTime> date{"date", this};
+  oops::OptionalParameter<int> iteration{"iteration", this};
+  oops::OptionalParameter<std::string> prefix{"prefix", this};
+  oops::Parameter<bool> dateCols{"date colons", true, this};
   IOParametersWrapper ioParametersWrapper{this};
 };
 
@@ -103,9 +110,9 @@ class State : public util::Printable, private util::ObjectCounter<State> {
 // Serialize and deserialize
   size_t serialSize() const;
   void serialize(std::vector<double> &) const;
-  void transpose(const State & FCState, const eckit::mpi::Comm & global, const int & mytask,
+  void transpose(const State & FCState, const eckit::mpi::Comm & global,
      const int & ensNum, const int & transNum);
-  void Rtranspose(const State & DAState, const eckit::mpi::Comm & global, const int & mytask,
+  void Rtranspose(const State & DAState, const eckit::mpi::Comm & global,
      const int & ensNum, const int & transNum);
   void deserializeSection(const std::vector<double> &, int &, int &,
      int &, int &, int &, int &, int &, int &, int &, size_t &);
@@ -116,7 +123,7 @@ class State : public util::Printable, private util::ObjectCounter<State> {
 
 // Utilities
   const Geometry & geometry() const {return geom_;}
-  const oops::Variables & variables() const {return varsJedi_;}
+  const oops::Variables & variables() const {return vars_;}
   const oops::Variables & stdvariables() const {return stdvars_;}
 
   const util::DateTime & time() const {return time_;}
@@ -132,12 +139,6 @@ class State : public util::Printable, private util::ObjectCounter<State> {
   int & toFortran() {return keyState_;}
   const int & toFortran() const {return keyState_;}
 
-  // Const w.r.t. JEDI, but does update internal fortran state (i.e., the interface-specific fields)
-  // to synchronize it with the JEDI-presented fields.
-  void synchronizeInterfaceFields() const;
-  void setInterfaceFieldsOutOfDate(bool) const;
-  const oops::Variables & variablesIncludingInterfaceFields() const {return vars_;}
-
 // Private methods and variables
  private:
   void print(std::ostream &) const;
@@ -145,7 +146,6 @@ class State : public util::Printable, private util::ObjectCounter<State> {
   const Geometry & geom_;
   oops::Variables stdvars_;
   oops::Variables vars_;
-  oops::Variables varsJedi_;  // subset of vars_; excluding interface-specific variables
   util::DateTime time_;
 };
 

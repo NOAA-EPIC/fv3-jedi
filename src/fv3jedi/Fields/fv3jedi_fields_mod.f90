@@ -43,11 +43,6 @@ type :: fv3jedi_fields
   type(datetime) :: time
   integer :: ntracers
 
-  integer :: ninterface_specific
-  ! Whether to update interface-specific fields from generic jedi fields before passing to the
-  ! model, for example
-  logical :: interface_fields_are_out_of_date
-
   contains
 
     ! Methods needed by both state and increment classes
@@ -63,7 +58,6 @@ type :: fv3jedi_fields
     procedure, public :: to_fieldset
     procedure, public :: from_fieldset
     procedure, public :: update_fields
-    procedure, public :: synchronize_interface_fields  ! Update inteface-specific fields
 
     ! Public array/field accessor functions
     procedure, public :: has_field => has_field_
@@ -94,16 +88,6 @@ subroutine create(self, geom, vars)
   integer :: var, fc
   type(field_metadata) :: fmd
   logical :: field_fail
-
-  ! Count interface-specific fields in vars
-  self%ninterface_specific = 0
-  do var = 1, vars%nvars()
-    fmd = geom%fmd%get_field_metadata(trim(vars%variable(var)))
-    if (fmd%interface_specific) then
-      self%ninterface_specific = self%ninterface_specific + 1
-    end if
-  end do
-  self%interface_fields_are_out_of_date = .false.
 
   ! Allocate fields structure
   ! -------------------------
@@ -158,10 +142,6 @@ subroutine create(self, geom, vars)
   if (field_fail) call abor1_ftn("fv3jedi_fields.create: found A-Grid u but not v")
   field_fail = .not.self%has_field('ua') .and. self%has_field('va')
   if (field_fail) call abor1_ftn("fv3jedi_fields.create: found A-Grid v but not u")
-  field_fail = self%has_field('ud') .and. .not.self%has_field('vd')
-  if (field_fail) call abor1_ftn("fv3jedi_fields.create: found D-Grid u but not v")
-  field_fail = .not.self%has_field('ud') .and. self%has_field('vd')
-  if (field_fail) call abor1_ftn("fv3jedi_fields.create: found D-Grid v but not u")
 
   !Check User's choice of ozone variables.
   field_fail = self%has_field('o3mr') .and. self%has_field('o3ppmv')
@@ -202,7 +182,6 @@ do var = 1, self%nf
 !write(6,*) self%fields(var)%array(self%fields(var)%isc:self%fields(var)%iec,self%fields(var)%jsc:self%fields(var)%jec,1:self%fields(var)%npz)
 enddo
 self%ntracers = other%ntracers
-self%interface_fields_are_out_of_date = other%interface_fields_are_out_of_date
 
 end subroutine copy
 
@@ -217,7 +196,6 @@ integer :: var
 do var = 1, self%nf
   self%fields(var)%array = 0.0_kind_real
 enddo
-self%interface_fields_are_out_of_date = .false.
 
 endsubroutine zero
 
@@ -230,11 +208,6 @@ real(kind=kind_real),  intent(out)   :: normout
 
 integer :: i, j, k, ii, iisum, var
 real(kind=kind_real) :: zz
-
-if (self%ninterface_specific > 0 .and. self%interface_fields_are_out_of_date) then
-  call abor1_ftn("fv3jedi_fields_mod.norm: interface-specific fields are out of date; update&
-                 & before calling subroutine norm")
-end if
 
 zz = 0.0_kind_real
 ii = 0
@@ -272,13 +245,6 @@ real(kind=kind_real),  intent(out)   :: minmaxrmsout(3)
 
 integer :: isc, iec, jsc, jec, npz
 real(kind=kind_real) :: tmp(3), gs3, gs3g
-
-! Subroutine minmaxrms is used for prints -- allow fields to be out of date to avoid excessive
-! synchronizations for minimal scientific gain
-!if (self%ninterface_specific > 0 .and. self%interface_fields_are_out_of_date) then
-!  call abor1_ftn("fv3jedi_fields_mod.minmaxrms: interface-specific fields are out of date; update&
-!                 & before calling subroutine minmaxrms")
-!end if
 
 isc = self%fields(field_num)%isc
 iec = self%fields(field_num)%iec
@@ -326,11 +292,6 @@ call checksame(self%fields,rhs%fields,"fv3jedi_fields.accumul")
 do var = 1, self%nf
   self%fields(var)%array = self%fields(var)%array + zz * rhs%fields(var)%array
 enddo
-
-! Set out-of-date if rhs is out-of-date
-if (self%ninterface_specific > 0) then
-  if (rhs%interface_fields_are_out_of_date) self%interface_fields_are_out_of_date = .true.
-end if
 
 end subroutine accumul
 
@@ -434,14 +395,6 @@ do jvar = 1, vars%nvars()
 
   ! Get field
   call self%get_field(trim(vars%variable(jvar)), field)
-  if (field%interface_specific) then
-    call abor1_ftn("fv3jedi_fields_mod.to_fieldset: interface-specific field requested")
-  end if
-
-  ! Sanity check
-  if (trim(field%horizontal_stagger_location) .ne. 'center') then
-    call abor1_ftn("to_fieldset: only cell-centered fields are supported in atlas interface to OOPS")
-  end if
 
   ! Get/create atlas field
   if (afieldset%has_field(field%long_name)) then
@@ -559,9 +512,6 @@ do jvar = 1,vars%nvars()
 
   ! Get field
   call self%get_field(trim(vars%variable(jvar)), field)
-  if (field%interface_specific) then
-    call abor1_ftn("fv3jedi_fields_mod.from_fieldset_ad: interface-specific field requested")
-  end if
 
   ! Set to zero (could be more efficient by doing this only in halos...)
   field%array = 0.0_kind_real
@@ -581,11 +531,6 @@ do jvar = 1,vars%nvars()
 
 enddo
 
-! Updated fields but not interface-specific fields, because these are not in atlas interface
-if (self%ninterface_specific > 0) then
-  self%interface_fields_are_out_of_date = .true.
-end if
-
 end subroutine from_fieldset
 
 ! --------------------------------------------------------------------------------------------------
@@ -600,12 +545,11 @@ type(fv3jedi_geom),    intent(in)    :: geom
 type(oops_variables),  intent(in)    :: new_vars
 
 type(fv3jedi_field), allocatable :: fields_tmp(:)
-integer :: f, findex, new_ninterface_specific
+integer :: f, findex
 type(field_metadata) :: fmd
 
 ! Allocate temporary array to hold fields
 allocate(fields_tmp(new_vars%nvars()))
-new_ninterface_specific = 0
 
 ! Loop over and move fields or allocate new fields
 do f = 1, new_vars%nvars()
@@ -616,9 +560,6 @@ do f = 1, new_vars%nvars()
   fields_tmp(f)%jec = geom%jec
 
   fmd = geom%fmd%get_field_metadata(trim(new_vars%variable(f)))
-  if (fmd%interface_specific) then
-    new_ninterface_specific = new_ninterface_specific + 1
-  end if
 
   if (self%has_field(trim(fmd%short_name), findex)) then
 
@@ -640,7 +581,6 @@ call move_alloc(fields_tmp, self%fields)
 
 ! Update number of fields
 self%nf = size(self%fields)
-self%ninterface_specific = new_ninterface_specific
 
 end subroutine update_fields
 
@@ -666,19 +606,7 @@ type(fv3jedi_field), pointer,  intent(inout) :: field
 
 integer :: field_index
 
-if (self%ninterface_specific > 0 .and. self%interface_fields_are_out_of_date) then
-  if (self%has_field(field_name, field_index)) then  ! we really just want the index
-    if (self%fields(field_index)%interface_specific) then
-      call abor1_ftn("fv3jedi_fields_mod.get_field: interface-specific field requested but&
-                     & interface-specific fields are out of date. Update before calling get_field")
-    end if
-  end if
-end if
-
 call get_field(self%fields, field_name, field)
-
-! In principle, should set interface_fields_are_out_of_date here because the pointer can be used to
-! modify the data. But this would be a major code change... so ignore this possibility for now...
 
 endsubroutine get_field_return_type_pointer
 
@@ -692,19 +620,7 @@ real(kind=kind_real), pointer, intent(inout) :: field(:,:,:)
 
 integer :: field_index
 
-if (self%ninterface_specific > 0 .and. self%interface_fields_are_out_of_date) then
-  if (self%has_field(field_name, field_index)) then  ! we really just want the index
-    if (self%fields(field_index)%interface_specific) then
-      call abor1_ftn("fv3jedi_fields_mod.get_field: interface-specific field requested but&
-                     & interface-specific fields are out of date. Update before calling get_field")
-    end if
-  end if
-end if
-
 call get_field(self%fields, field_name, field)
-
-! In principle, should set interface_fields_are_out_of_date here because the pointer can be used to
-! modify the data. But this would be a major code change... so ignore this possibility for now...
 
 endsubroutine get_field_return_array_pointer
 
@@ -717,15 +633,6 @@ character(len=*),                  intent(in)    :: field_name
 real(kind=kind_real), allocatable, intent(inout) :: field(:,:,:)
 
 integer :: field_index
-
-if (self%ninterface_specific > 0 .and. self%interface_fields_are_out_of_date) then
-  if (self%has_field(field_name, field_index)) then  ! we really just want the index
-    if (self%fields(field_index)%interface_specific) then
-      call abor1_ftn("fv3jedi_fields_mod.get_field: interface-specific field requested but&
-                     & interface-specific fields are out of date. Update before calling get_field")
-    end if
-  end if
-end if
 
 call get_field(self%fields, field_name, field)
 
@@ -743,61 +650,7 @@ integer :: field_index
 
 call put_field(self%fields, field_name, field)
 
-! Set out-of-date if field_name is interface-specific
-if (self%ninterface_specific > 0 .and. .not.  self%interface_fields_are_out_of_date) then
-  if (self%has_field(field_name, field_index)) then  ! we really just want the index
-    if (self%fields(field_index)%interface_specific) then
-      self%interface_fields_are_out_of_date = .true.
-    end if
-  end if
-end if
-
 endsubroutine put_field_
-
-! --------------------------------------------------------------------------------------------------
-
-subroutine synchronize_interface_fields(self, geom)
-
-class(fv3jedi_fields), target, intent(inout) :: self
-class(fv3jedi_geom), intent(in) :: geom
-
-type(fv3jedi_field), pointer :: ua
-type(fv3jedi_field), pointer :: va
-type(fv3jedi_field), pointer :: ud
-type(fv3jedi_field), pointer :: vd
-
-if (self%ninterface_specific > 0) then
-  if (self%interface_fields_are_out_of_date) then
-
-    ! Sanity-check we're not asking for an unsupported synchronization:
-    ! For now, we only implement updating interface-specific ud,vd from ua,va
-    if (self%ninterface_specific == 2) then
-      ! check 2 fields are ud,vd
-      if (.not. (self%has_field('ud') .and. self%has_field('vd'))) then
-        call abor1_ftn("fv3jedi_fields_mod.synchronize_interface_fields: not yet generalized for&
-                       & interface-specific fields beyond ud,vd")
-      end if
-      if (.not. (self%has_field('ua') .and. self%has_field('va'))) then
-        call abor1_ftn("fv3jedi_fields_mod.synchronize_interface_fields: ua,va are required to&
-                       & synchronize ud,vd from, but are missing")
-      end if
-    else
-      call abor1_ftn("fv3jedi_fields_mod.synchronize_interface_fields: not yet generalized for&
-                     & interface-specific fields beyond ud,vd")
-    end if
-
-    ! Update ud,vd from ua,va
-    call get_field(self%fields, 'ud', ud)
-    call get_field(self%fields, 'vd', vd)
-    call get_field(self%fields, 'ua', ua)
-    call get_field(self%fields, 'va', va)
-    call a_to_d(geom, ua%array, va%array, ud%array, vd%array)
-
-    self%interface_fields_are_out_of_date = .false.
-  end if
-end if
-
-endsubroutine synchronize_interface_fields
 
 ! --------------------------------------------------------------------------------------------------
 

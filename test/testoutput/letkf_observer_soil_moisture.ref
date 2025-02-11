@@ -7,16 +7,15 @@ sheleg                                       | Min:+0.0000000000000000e+00 Max:+
 slmsk                                        | Min:+0.0000000000000000e+00 Max:+2.0000000000000000e+00 RMS:+6.8949626002799513e-01
 stc                                          | Min:+2.1541509228250027e+02 Max:+3.3299112306273281e+02 RMS:+2.8997993952154775e+02
 ----------------------------------------------------------------------------------------------------
-
 H(x) for member 1:
-SoilMoistureSMAP nobs= 2671 Min=0.04816201041712614, Max=1, RMS=0.2131257901150873
+SoilMoistureSMAP nobs= 2671 Min=0.0481620104171261, Max=1, RMS=0.2131257901150869
 
 
 H(x) ensemble background mean: 
-SoilMoistureSMAP nobs= 2671 Min=0.04816201041712614, Max=1, RMS=0.2131257901150873
+SoilMoistureSMAP nobs= 2671 Min=0.0481620104171261, Max=1, RMS=0.2131257901150869
 
 
 background y - H(x): 
-SoilMoistureSMAP nobs= 2671 Min=-0.8345875889062881, Max=0.4199429897864666, RMS=0.1061188214428604
+SoilMoistureSMAP nobs= 2671 Min=-0.8345875889062881, Max=0.4199429897864666, RMS=0.1061188214428601
 
 

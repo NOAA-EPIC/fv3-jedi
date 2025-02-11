@@ -67,14 +67,7 @@ class Geometry : public util::Printable,
      int ist, iend, jst, jend, kst, kend, npz;
      std::vector<int> indices;
      fv3jedi_geom_start_end_f90(keyGeom_, ist, iend, jst, jend, kst, kend, npz);
-     indices.push_back(ist);
-     indices.push_back(iend);
-     indices.push_back(jst);
-     indices.push_back(jend);
-     indices.push_back(kst);
-     indices.push_back(kend);
-     indices.push_back(npz);
-     return indices;
+     return std::vector<int>{{ist, iend, jst, jend, kst, kend, npz}};
   }
 
   std::vector<size_t> variableSizes(const oops::Variables &) const;

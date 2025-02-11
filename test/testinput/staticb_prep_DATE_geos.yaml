@@ -15,8 +15,8 @@ background:
   filetype: cube sphere history
   provider: geos
   state variables: &stateVariables
-  - stream_function
-  - velocity_potential
+  - air_horizontal_streamfunction
+  - air_horizontal_velocity_potential
   - air_temperature
   - air_pressure_at_surface
   - water_vapor_mixing_ratio_wrt_moist_air
@@ -66,8 +66,8 @@ background error:
       grids:
       - model:
           variables:
-          - stream_function
-          - velocity_potential
+          - air_horizontal_streamfunction
+          - air_horizontal_velocity_potential
           - air_temperature
           - water_vapor_mixing_ratio_wrt_moist_air
         io:
@@ -93,8 +93,8 @@ background error:
   saber outer blocks:
   - saber block name: BUMP_VerticalBalance
     active variables:
-    - stream_function
-    - velocity_potential
+    - air_horizontal_streamfunction
+    - air_horizontal_velocity_potential
     - air_temperature
     - air_pressure_at_surface
     calibration:
@@ -116,12 +116,12 @@ background error:
         averaging length-scale: 2000.0e3
       vertical balance:
         vbal:
-        - balanced variable: velocity_potential
-          unbalanced variable: stream_function
+        - balanced variable: air_horizontal_velocity_potential
+          unbalanced variable: air_horizontal_streamfunction
         - balanced variable: air_temperature
-          unbalanced variable: stream_function
+          unbalanced variable: air_horizontal_streamfunction
         - balanced variable: air_pressure_at_surface
-          unbalanced variable: stream_function
+          unbalanced variable: air_horizontal_streamfunction
         pseudo inverse: true
         variance threshold: 0.1
 test:
