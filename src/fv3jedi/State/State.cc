@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2017-2022 UCAR
+* (C) Copyright 2017-2022 UCAR
  *
  * This software is licensed under the terms of the Apache Licence Version 2.0
  * which can be obtained at http://www.apache.org/licenses/LICENSE-2.0.
@@ -330,13 +330,8 @@ void State::deserializeSection(const std::vector<double> & vect, int & size_fld,
 }
 
 // -------------------------------------------------------------------------------------------------
-<<<<<<< HEAD
-void State::transpose(const State & FCState, const eckit::mpi::Comm & global, const int & mytask,
-    const int & ensNum, const int & transNum ) {
-=======
 void State::transpose(const State & FCState, const eckit::mpi::Comm & global,
     const int ensNum, const int transNum ) {
->>>>>>> origin/develop
 
   int ist_fc, iend_fc, jst_fc, jend_fc, kst_fc, kend_fc, npz_fc;
   int ist_da, iend_da, jst_da, jend_da, kst_da, kend_da, npz_da;
@@ -351,11 +346,7 @@ void State::transpose(const State & FCState, const eckit::mpi::Comm & global,
   int mytile = FCState.geometry().tileNum();
   std::vector<int> global_indices = FCState.geometry().get_indices();  // pull from this geom and
                                                                      // put into DAgeometry
-<<<<<<< HEAD
-=======
-
-  const int mytask = global.rank();
->>>>>>> origin/develop
+  const int mytask = global.rank(); 
   std::vector<State> localstates;
   ist_fc = global_indices[0];   // indices for the forecast geometry
   iend_fc = global_indices[1];
@@ -378,10 +369,7 @@ void State::transpose(const State & FCState, const eckit::mpi::Comm & global,
   npz_da = indices[6];
 
   oops::Log::trace() << "before transpose fcst state is " << FCState << std::endl;
-<<<<<<< HEAD
-=======
 // TODO(mpotts) convert this loop into an allgather to collect all indices with a single call
->>>>>>> origin/develop
   for (int i = 0; i < global.size(); ++i) {
     if (i == mytask) {  // mytask is global rank
       buf[0] = mytile;   // The tile number that this rank holds
@@ -468,9 +456,8 @@ void State::transpose(const State & FCState, const eckit::mpi::Comm & global,
   oops::mpi::world().barrier();
 }
 // -------------------------------------------------------------------------------------------------
-<<<<<<< HEAD
-void State::Rtranspose(const State & DAState, const eckit::mpi::Comm & global, const int & mytask,
-    const int & ensNum, const int & transNum ) {
+void State::Rtranspose(const State & DAState, const eckit::mpi::Comm & global,
+    const int ensNum, const int transNum ) {
 
   // This state is a FC State with the larger FC geometry 
   // this function performs a "reverse" transpose from the DAState (smaller geometry) to the 
@@ -489,6 +476,7 @@ void State::Rtranspose(const State & DAState, const eckit::mpi::Comm & global, c
   int fcstTile = this->geometry().tileNum();
   std::vector<int> global_indices = this->geometry().get_indices();  // pull from this geom and
                                                                      // put into DAgeometry
+  const int mytask = global.rank(); 
   ist_fc = global_indices[0];   // indices for the forecast geometry
   iend_fc = global_indices[1];
   jst_fc = global_indices[2];
@@ -639,8 +627,6 @@ void State::Rtranspose(const State & DAState, const eckit::mpi::Comm & global, c
 //  oops::Log::trace() << "after transpose fcst state is " << *this << std::endl;
 }
 // -------------------------------------------------------------------------------------------------
-=======
->>>>>>> origin/develop
 
 void State::serialize(std::vector<double> & vect) const {
   oops::Log::trace() << "State serialize starting" << std::endl;

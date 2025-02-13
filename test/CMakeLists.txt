@@ -840,6 +840,11 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_geometry_nested
                   ARGS     testinput/geometry_nested.yaml
                   COMMAND  test_fv3jedi_geometry.x )
 
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_state
+                  MPI      6
+                  ARGS     testinput/State/state.yaml
+                  COMMAND  test_fv3jedi_state.x )
+
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_geometry_iterator_gfs_2d
                   MPI      6
                   ARGS     testinput/geometry_iterator_gfs_2d.yaml

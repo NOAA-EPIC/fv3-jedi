@@ -56,13 +56,11 @@ VariableChange::~VariableChange() {}
 
 void VariableChange::changeVar(State & x, const oops::Variables & vars_out) const {
   // Trace
-  oops::Log::trace() << "VariableChange::changeVar starting, vars_out is" << vars_out << std::endl;
+  oops::Log::trace() << "VariableChange::changeVar starting" << std::endl;
 
   // Make sure vars are longname
   // ---------------------------
   const oops::Variables vars = fieldsMetadata_.getLongNameFromAnyName(vars_out);
-  oops::Log::trace() << "VariableChange::changeVar, vars is" << vars_out << std::endl;
-  oops::Log::trace() << "VariableChange::changeVar, vars including interface" << x.variablesIncludingInterfaceFields()<< std::endl;
 
   // Return if output vars already in input
   // --------------------------------------
