@@ -10,6 +10,8 @@
 #include "test/interface/StateSet.h"
 
 int main(int argc,  char ** argv) {
+  const eckit::Configuration & config = test::TestEnvironment::config();
+  std::cout << "in testStateSet, config is " << config << std::endl;
   oops::Run run(argc, argv);
   test::StateSet<fv3jedi::Traits> tests;
   return run.execute(tests);

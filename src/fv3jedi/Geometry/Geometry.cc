@@ -34,6 +34,7 @@ Geometry::Geometry(const eckit::Configuration & config, const eckit::mpi::Comm &
                    comm_(comm), ak_(), bk_() {
   GeometryParameters params;
   params.deserialize(config);
+  std::cout << "HEY, HERE I AM IN FV3JEDI Geom" << std::endl;
   // Call the initialize phase, done only once.
   static bool initialized = false;
   if (!initialized) {

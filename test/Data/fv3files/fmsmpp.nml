@@ -23,3 +23,6 @@
   deflate_level         = 0
   shuffle               = .false.
 /
+&ensemble_nml
+  ensemble_size = 3
+/

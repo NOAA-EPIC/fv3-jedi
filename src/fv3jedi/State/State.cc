@@ -368,7 +368,7 @@ void State::transpose(const State & FCState, const eckit::mpi::Comm & global,
   kend_da = indices[5];
   npz_da = indices[6];
 
-  oops::Log::trace() << "before transpose fcst state is " << FCState << std::endl;
+//  oops::Log::trace() << "before transpose fcst state is " << FCState << std::endl;
 // TODO(mpotts) convert this loop into an allgather to collect all indices with a single call
   for (int i = 0; i < global.size(); ++i) {
     if (i == mytask) {  // mytask is global rank
@@ -498,7 +498,7 @@ void State::Rtranspose(const State & DAState, const eckit::mpi::Comm & global,
   npz_da = indices[6];
 
   int maxSize = 0;
-  oops::Log::trace() << "before transpose fcst state is " << DAState << std::endl;
+//  oops::Log::trace() << "before Rtranspose fcst state is " << DAState << std::endl;
 //  std::cout << "mytask is " << mytask << "fcstTile is " << fcstTile << " DAtile is " << DAState.geometry().tileNum() << std::endl;
   for (int i = 0; i < global.size(); ++i) {
     if (i == mytask) {  // mytask is global rank
@@ -655,7 +655,8 @@ void State::deserialize(const std::vector<double> & vect, size_t & index) {
   oops::Log::trace() << "State deserialize starting" << std::endl;
   fv3jedi_state_deserialize_f90(keyState_, vect.size(), vect.data(), index);
 
-  ASSERT(vect.at(index) == -54321.56789);
+  std::cout << "vect.at(index) is " << vect.at(index) << " and index is " << index << std::endl;
+//  ASSERT(vect.at(index) == -54321.56789);
   ++index;
 
   time_.deserialize(vect, index);

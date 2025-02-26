@@ -622,6 +622,10 @@ message(STATUS "Running fv3jedi tests for tiers up to and including tier " ${FV3
 # ------------
 
 # Executables
+ecbuild_add_executable( TARGET  test_fv3jedi_stateset2.x
+                        SOURCES mains/StateSetMPITest.cc
+                        LIBS    ${FV3JEDI_LIBRARIES})
+
 ecbuild_add_executable( TARGET  test_fv3jedi_errorcovariance.x
                         SOURCES mains/TestErrorCovariance.cc
                         LIBS    ${FV3JEDI_LIBRARIES})

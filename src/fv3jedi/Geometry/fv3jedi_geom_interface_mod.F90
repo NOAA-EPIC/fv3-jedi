@@ -105,9 +105,11 @@ if (.not. f_conf%get("member_number", ensNum)) then
   ensNum = 0
 endif
 self%ensNum = ensNum
+write(6,*) 'HEY!! in fv3jedi_geom_interface_mod.F90!!!, ensNum is ',ensNum
 if( ensNum > 0 ) then
   call ensemble_manager_init()
   ens_siz = get_ensemble_size()
+  write(6,*) 'HEY!! in fv3jedi_geom_interface_mod.F90!!!, ens size is ',ens_siz
   ensemble_size = ens_siz(1)
   npes = ens_siz(2)
 
