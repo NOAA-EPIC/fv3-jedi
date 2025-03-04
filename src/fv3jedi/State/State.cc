@@ -368,6 +368,8 @@ void State::transpose(const State & FCState, const eckit::mpi::Comm & global,
   kend_da = indices[5];
   npz_da = indices[6];
 
+  int sender_number = 0;
+  std::map<int,int> send_map;
 //  oops::Log::trace() << "before transpose fcst state is " << FCState << std::endl;
 // TODO(mpotts) convert this loop into an allgather to collect all indices with a single call
   for (int i = 0; i < global.size(); ++i) {
@@ -391,6 +393,7 @@ void State::transpose(const State & FCState, const eckit::mpi::Comm & global,
       ((buf[2] - 1) == transNum)) {  // has matches what I need, and we r transposing this ensemble
                                // member, this is one of my senders
       senders.push_back(i);
+      send_map[i] = sender_number;
       ist_rcv = buf[3];    // need to specify the indices of the patch that is received
       iend_rcv = buf[4];    // because they may be different than the tile currently held
       jst_rcv = buf[5];
@@ -415,10 +418,12 @@ void State::transpose(const State & FCState, const eckit::mpi::Comm & global,
 
   FCState.serialize(zz);  // serialize the forecast state in time 0 and local_ens_number 0
 
-  std::vector<double>  zz_recv(zz.size());  // vector to receive send buffer
+  std::vector<std::vector<double> > zz_recv(senders.size());  // vector to receive send buffer
 
-  for ( int k = 0; k < zz.size(); ++k ) {  // fill up recv buffers with zeros
-        zz_recv.push_back(0.0);
+  for ( int i = 0; i < senders.size(); ++i ) {  // fill up recv buffers with zeros
+    for ( int k = 0; k < zz.size(); ++k ) {  // fill up recv buffers with zeros
+        zz_recv[i].push_back(0.0);
+    }
   }
 
   for ( int j = 0; j < recipients.size(); ++j ) {  // loop through list of rcpts/sndrs and send/recv
@@ -429,15 +434,15 @@ void State::transpose(const State & FCState, const eckit::mpi::Comm & global,
 
   for ( int j = 0; j < senders.size(); ++j ) {  // loop through list of rcpts/sndrs and send/recv
     if (senders[j] != mytask) {  // dont need to receive from myself
-        recv_req_.push_back(global.iReceive(&zz_recv[0], zz.size(), senders[j], tileEnsNum[j]));
+        recv_req_.push_back(global.iReceive(&(zz_recv[j]).front(), zz.size(), senders[j], tileEnsNum[j]));
         recv_tasks_.push_back(tileEnsNum[j]);
     } else {  // I already have this forecast state
       // copy from my local version
       size_t itask = ensNum-1;
-      zz_recv = zz;
+      zz_recv[j] = zz;
       indx = 0;
-      int size_fld = zz_recv.size();  // get the serialsize of the local tile
-      this->deserializeSection(zz_recv, size_fld, ist_rcv, iend_rcv,
+      int size_fld = zz_recv[j].size();  // get the serialsize of the local tile
+      this->deserializeSection(zz_recv[j], size_fld, ist_rcv, iend_rcv,
          jst_rcv, jend_rcv, ist_da, iend_da, jst_da, jend_da, indx);  // deserialize state section
     }
   }
@@ -449,10 +454,10 @@ void State::transpose(const State & FCState, const eckit::mpi::Comm & global,
     ASSERT(rst.error() == 0);
     size_t itask = recv_tasks_[ireq] - 1;
     indx = 0;
-    int size_fld = zz_recv.size();  // get the serialsize of the local tile
+    int size_fld = zz_recv[rst.source()].size();  // get the serialsize of the local tile
     std::cout << "trans fc indices are " << ist_rcv <<" " <<iend_rcv <<" " <<jst_rcv <<" " <<jend_rcv << std::endl;
     std::cout << "trans da indices are " << ist_da <<" " <<iend_da <<" " <<jst_da <<" " <<jend_da << std::endl;
-    this->deserializeSection(zz_recv, size_fld, ist_rcv, iend_rcv,
+    this->deserializeSection(zz_recv[send_map[rst.source()]], size_fld, ist_rcv, iend_rcv,
            jst_rcv, jend_rcv, ist_da, iend_da, jst_da, jend_da, indx);  // deserialize state section
   }
   oops::mpi::world().barrier();
