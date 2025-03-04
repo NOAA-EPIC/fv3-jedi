@@ -318,7 +318,7 @@ void State::deserializeSection(const std::vector<double> & vect, int & size_fld,
      int & iec, int & jsc, int & jec, int & isc_sg, int & iec_sg, int & jsc_sg, int & jec_sg,
      size_t & ind_local) {
   oops::Log::trace() << "State deserialize starting" << std::endl;
-  fv3jedi_state_deserializeSection_f90(keyState_, size_fld, vect.data(), isc, iec, jsc, jec,
+  fv3jedi_state_deserializeSection_f90(keyState_, geom_.toFortran(), size_fld, vect.data(), isc, iec, jsc, jec,
            isc_sg, iec_sg, jsc_sg, jec_sg, ind_local);
 /*
   ASSERT(vect.at(ind_local) == -54321.56789);
@@ -450,6 +450,8 @@ void State::transpose(const State & FCState, const eckit::mpi::Comm & global,
     size_t itask = recv_tasks_[ireq] - 1;
     indx = 0;
     int size_fld = zz_recv.size();  // get the serialsize of the local tile
+    std::cout << "trans fc indices are " << ist_rcv <<" " <<iend_rcv <<" " <<jst_rcv <<" " <<jend_rcv << std::endl;
+    std::cout << "trans da indices are " << ist_da <<" " <<iend_da <<" " <<jst_da <<" " <<jend_da << std::endl;
     this->deserializeSection(zz_recv, size_fld, ist_rcv, iend_rcv,
            jst_rcv, jend_rcv, ist_da, iend_da, jst_da, jend_da, indx);  // deserialize state section
   }
@@ -500,6 +502,7 @@ void State::Rtranspose(const State & DAState, const eckit::mpi::Comm & global,
   int maxSize = 0;
 //  oops::Log::trace() << "before Rtranspose fcst state is " << DAState << std::endl;
 //  std::cout << "mytask is " << mytask << "fcstTile is " << fcstTile << " DAtile is " << DAState.geometry().tileNum() << std::endl;
+//  this loops through every MPI task with the sender detailing what it has and what it needs 
   for (int i = 0; i < global.size(); ++i) {
     if (i == mytask) {  // mytask is global rank
       buf[0] = fcstTile;   // The tile number that this rank holds
@@ -521,14 +524,17 @@ void State::Rtranspose(const State & DAState, const eckit::mpi::Comm & global,
     std::cout << std::endl;
 */
     }
-    global.broadcast(buf, i);                 // This is to figure out who is sending domain I NEED
+    global.broadcast(buf, i);            
+// every mpi task is now doing the following
+// Each mpi task has every ensemble member on the DA state, but it
+// only needs state info for its FC ensemble member (ensNum)
+// figure out who is sending to me
     if ((buf[1] == fcstTile) &&   // *_fc indices will have larger span than *_da
-//    ((buf[2] - 1) == transNum) &&   
+      ((ensNum - 1)  == transNum) &&   
       ((ist_fc <= buf[3]) && (buf[4] <= iend_fc)) &&  // idxs *_da indices must be within *_fc inds
       (jst_fc <= buf[5]) && (buf[6] <= jend_fc))  //  if the tile, ist, and jst that the sender
       {                               // has matches what I need, and we r transposing this ensemble
                                // member, this is one of my senders
-      senders.push_back(i);
       ist_rcv[i] = buf[3];    // need to specify the indices of the patch that is received
       iend_rcv[i] = buf[4];    // because they may be different than the tile currently held
       jst_rcv[i] = buf[5];
@@ -537,12 +543,15 @@ void State::Rtranspose(const State & DAState, const eckit::mpi::Comm & global,
       if(buf[11] > maxSize) {
           maxSize = buf[11];
       }
+      senders.push_back(i);
       std::cout << "I will receive states with size of " << mesgSize[i] << " from " << i << std::endl;
 //      std::cout << "will receive from task " << i << " indices " << ist_rcv <<", "<<iend_rcv<<", "<< jst_rcv <<", "<<jend_rcv<<", "<<std::endl;
       tileEnsNum.push_back(buf[2]);
     }
+
+    // now figure out who I need to send to
     if ((buf[0] == DAState.geometry().tileNum()) &&   // buf here contains indices of domain that is NEEDED by
-//     ((ensNum - 1) == transNum) &&  // the other processor
+       ((buf[2] - 1) == transNum) &&  // the other processor needs ensemble number from buf[2] and we are transposing transNum
        ((ist_da >= buf[7]) && (buf[8] >= iend_da)) &&  // NEEDED domain must be within my indices
        ((jst_da >= buf[9]) && (buf[10] >= jend_da)) ) {  //  if the DAgeometryetry tile needed
                                      // matches the tile I have, this is who I will send it to
@@ -570,6 +579,7 @@ void State::Rtranspose(const State & DAState, const eckit::mpi::Comm & global,
   
   DAState.serialize(zz);  // serialize the DA state in time 0 and local_ens_number 0
 
+  std::cout << "hey, zz is " << zz[0] << "," << zz[1] << "," << zz[2] << std::endl;
   std::vector<double>  zz_recv;  // vector to receive send buffer
 
   std::cout << "serializing DAstate of size " << zz.size() << " -4 is " << zz[zz.size()-4] << std::endl;
@@ -597,11 +607,15 @@ void State::Rtranspose(const State & DAState, const eckit::mpi::Comm & global,
       size_t itask = ensNum-1;
       zz_recv = zz;
       indx = 0;
-      int size_fld = DAState.serialSize();  // get the serialsize of the local tile
+//      int size_fld = DAState.serialSize();  // get the serialsize of the local tile
+      int size_fld = zz_recv.size();  // get the serialsize of the local tile
       std::cout << "about to deserialize on my local tile, itask, size_fld are " << itask <<" " << size_fld << std::endl;
 //      std::cout << "rcv indices are " << ist_rcv[mytask] <<" " <<iend_rcv[mytask] <<" " <<jst_rcv[mytask] <<" " <<jend_rcv[mytask] << std::endl;
-//      std::cout << "fc indices are " << ist_fc <<" " <<iend_fc <<" " <<jst_fc <<" " <<jend_fc << std::endl;
-      this->deserializeSection(zz_recv, size_fld, ist_da, iend_da,
+      std::cout << "fc indices are " << ist_fc <<" " <<iend_fc <<" " <<jst_fc <<" " <<jend_fc << std::endl;
+      std::cout << "da1 indices are " << ist_da <<" " <<iend_da <<" " <<jst_da <<" " <<jend_da << std::endl;
+      std::cout << "hey, zz2 is " << zz_recv[0] << "," << zz_recv[1] << "," << zz_recv[2] << std::endl;
+      this->deserializeSection(zz_recv, size_fld, ist_da, iend_da,  // we deserialized on a smaller grid, so this buffer is compact
+								    // and can be unpacked without skipping
          jst_da, jend_da, ist_da, iend_da, jst_da, jend_da, indx);  // deserialize state section
     }
   }
@@ -613,18 +627,22 @@ void State::Rtranspose(const State & DAState, const eckit::mpi::Comm & global,
     ASSERT(rst.error() == 0);
     size_t itask = recv_tasks_[ireq] - 1;
     indx = 0;
-    size_fld = mesgSize[rst.source()]; 
-//    int size_fld = zz_recv.size();  // get the serialsize of the local tile
-    std::cout << "about to deserialize on my recvd tile, itask, size_fld, src are " << itask <<" " << size_fld <<" "<<rst.source()<< std::endl;
+//  size_fld = mesgSize[rst.source()]; 
+    size_fld = zz_recv.size();  // get the serialsize of the local tile
+    std::cout << "about to deserialize on my recvd tile, itask, size_fld, size_fld2, src are " << itask <<" " << size_fld <<" " << mesgSize[rst.source()] << " " <<rst.source()<< std::endl;
+      std::cout << "fc indices are " << ist_fc <<" " <<iend_fc <<" " <<jst_fc <<" " <<jend_fc << std::endl;
+      std::cout << "da2 indices are " << ist_rcv[rst.source()] <<" " <<iend_rcv[rst.source()] <<" " <<jst_rcv[rst.source()] <<" " <<jend_rcv[rst.source()] << std::endl;
     this->deserializeSection(zz_recv, size_fld, 
+//       ist_fc, iend_fc,
+//       jst_fc, jend_fc,        // deserialize state section
          ist_rcv[rst.source()], iend_rcv[rst.source()],
          jst_rcv[rst.source()], jend_rcv[rst.source()],        // deserialize state section
          ist_rcv[rst.source()], iend_rcv[rst.source()],
          jst_rcv[rst.source()], jend_rcv[rst.source()], indx); 
   }
   oops::mpi::world().barrier();
-  std::cout << "finished with Rtranspose. " << std::endl;
-//  oops::Log::trace() << "after transpose fcst state is " << *this << std::endl;
+  std::cout << "finished with Rtranspose of ensemble " << transNum << std::endl;
+  std::cout << "after transpose fcst state is " << *this << std::endl;
 }
 // -------------------------------------------------------------------------------------------------
 

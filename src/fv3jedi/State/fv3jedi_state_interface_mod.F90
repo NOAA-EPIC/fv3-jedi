@@ -29,6 +29,9 @@ use fv3jedi_geom_interface_mod,      only: fv3jedi_geom_registry
 use fv3jedi_increment_mod,           only: fv3jedi_increment, fv3jedi_increment_registry
 use fv3jedi_state_mod,               only: fv3jedi_state
 
+! fms
+use ensemble_manager_mod,       only: get_ensemble_id,get_ensemble_size
+
 private
 public :: fv3jedi_state_registry
 
@@ -361,12 +364,13 @@ call self%serialize(c_vsize,c_vect_inc)
 end subroutine fv3jedi_state_serialize_c
 
 ! --------------------------------------------------------------------------------------------------
-subroutine fv3jedi_state_deserializeSection_c(c_key_self,c_vsize,c_vect_inc,isc,iec,jsc,jec,isc_sg,iec_sg,jsc_sg,jec_sg,local_ind) &
+subroutine fv3jedi_state_deserializeSection_c(c_key_self,c_key_geom,c_vsize,c_vect_inc,isc,iec,jsc,jec,isc_sg,iec_sg,jsc_sg,jec_sg,local_ind) &
            bind(c,name='fv3jedi_state_deserializeSection_f90')
 implicit none
 
 ! Passed variables
 integer(c_int),intent(in) :: c_key_self           !< State
+integer(c_int), intent(in)     :: c_key_geom !< Geometry
 integer(c_int),intent(in) :: c_vsize              !< Size
 real(c_double),intent(in) :: c_vect_inc(c_vsize) !< Vector
 integer(c_int),intent(in) :: isc                  !< Size
@@ -380,16 +384,31 @@ integer(c_int),intent(in) :: jec_sg               !< Size
 integer(c_int),intent(inout) :: local_ind          !< Size
 
 type(fv3jedi_state),pointer :: self
+type(fv3jedi_geom),  pointer :: geom
 ! Local variables
 integer :: ind, var, i, j, k
+integer :: io
+integer, static :: sect_num = 0
+
 
 call fv3jedi_state_registry%get(c_key_self, self)
+call fv3jedi_geom_registry%get(c_key_geom,geom)
 ! Call Fortran
 
+write(6,*) 'Hey, my rank is ',geom%f_comm%rank()
+write(6,*) 'Hey, my tile is ',geom%ntile,' ',geom%ntiles
+write(6,*) 'Hey, my ensemble number is ',get_ensemble_id()
+io = geom%f_comm%rank() * 10000 + get_ensemble_id()*100 +  sect_num  
+write(6,*) 'Hey, writing out fort.',io
+sect_num = sect_num + 1
+!call geom%f_comm%barrier()
+!open(unit=io, format='unformatted' )
 ! Initialize
 ind = 0
 ! Copy
 do var = 1, self%nf
+! call sleep(1)
+  call geom%f_comm%barrier()
   do k = 1,self%fields(var)%npz
     do j = jsc,jec
       do i = isc,iec
@@ -397,6 +416,12 @@ do var = 1, self%nf
         if((i >= isc_sg) .and. (i <= iec_sg)) then  ! probably a faster way to do this. 
           if((j >= jsc_sg) .and. (j <= jec_sg)) then   
             self%fields(var)%array(i, j, k) = c_vect_inc(ind)
+!           if(var == 1) then
+!              write(io, *) i,j,k,c_vect_inc(ind)
+!           endif
+            if(ind < 10) then 
+                write(6,*) 'head of vect is ',var,i,j,k,c_vect_inc(ind)
+            endif
             local_ind = local_ind + 1
           endif
         endif
@@ -404,6 +429,7 @@ do var = 1, self%nf
     enddo
   enddo
 enddo
+close(io)
 local_ind = ind
 
 end subroutine fv3jedi_state_deserializeSection_c

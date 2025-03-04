@@ -319,6 +319,9 @@ do var = 1, self%nf
       do i = self%fields(var)%isc,self%fields(var)%iec
         ind = ind + 1
         vect_inc(ind) = self%fields(var)%array(i, j, k)
+            if(var == 1) then
+                write(6,*) i,j,k,vect_inc(ind)
+            endif
       enddo
     enddo
   enddo
