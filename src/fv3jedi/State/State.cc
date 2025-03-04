@@ -500,6 +500,8 @@ void State::Rtranspose(const State & DAState, const eckit::mpi::Comm & global,
   npz_da = indices[6];
 
   int maxSize = 0;
+  int sender_number = 0;
+  std::map<int,int> send_map;
 //  oops::Log::trace() << "before Rtranspose fcst state is " << DAState << std::endl;
 //  std::cout << "mytask is " << mytask << "fcstTile is " << fcstTile << " DAtile is " << DAState.geometry().tileNum() << std::endl;
 //  this loops through every MPI task with the sender detailing what it has and what it needs 
@@ -544,6 +546,8 @@ void State::Rtranspose(const State & DAState, const eckit::mpi::Comm & global,
           maxSize = buf[11];
       }
       senders.push_back(i);
+      send_map[i] = sender_number;
+      sender_number++;
       std::cout << "I will receive states with size of " << mesgSize[i] << " from " << i << std::endl;
 //      std::cout << "will receive from task " << i << " indices " << ist_rcv <<", "<<iend_rcv<<", "<< jst_rcv <<", "<<jend_rcv<<", "<<std::endl;
       tileEnsNum.push_back(buf[2]);
@@ -580,11 +584,13 @@ void State::Rtranspose(const State & DAState, const eckit::mpi::Comm & global,
   DAState.serialize(zz);  // serialize the DA state in time 0 and local_ens_number 0
 
   std::cout << "hey, zz is " << zz[0] << "," << zz[1] << "," << zz[2] << std::endl;
-  std::vector<double>  zz_recv;  // vector to receive send buffer
+  std::vector<std::vector<double> > zz_recv(senders.size());  // vector to receive send buffer
 
   std::cout << "serializing DAstate of size " << zz.size() << " -4 is " << zz[zz.size()-4] << std::endl;
-  for ( int k = 0; k < maxSize; ++k ) {  // fill up recv buffers with zeros
-        zz_recv.push_back(0.0);
+  for ( int i = 0; i < senders.size(); ++i ) {  // fill up recv buffers with zeros
+    for ( int k = 0; k < maxSize; ++k ) {  // fill up recv buffers with zeros
+        zz_recv[i].push_back(0.0);
+    }
   }
   for ( int k = zz.size(); k < maxSize; ++k ) {
      zz.push_back(0.0);
@@ -600,21 +606,21 @@ void State::Rtranspose(const State & DAState, const eckit::mpi::Comm & global,
   for ( int j = 0; j < senders.size(); ++j ) {  // loop through list of rcpts/sndrs and send/recv
     if (senders[j] != mytask) {  // dont need to receive from myself
         std::cout << "looking for message from " << senders[j] << " with size of " << mesgSize[senders[j]] << std::endl;
-        recv_req_.push_back(global.iReceive(&zz_recv[0], maxSize, senders[j], tileEnsNum[j]));
+        recv_req_.push_back(global.iReceive(&(zz_recv[j]).front(), maxSize, senders[j], tileEnsNum[j]));
         recv_tasks_.push_back(tileEnsNum[j]);
     } else {  // I already have this DA state
       // copy from my local version
       size_t itask = ensNum-1;
-      zz_recv = zz;
+      zz_recv[j] = zz;
       indx = 0;
 //      int size_fld = DAState.serialSize();  // get the serialsize of the local tile
-      int size_fld = zz_recv.size();  // get the serialsize of the local tile
+      int size_fld = zz_recv[0].size();  // get the serialsize of the local tile
       std::cout << "about to deserialize on my local tile, itask, size_fld are " << itask <<" " << size_fld << std::endl;
 //      std::cout << "rcv indices are " << ist_rcv[mytask] <<" " <<iend_rcv[mytask] <<" " <<jst_rcv[mytask] <<" " <<jend_rcv[mytask] << std::endl;
       std::cout << "fc indices are " << ist_fc <<" " <<iend_fc <<" " <<jst_fc <<" " <<jend_fc << std::endl;
       std::cout << "da1 indices are " << ist_da <<" " <<iend_da <<" " <<jst_da <<" " <<jend_da << std::endl;
-      std::cout << "hey, zz2 is " << zz_recv[0] << "," << zz_recv[1] << "," << zz_recv[2] << std::endl;
-      this->deserializeSection(zz_recv, size_fld, ist_da, iend_da,  // we deserialized on a smaller grid, so this buffer is compact
+      std::cout << "hey, zz2 is " << zz_recv[j][0] << "," << zz_recv[j][1] << "," << zz_recv[j][2] << std::endl;
+      this->deserializeSection(zz_recv[j], size_fld, ist_da, iend_da,  // we deserialized on a smaller grid, so this buffer is compact
 								    // and can be unpacked without skipping
          jst_da, jend_da, ist_da, iend_da, jst_da, jend_da, indx);  // deserialize state section
     }
@@ -628,11 +634,11 @@ void State::Rtranspose(const State & DAState, const eckit::mpi::Comm & global,
     size_t itask = recv_tasks_[ireq] - 1;
     indx = 0;
 //  size_fld = mesgSize[rst.source()]; 
-    size_fld = zz_recv.size();  // get the serialsize of the local tile
+    size_fld = zz_recv[rst.source()].size();  // get the serialsize of the local tile
     std::cout << "about to deserialize on my recvd tile, itask, size_fld, size_fld2, src are " << itask <<" " << size_fld <<" " << mesgSize[rst.source()] << " " <<rst.source()<< std::endl;
       std::cout << "fc indices are " << ist_fc <<" " <<iend_fc <<" " <<jst_fc <<" " <<jend_fc << std::endl;
       std::cout << "da2 indices are " << ist_rcv[rst.source()] <<" " <<iend_rcv[rst.source()] <<" " <<jst_rcv[rst.source()] <<" " <<jend_rcv[rst.source()] << std::endl;
-    this->deserializeSection(zz_recv, size_fld, 
+    this->deserializeSection(zz_recv[send_map[rst.source()]], size_fld, 
 //       ist_fc, iend_fc,
 //       jst_fc, jend_fc,        // deserialize state section
          ist_rcv[rst.source()], iend_rcv[rst.source()],
@@ -640,7 +646,6 @@ void State::Rtranspose(const State & DAState, const eckit::mpi::Comm & global,
          ist_rcv[rst.source()], iend_rcv[rst.source()],
          jst_rcv[rst.source()], jend_rcv[rst.source()], indx); 
   }
-  oops::mpi::world().barrier();
   std::cout << "finished with Rtranspose of ensemble " << transNum << std::endl;
   std::cout << "after transpose fcst state is " << *this << std::endl;
 }

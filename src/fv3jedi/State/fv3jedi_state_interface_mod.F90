@@ -408,7 +408,7 @@ ind = 0
 ! Copy
 do var = 1, self%nf
 ! call sleep(1)
-  call geom%f_comm%barrier()
+! call geom%f_comm%barrier()
   do k = 1,self%fields(var)%npz
     do j = jsc,jec
       do i = isc,iec
