@@ -651,8 +651,10 @@ void State::Rtranspose(const State & DAState, const eckit::mpi::Comm & global,
          ist_rcv[rst.source()], iend_rcv[rst.source()],
          jst_rcv[rst.source()], jend_rcv[rst.source()], indx); 
   }
+  oops::mpi::world().barrier();
   std::cout << "finished with Rtranspose of ensemble " << transNum << std::endl;
-  std::cout << "after transpose fcst state is " << *this << std::endl;
+  oops::Log::trace() << "after transpose fcst state is " << *this << std::endl;
+//  std::cout << "after transpose fcst state is " << *this << std::endl;
 }
 // -------------------------------------------------------------------------------------------------
 
