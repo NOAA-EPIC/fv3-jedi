@@ -893,7 +893,7 @@ namespace fv3jedi {
 
     md.longName = "mass_content_of_cloud_liquid_water_in_atmosphere_layer";
     md.shortName = "mass_content_of_cloud_liquid_water_in_atmosphere_layer";
-    md.units = "none";
+    md.units = "kg m-2";
     md.kind = "double";
     md.tracer = "false";
     md.levels = "full";
@@ -902,7 +902,7 @@ namespace fv3jedi {
 
     md.longName = "mass_content_of_cloud_ice_in_atmosphere_layer";
     md.shortName = "mass_content_of_cloud_ice_in_atmosphere_layer";
-    md.units = "none";
+    md.units = "kg m-2";
     md.kind = "double";
     md.tracer = "false";
     md.levels = "full";
@@ -911,7 +911,7 @@ namespace fv3jedi {
 
     md.longName = "mass_content_of_rain_in_atmosphere_layer";
     md.shortName = "mass_content_of_rain_in_atmosphere_layer";
-    md.units = "none";
+    md.units = "kg m-2";
     md.kind = "double";
     md.tracer = "false";
     md.levels = "full";
@@ -920,7 +920,7 @@ namespace fv3jedi {
 
     md.longName = "mass_content_of_snow_in_atmosphere_layer";
     md.shortName = "mass_content_of_snow_in_atmosphere_layer";
-    md.units = "none";
+    md.units = "kg m-2";
     md.kind = "double";
     md.tracer = "false";
     md.levels = "full";
@@ -929,7 +929,7 @@ namespace fv3jedi {
 
     md.longName = "mass_content_of_graupel_in_atmosphere_layer";
     md.shortName = "mass_content_of_graupel_in_atmosphere_layer";
-    md.units = "none";
+    md.units = "kg m-2";
     md.kind = "double";
     md.tracer = "false";
     md.levels = "full";
@@ -938,10 +938,64 @@ namespace fv3jedi {
 
     md.longName = "mass_content_of_hail_in_atmosphere_layer";
     md.shortName = "mass_content_of_hail_in_atmosphere_layer";
-    md.units = "none";
+    md.units = "kg m-2";
     md.kind = "double";
     md.tracer = "false";
     md.levels = "full";
+    md.space = "magnitude";
+    addFieldMetadata(fieldsmetadata, nlev, md);
+
+    md.longName = "mass_content_of_cloud_liquid_water_in_atmosphere_column";
+    md.shortName = "mass_content_of_cloud_liquid_water_in_atmosphere_column";
+    md.units = "kg m-2";
+    md.kind = "double";
+    md.tracer = "false";
+    md.levels = "1";
+    md.space = "magnitude";
+    addFieldMetadata(fieldsmetadata, nlev, md);
+
+    md.longName = "mass_content_of_cloud_ice_in_atmosphere_column";
+    md.shortName = "mass_content_of_cloud_ice_in_atmosphere_column";
+    md.units = "kg m-2";
+    md.kind = "double";
+    md.tracer = "false";
+    md.levels = "1";
+    md.space = "magnitude";
+    addFieldMetadata(fieldsmetadata, nlev, md);
+
+    md.longName = "mass_content_of_rain_in_atmosphere_column";
+    md.shortName = "mass_content_of_rain_in_atmosphere_column";
+    md.units = "kg m-2";
+    md.kind = "double";
+    md.tracer = "false";
+    md.levels = "1";
+    md.space = "magnitude";
+    addFieldMetadata(fieldsmetadata, nlev, md);
+
+    md.longName = "mass_content_of_snow_in_atmosphere_column";
+    md.shortName = "mass_content_of_snow_in_atmosphere_column";
+    md.units = "kg m-2";
+    md.kind = "double";
+    md.tracer = "false";
+    md.levels = "1";
+    md.space = "magnitude";
+    addFieldMetadata(fieldsmetadata, nlev, md);
+
+    md.longName = "mass_content_of_graupel_in_atmosphere_column";
+    md.shortName = "mass_content_of_graupel_in_atmosphere_column";
+    md.units = "kg m-2";
+    md.kind = "double";
+    md.tracer = "false";
+    md.levels = "1";
+    md.space = "magnitude";
+    addFieldMetadata(fieldsmetadata, nlev, md);
+
+    md.longName = "mass_content_of_hail_in_atmosphere_column";
+    md.shortName = "mass_content_of_hail_in_atmosphere_column";
+    md.units = "kg m-2";
+    md.kind = "double";
+    md.tracer = "false";
+    md.levels = "1";
     md.space = "magnitude";
     addFieldMetadata(fieldsmetadata, nlev, md);
 
@@ -1694,9 +1748,9 @@ namespace fv3jedi {
     md.space = "magnitude";
     addFieldMetadata(fieldsmetadata, nlev, md);
 
-    md.longName = "form";
-    md.shortName = "form";
-    md.units = "none";
+    md.longName = "volume_mixing_ratio_of_hcho";
+    md.shortName = "vmr_hcho";
+    md.units = "mol mol-1";
     md.kind = "double";
     md.tracer = "true";
     md.levels = "full";
@@ -1748,6 +1802,251 @@ namespace fv3jedi {
     md.space = "magnitude";
     addFieldMetadata(fieldsmetadata, nlev, md);
 
+    // Trace Gas Emissions
+    md.longName = "emissions_of_co_due_to_anthropogenic";
+    md.shortName = "em_co_tot";
+    md.units = "kg m-2 s-1";
+    md.kind = "double";
+    md.tracer = "true";
+    md.levels = "1";
+    md.space = "magnitude";
+    addFieldMetadata(fieldsmetadata, nlev, md);
+
+    md.longName = "emissions_of_no_due_to_anthropogenic";
+    md.shortName = "em_no_tot";
+    md.units = "kg m-2 s-1";
+    md.kind = "double";
+    md.tracer = "true";
+    md.levels = "1";
+    md.space = "magnitude";
+    addFieldMetadata(fieldsmetadata, nlev, md);
+
+    md.longName = "emissions_of_hcho_due_to_anthropogenic";
+    md.shortName = "em_hcho_tot";
+    md.units = "kg m-2 s-1";
+    md.kind = "double";
+    md.tracer = "true";
+    md.levels = "1";
+    md.space = "magnitude";
+    addFieldMetadata(fieldsmetadata, nlev, md);
+
+    md.longName = "emissions_of_co_due_to_anthropogenic_agriculture";
+    md.shortName = "em_co_agr";
+    md.units = "kg m-2 s-1";
+    md.kind = "double";
+    md.tracer = "true";
+    md.levels = "1";
+    md.space = "magnitude";
+    addFieldMetadata(fieldsmetadata, nlev, md);
+
+    md.longName = "emissions_of_no_due_to_anthropogenic_agriculture";
+    md.shortName = "em_no_agr";
+    md.units = "kg m-2 s-1";
+    md.kind = "double";
+    md.tracer = "true";
+    md.levels = "1";
+    md.space = "magnitude";
+    addFieldMetadata(fieldsmetadata, nlev, md);
+
+    md.longName = "emissions_of_hcho_due_to_anthropogenic_agriculture";
+    md.shortName = "em_hcho_agr";
+    md.units = "kg m-2 s-1";
+    md.kind = "double";
+    md.tracer = "true";
+    md.levels = "1";
+    md.space = "magnitude";
+    addFieldMetadata(fieldsmetadata, nlev, md);
+
+    md.longName = "emissions_of_co_due_to_anthropogenic_energy";
+    md.shortName = "em_co_ene";
+    md.units = "kg m-2 s-1";
+    md.kind = "double";
+    md.tracer = "true";
+    md.levels = "1";
+    md.space = "magnitude";
+    addFieldMetadata(fieldsmetadata, nlev, md);
+
+    md.longName = "emissions_of_no_due_to_anthropogenic_energy";
+    md.shortName = "em_no_ene";
+    md.units = "kg m-2 s-1";
+    md.kind = "double";
+    md.tracer = "true";
+    md.levels = "1";
+    md.space = "magnitude";
+    addFieldMetadata(fieldsmetadata, nlev, md);
+
+    md.longName = "emissions_of_hcho_due_to_anthropogenic_energy";
+    md.shortName = "em_hcho_ene";
+    md.units = "kg m-2 s-1";
+    md.kind = "double";
+    md.tracer = "true";
+    md.levels = "1";
+    md.space = "magnitude";
+    addFieldMetadata(fieldsmetadata, nlev, md);
+
+    md.longName = "emissions_of_co_due_to_anthropogenic_industry";
+    md.shortName = "em_co_ind";
+    md.units = "kg m-2 s-1";
+    md.kind = "double";
+    md.tracer = "true";
+    md.levels = "1";
+    md.space = "magnitude";
+    addFieldMetadata(fieldsmetadata, nlev, md);
+
+    md.longName = "emissions_of_no_due_to_anthropogenic_industry";
+    md.shortName = "em_no_ind";
+    md.units = "kg m-2 s-1";
+    md.kind = "double";
+    md.tracer = "true";
+    md.levels = "1";
+    md.space = "magnitude";
+    addFieldMetadata(fieldsmetadata, nlev, md);
+
+    md.longName = "emissions_of_hcho_due_to_anthropogenic_industry";
+    md.shortName = "em_hcho_ind";
+    md.units = "kg m-2 s-1";
+    md.kind = "double";
+    md.tracer = "true";
+    md.levels = "1";
+    md.space = "magnitude";
+    addFieldMetadata(fieldsmetadata, nlev, md);
+
+    md.longName = "emissions_of_co_due_to_anthropogenic_rco";
+    md.shortName = "em_co_rco";
+    md.units = "kg m-2 s-1";
+    md.kind = "double";
+    md.tracer = "true";
+    md.levels = "1";
+    md.space = "magnitude";
+    addFieldMetadata(fieldsmetadata, nlev, md);
+
+    md.longName = "emissions_of_no_due_to_anthropogenic_rco";
+    md.shortName = "em_no_rco";
+    md.units = "kg m-2 s-1";
+    md.kind = "double";
+    md.tracer = "true";
+    md.levels = "1";
+    md.space = "magnitude";
+    addFieldMetadata(fieldsmetadata, nlev, md);
+
+    md.longName = "emissions_of_hcho_due_to_anthropogenic_rco";
+    md.shortName = "em_hcho_rco";
+    md.units = "kg m-2 s-1";
+    md.kind = "double";
+    md.tracer = "true";
+    md.levels = "1";
+    md.space = "magnitude";
+    addFieldMetadata(fieldsmetadata, nlev, md);
+
+    md.longName = "emissions_of_co_due_to_anthropogenic_shipping";
+    md.shortName = "em_co_shp";
+    md.units = "kg m-2 s-1";
+    md.kind = "double";
+    md.tracer = "true";
+    md.levels = "1";
+    md.space = "magnitude";
+    addFieldMetadata(fieldsmetadata, nlev, md);
+
+    md.longName = "emissions_of_no_due_to_anthropogenic_shipping";
+    md.shortName = "em_no_shp";
+    md.units = "kg m-2 s-1";
+    md.kind = "double";
+    md.tracer = "true";
+    md.levels = "1";
+    md.space = "magnitude";
+    addFieldMetadata(fieldsmetadata, nlev, md);
+
+    md.longName = "emissions_of_hcho_due_to_anthropogenic_shipping";
+    md.shortName = "em_hcho_shp";
+    md.units = "kg m-2 s-1";
+    md.kind = "double";
+    md.tracer = "true";
+    md.levels = "1";
+    md.space = "magnitude";
+    addFieldMetadata(fieldsmetadata, nlev, md);
+
+    md.longName = "emissions_of_co_due_to_anthropogenic_solvents";
+    md.shortName = "em_co_slv";
+    md.units = "kg m-2 s-1";
+    md.kind = "double";
+    md.tracer = "true";
+    md.levels = "1";
+    md.space = "magnitude";
+    addFieldMetadata(fieldsmetadata, nlev, md);
+
+    md.longName = "emissions_of_no_due_to_anthropogenic_solvents";
+    md.shortName = "em_no_slv";
+    md.units = "kg m-2 s-1";
+    md.kind = "double";
+    md.tracer = "true";
+    md.levels = "1";
+    md.space = "magnitude";
+    addFieldMetadata(fieldsmetadata, nlev, md);
+
+    md.longName = "emissions_of_hcho_due_to_anthropogenic_solvents";
+    md.shortName = "em_hcho_slv";
+    md.units = "kg m-2 s-1";
+    md.kind = "double";
+    md.tracer = "true";
+    md.levels = "1";
+    md.space = "magnitude";
+    addFieldMetadata(fieldsmetadata, nlev, md);
+
+    md.longName = "emissions_of_co_due_to_anthropogenic_transportation";
+    md.shortName = "em_co_tra";
+    md.units = "kg m-2 s-1";
+    md.kind = "double";
+    md.tracer = "true";
+    md.levels = "1";
+    md.space = "magnitude";
+    addFieldMetadata(fieldsmetadata, nlev, md);
+
+    md.longName = "emissions_of_no_due_to_anthropogenic_transportation";
+    md.shortName = "em_no_tra";
+    md.units = "kg m-2 s-1";
+    md.kind = "double";
+    md.tracer = "true";
+    md.levels = "1";
+    md.space = "magnitude";
+    addFieldMetadata(fieldsmetadata, nlev, md);
+
+    md.longName = "emissions_of_hcho_due_to_anthropogenic_transportation";
+    md.shortName = "em_hcho_tra";
+    md.units = "kg m-2 s-1";
+    md.kind = "double";
+    md.tracer = "true";
+    md.levels = "1";
+    md.space = "magnitude";
+    addFieldMetadata(fieldsmetadata, nlev, md);
+
+    md.longName = "emissions_of_co_due_to_anthropogenic_waste";
+    md.shortName = "em_co_wst";
+    md.units = "kg m-2 s-1";
+    md.kind = "double";
+    md.tracer = "true";
+    md.levels = "1";
+    md.space = "magnitude";
+    addFieldMetadata(fieldsmetadata, nlev, md);
+
+    md.longName = "emissions_of_no_due_to_anthropogenic_waste";
+    md.shortName = "em_no_wst";
+    md.units = "kg m-2 s-1";
+    md.kind = "double";
+    md.tracer = "true";
+    md.levels = "1";
+    md.space = "magnitude";
+    addFieldMetadata(fieldsmetadata, nlev, md);
+
+    md.longName = "emissions_of_hcho_due_to_anthropogenic_waste";
+    md.shortName = "em_hcho_wst";
+    md.units = "kg m-2 s-1";
+    md.kind = "double";
+    md.tracer = "true";
+    md.levels = "1";
+    md.space = "magnitude";
+    addFieldMetadata(fieldsmetadata, nlev, md);
+
+    // Orography
     md.longName = "raw_orography";
     md.shortName = "orog_raw";
     md.units = "m";
