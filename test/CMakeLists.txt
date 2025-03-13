@@ -626,10 +626,6 @@ message(STATUS "Running fv3jedi tests for tiers up to and including tier " ${FV3
 # ------------
 
 # Executables
-ecbuild_add_executable( TARGET  test_fv3jedi_stateset2.x
-                        SOURCES mains/StateSetMPITest.cc
-                        LIBS    ${FV3JEDI_LIBRARIES})
-
 ecbuild_add_executable( TARGET  test_fv3jedi_errorcovariance.x
                         SOURCES mains/TestErrorCovariance.cc
                         LIBS    ${FV3JEDI_LIBRARIES})
@@ -695,7 +691,7 @@ ecbuild_add_executable( TARGET  test_fv3jedi_state.x
                         LIBS    ${FV3JEDI_LIBRARIES})
 
 ecbuild_add_executable( TARGET  test_fv3jedi_stateset.x
-			SOURCES mains/TestStateSet.cc
+			SOURCES mains/TestStateSetTranspose.cc
                         LIBS    ${FV3JEDI_LIBRARIES})
 
 ecbuild_add_executable( TARGET  test_fv3jedi_comparestates.x
@@ -1234,6 +1230,11 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_letkf_inline_ufs
                   ARGS     testinput/letkf_inline_c48.yaml
                   COMMAND  fv3jedi_letkf.x
                   TEST_DEPENDS fv3jedi_setup_letkf_ufs_rundir )
+
+ecbuild_add_test( TARGET   fv3jedi_test_stateset_transpose
+                  MPI      18
+                  ARGS     testinput/stateset_transpose.yaml
+                  COMMAND  test_fv3jedi_stateset.x )
 endif()
 
 # Disabled until setup of GEOS model rundir is added (e.g., see fv3jedi_setup_ufs_rundir_warmstart)
