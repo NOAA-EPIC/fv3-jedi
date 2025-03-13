@@ -228,7 +228,6 @@ self%jsc = Atm(1)%bd%jsc
 self%jec = Atm(1)%bd%jec
 self%kec = Atm(1)%npz
 
-!write(6,*) 'creating geometry with indices ',self%isc,self%iec,self%jsc,self%jec,self%kec
 self%ntile  = gtile
 self%ntiles = Atm(1)%flagstruct%ntiles
 

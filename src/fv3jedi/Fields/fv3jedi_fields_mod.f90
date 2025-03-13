@@ -176,11 +176,9 @@ integer :: var
 call checksame(self%fields, other%fields, "fv3jedi_fields_mod.copy")
 
 do var = 1, self%nf
-! write(6,*) 'copying over field ',trim(other%fields(var)%long_name)
   self%fields(var)%array = other%fields(var)%array
-! write(6,*) self%fields(var)%array(self%fields(var)%isc,self%fields(var)%jsc:self%fields(var)%jec,self%fields(var)%npz)
-!write(6,*) self%fields(var)%array(self%fields(var)%isc:self%fields(var)%iec,self%fields(var)%jsc:self%fields(var)%jec,1:self%fields(var)%npz)
 enddo
+
 self%ntracers = other%ntracers
 
 end subroutine copy
@@ -314,15 +312,11 @@ ind = 0
 
 ! Copy
 do var = 1, self%nf
-! call self%f_comm%barrier()
   do k = 1,self%fields(var)%npz
     do j = self%fields(var)%jsc,self%fields(var)%jec
       do i = self%fields(var)%isc,self%fields(var)%iec
         ind = ind + 1
         vect_inc(ind) = self%fields(var)%array(i, j, k)
-!           if(var == 1) then
-!               write(6,*) i,j,k,vect_inc(ind)
-!           endif
       enddo
     enddo
   enddo

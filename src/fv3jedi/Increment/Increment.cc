@@ -112,8 +112,12 @@ Increment::~Increment() {
 }
 // -------------------------------------------------------------------------------------------------
 void Increment::diff(const State & x1, const State & x2) {
-//  ASSERT(this->validTime() == x1.validTime());
-//  ASSERT(this->validTime() == x2.validTime());
+  std::cout << "this time is " << this->validTime() << std::endl;
+  std::cout << "x1 time is " << x1.validTime() << std::endl;
+  std::cout << "x2 time is " << x2.validTime() << std::endl;
+
+  ASSERT(this->validTime() == x1.validTime());
+  ASSERT(this->validTime() == x2.validTime());
   // States should have the same variables
   ASSERT(x1.variables() == x2.variables());
   // Increment variables must be a equal to or a subset of the State variables

@@ -132,8 +132,6 @@ integer :: var
 
 hasfield = .false.
 do var = 1, size(fields)
-! write(6,*) 'field names are ',trim(fields(var)%short_name)
-! write(6,*) 'long field names are ',trim(fields(var)%long_name)
   if ( trim(fields(var)%short_name) == trim(field_name) .or. &
        trim(fields(var)%long_name) == trim(field_name) ) then
     hasfield = .true.
