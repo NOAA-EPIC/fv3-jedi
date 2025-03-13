@@ -96,14 +96,13 @@ contains
 
 ! --------------------------------------------------------------------------------------------------
 
-  subroutine initialize(self, state, toJediVars, fromJediVars, vdate_start, vdate_final)
+  subroutine initialize(self, state, vars, vdate_start, vdate_final)
 
     implicit none
 
     class(model_ufs),    intent(inout) :: self
     type(fv3jedi_state), intent(in)    :: state
-    type(oops_variables),  intent(in)    :: toJediVars
-    type(oops_variables),  intent(in)    :: fromJediVars
+    type(oops_variables),  intent(in)    :: vars
 
     type(datetime),      intent(in)    :: vdate_start
     type(datetime),      intent(in)    :: vdate_final
@@ -112,8 +111,7 @@ contains
 
     type(ESMF_Time)         :: currTime, stopTime
     type(ESMF_TimeInterval) :: timeStep
-    character(len=ESMF_MAXSTR), allocatable :: toJediNames(:)
-    character(len=ESMF_MAXSTR), allocatable :: frJediNames(:)
+    character(len=ESMF_MAXSTR), allocatable :: stdnames(:)
 
     character(len=20) :: strCurrTime, strStopTime
 
@@ -202,23 +200,16 @@ contains
          rc=rc)
     esmf_err_abort(rc)
 
-    write(6,*) 'allocating to/fr names of sizes ',toJediVars%nvars(),fromJediVars%nvars()
-    allocate(toJediNames(toJediVars%nvars()))
-    allocate(frJediNames(fromJediVars%nvars()))
-    do var = 1, toJediVars%nvars()
-       toJediNames(var) = trim(toJediVars%variable(var))
-       write(6,*)  'to names ',trim(toJediNames(var))
-    enddo
-    do var = 1, fromJediVars%nvars()
-       frJediNames(var) = trim(fromJediVars%variable(var))
-       write(6,*) 'from names ', trim(frJediNames(var))
+    allocate(stdnames(vars%nvars()))
+    do var = 1, vars%nvars()
+       stdnames(var) = trim(vars%variable(var))
     enddo
     call ESMF_LogWrite("Advertising export from ESM", ESMF_LOGMSG_INFO)
     ! Advertise fields on the exportState, for data coming out of ESM component
     ! Note--only certain fields are available. Check in GFS_surface_generic to see if they are filled
     ! Do only for very first initialization
     call NUOPC_Advertise(self%toJedi, &
-         StandardNames=toJediNames, &
+         StandardNames=stdnames, &
          SharePolicyField="share", &
          TransferOfferGeomObject="cannot provide", rc=rc)
     esmf_err_abort(rc)
@@ -234,7 +225,7 @@ contains
     ! Advertise fields on the importState, for data going into ESM component
     ! Note--only certain fields are available. Check ???
     call NUOPC_Advertise(self%fromJedi, &
-         StandardNames=frJediNames, &
+         StandardNames=stdnames, &
          SharePolicyField="share", &
          TransferOfferGeomObject="cannot provide", rc=rc)
     esmf_err_abort(rc)
@@ -279,7 +270,7 @@ contains
     esmf_err_abort(rc)
 
     deallocate(connectors)
-    deallocate(toJediNames)
+    deallocate(stdnames)
 
     ! call ExternalRealize phase
     call NUOPC_CompSearchPhaseMap(self%esmComp, &
@@ -412,7 +403,6 @@ contains
     call ESMF_LogWrite("after step toJedi state with "//trim(msg)//" items", &
          ESMF_LOGMSG_INFO)
     call fv3_to_state(self, state, strCurrTime)
-!   call state_to_fv3(self, state, strCurrTime)
     call ESMF_LogWrite("after JEDI state write "//trim(msg)//" rc", &
          ESMF_LOGMSG_INFO)
 
@@ -698,9 +688,6 @@ contains
     ! Create map between UFS name and fv3-jedi name
     ! ----------------------------------------------
     short_name = trim(item_names(i))
-    if ((trim(short_name)=="tsea")) then
-      short_name = trim("ts")
-    endif
     call ESMF_LogWrite("state_to_fv3: item name is "//short_name, ESMF_LOGMSG_INFO)
     ! DH*
     !if(trim(item_names(i)) == 't') short_name = 'air_temperature'
@@ -711,7 +698,6 @@ contains
     ! Only need to update field in UFS if fv3-jedi has it
     ! ---------------------------------------------------------
     if (state%has_field(trim(short_name))) then
-!   if ((trim(short_name)=="ua").or.(trim(short_name)=="va").or.(trim(short_name)=="u_srf").or.(trim(short_name)=="v_srf")) then
 
       !Get field from the state
       call ESMF_StateGet(self%fromJedi, item_names(i), field, rc = rc)
@@ -755,7 +741,6 @@ contains
       call state%get_field(trim(short_name), field_ptr)
 
       call ESMF_LogWrite("Got field pointer for field "//short_name, ESMF_LOGMSG_INFO)
-!     write(6,*) 'indices are ',self%isc,self%iec,self%jsc,self%jec,fnpz
       write(msg, "(a,e16.7,a,e16.7)") "field_ptr for " // trim(short_name) // " has minval ", minval(field_ptr%array(self%isc:self%iec,self%jsc:self%jec,1:fnpz)), " and maxval ", maxval(field_ptr%array(self%isc:self%iec,self%jsc:self%jec,1:fnpz))
       call ESMF_LogWrite(trim(msg), ESMF_LOGMSG_INFO)
 
@@ -790,10 +775,11 @@ contains
       else
         call abor1_ftn("fv3_mod: can only handle rank 2 or rank 3 fields from UFS")
       endif
+
     else
       call ESMF_LogWrite("Not provided by JEDI is "//short_name, ESMF_LOGMSG_INFO)
     endif
-    call self%comm%barrier()
+
   end do
 
   deallocate(item_names)

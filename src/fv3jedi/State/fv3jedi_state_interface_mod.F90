@@ -395,20 +395,12 @@ call fv3jedi_state_registry%get(c_key_self, self)
 call fv3jedi_geom_registry%get(c_key_geom,geom)
 ! Call Fortran
 
-write(6,*) 'Hey, my rank is ',geom%f_comm%rank()
-write(6,*) 'Hey, my tile is ',geom%ntile,' ',geom%ntiles
-write(6,*) 'Hey, my ensemble number is ',get_ensemble_id()
 io = geom%f_comm%rank() * 10000 + get_ensemble_id()*100 +  sect_num  
-write(6,*) 'Hey, writing out fort.',io
 sect_num = sect_num + 1
-!call geom%f_comm%barrier()
-!open(unit=io, format='unformatted' )
 ! Initialize
 ind = 0
 ! Copy
 do var = 1, self%nf
-! call sleep(1)
-! call geom%f_comm%barrier()
   do k = 1,self%fields(var)%npz
     do j = jsc,jec
       do i = isc,iec
@@ -416,12 +408,6 @@ do var = 1, self%nf
         if((i >= isc_sg) .and. (i <= iec_sg)) then  ! probably a faster way to do this. 
           if((j >= jsc_sg) .and. (j <= jec_sg)) then   
             self%fields(var)%array(i, j, k) = c_vect_inc(ind)
-!           if(var == 1) then
-!              write(io, *) i,j,k,c_vect_inc(ind)
-!           endif
-            if(ind < 10) then 
-                write(6,*) 'head of vect is ',var,i,j,k,c_vect_inc(ind)
-            endif
             local_ind = local_ind + 1
           endif
         endif
