@@ -14,7 +14,7 @@ int main(int argc, char ** argv) {
 int main(int argc, char ** argv) {
   oops::Run run(argc, argv);
   eckit::LocalConfiguration config;
-  
+/*  
   // Set up DA geometry configuration (based on letkf-inline-c48.yaml)
   config.set("da geometry.fms initialization.namelist filename", "Data/ModelRunDirs/c48_001/input.nml");
   config.set("da geometry.fms initialization.field table filename", "Data/ModelRunDirs/UFS_warmstart_1/field_table");
@@ -38,7 +38,7 @@ int main(int argc, char ** argv) {
   config.set("fc geometry.ntiles", 6);
   config.set("fc geometry.member_number", 1);
   config.set("fc geometry.field metadata override", "Data/fieldmetadata/ufs.yaml");
-
+*/
   test::TestEnvironment::getInstance().setup(config);
   oops::StateSetMPITest<fv3jedi::Traits> test(config);
   return run.execute(test);

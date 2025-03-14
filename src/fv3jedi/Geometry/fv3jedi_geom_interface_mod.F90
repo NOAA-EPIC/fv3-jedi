@@ -102,15 +102,20 @@ call fv3jedi_geom_registry%get(c_key_self,self)
 f_conf            = fckit_configuration(c_conf)
 f_comm            = fckit_mpi_comm(c_comm)
 if (.not. f_conf%get("member_number", ensNum)) then
+  write(6,*) 'HEY!!! didnt find member_number'
   ensNum = 0
 endif
+write(6,*) 'HEY!!! member_number is ',ensNum
 self%ensNum = ensNum
 if( ensNum > 0 ) then
+  write(6,*) 'HEY!!! starting ensemble manager'
   call ensemble_manager_init()
   ens_siz = get_ensemble_size()
   ensemble_size = ens_siz(1)
   npes = ens_siz(2)
 
+  write(6,*) 'HEY!!! npes is ',npes
+  write(6,*) 'HEY!!! ens_siz is ',ens_siz
   atmos_npes = npes
   ocean_npes = 0
   land_npes = 0
@@ -124,6 +129,7 @@ if( ensNum > 0 ) then
   call ensemble_pelist_setup(.true., atmos_npes, ocean_npes, land_npes, ice_npes, &
                                Atm_pelist, Ocean_pelist, Land_pelist, Ice_fast_pelist)
   ensemble_id = get_ensemble_id()
+  write(6,*) 'HEY!!! my ensemble_id is ',ensemble_id
   allocate(ensemble_pelist(1:ensemble_size,1:npes))
   call get_ensemble_pelist(ensemble_pelist)
   call mpp_set_current_pelist(ensemble_pelist(ensemble_id,:))

@@ -1,7 +1,7 @@
 ensemble members: 3
 da geometry:
   fms initialization:
-    namelist filename: Data/fv3files/fmsmpp.nml
+    namelist filename: Data/fv3files/transpose.nml
     field table filename: Data/fv3files/field_table
   akbk: Data/fv3files/akbk127.nc4
   layout: [3,1]  # DA geometry with higher resolution
