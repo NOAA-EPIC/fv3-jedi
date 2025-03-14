@@ -112,7 +112,6 @@ Increment::~Increment() {
 }
 // -------------------------------------------------------------------------------------------------
 void Increment::diff(const State & x1, const State & x2) {
-
   ASSERT(this->validTime() == x1.validTime());
   ASSERT(this->validTime() == x2.validTime());
   // States should have the same variables
