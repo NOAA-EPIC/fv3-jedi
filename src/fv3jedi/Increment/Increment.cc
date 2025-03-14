@@ -112,9 +112,6 @@ Increment::~Increment() {
 }
 // -------------------------------------------------------------------------------------------------
 void Increment::diff(const State & x1, const State & x2) {
-  std::cout << "this time is " << this->validTime() << std::endl;
-  std::cout << "x1 time is " << x1.validTime() << std::endl;
-  std::cout << "x2 time is " << x2.validTime() << std::endl;
 
   ASSERT(this->validTime() == x1.validTime());
   ASSERT(this->validTime() == x2.validTime());

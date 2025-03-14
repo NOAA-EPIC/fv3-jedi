@@ -691,10 +691,6 @@ ecbuild_add_executable( TARGET  test_fv3jedi_state.x
                         LIBS    ${FV3JEDI_LIBRARIES})
 
 ecbuild_add_executable( TARGET  test_fv3jedi_stateset.x
-			SOURCES mains/TestStateSetTranspose.cc
-                        LIBS    ${FV3JEDI_LIBRARIES})
-
-ecbuild_add_executable( TARGET  test_fv3jedi_stateset2.x
 			SOURCES mains/TestStateSet.cc
                         LIBS    ${FV3JEDI_LIBRARIES})
 
