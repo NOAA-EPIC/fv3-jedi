@@ -64,6 +64,8 @@ Data/fv3files/field_table_cold
 Data/fv3files/field_table_lam_cmaq
 Data/fv3files/field_table_lam_rrfs
 Data/fv3files/fmsmpp.nml
+Data/fv3files/fmsmpp-ens.nml
+Data/fv3files/transpose.nml
 Data/fv3files/input_gfs_c12.nml
 Data/fv3files/input_gfs_c12_p12.nml
 Data/fv3files/input_gfs_c12_z64_1x1.nml
