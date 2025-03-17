@@ -615,15 +615,12 @@ void State::serialize(std::vector<double> & vect) const {
   oops::Log::trace() << "State serialize starting" << std::endl;
   int size_fld = this->serialSize() - 3;
   std::vector<double> v_fld(size_fld, 0);
+
   fv3jedi_state_serialize_f90(keyState_, size_fld, v_fld.data());
   vect.insert(vect.end(), v_fld.begin(), v_fld.end());
 
   // Serialize the date and time
-  if (vect.size() <= size_fld) {
-    vect.push_back(-54321.56789);
-  } else {
-    vect[size_fld] = -54321.56789;
-  }
+  vect.push_back(-54321.56789);
   time_.serialize(vect);
 
   oops::Log::trace() << "State serialize done" << std::endl;
