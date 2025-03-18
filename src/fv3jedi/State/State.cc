@@ -452,7 +452,7 @@ void State::transpose(const State & FCState, const eckit::mpi::Comm & global,
   oops::mpi::world().barrier();
 }
 // -------------------------------------------------------------------------------------------------
-void State::Rtranspose(const State & DAState, const eckit::mpi::Comm & global,
+void State::reverseTranspose(const State & DAState, const eckit::mpi::Comm & global,
     const int ensNum, const int transNum ) {
 
   // This state is a FC State with the larger FC geometry

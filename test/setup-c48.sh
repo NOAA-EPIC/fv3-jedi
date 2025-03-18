@@ -124,7 +124,7 @@ ${SED} -i 's/external_ic = .true./external_ic = .false./g' input.nml
 ${SED} -i 's/nggps_ic = .true./nggps_ic = .false./g' input.nml
 ${SED} -i 's/mountain = .false./mountain = .true./g' input.nml
 ${SED} -i '/atmos_model_nml/a\  ignore_rst_cksum = .true.' input.nml
-${SED} -i '/fv_core_nml/a\  ignore_rst_cksum = .true.' input.nml
+${SED} -i 's/ignore_rst_cksum = .false./ignore_rst_cksum = .true./g' input.nml
 ${SED} -i '/&fms_nml/i \
 &fms_io_nml\
   checksum_required = .false.\
