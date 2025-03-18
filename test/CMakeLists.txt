@@ -276,6 +276,7 @@ list( APPEND fv3jedi_testinput
   testinput/state_gfs.yaml
   testinput/state_lam_atmos.yaml
   testinput/state_lam_cmaq.yaml
+  testinput/stateset_transpose.yaml
   testinput/staticb_cor_aero.yaml
   testinput/staticb_cor_geos.yaml
   testinput/staticb_dirac_global_gfs_12pe.yaml
