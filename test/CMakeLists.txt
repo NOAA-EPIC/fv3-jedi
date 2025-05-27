@@ -91,6 +91,7 @@ Data/gsibec/dirac_gsi_gfs_global.nml
 Data/gsibec/geos_gsi_global_72x46x72.nml
 Data/gsibec/geos_gsi_global_o3_72x46x72.nml
 Data/gsibec/geos_gsi_global_tskin_72x46x72.nml
+Data/gsibec/geos_hyb4dgsi_global_72x46x72.nml
 Data/gsibec/gfs_gsi_global_192x96x127.nml
 Data/gsibec/gfs_gsicv_global_192x96x127.nml
 )
@@ -236,6 +237,7 @@ list( APPEND fv3jedi_testinput
   testinput/hyb-3dvar_p12.yaml
   testinput/hyb-3dvar.yaml
   testinput/hyb-4denvar_geos_sondes_c12.yaml
+  testinput/hyb-4denvar_llens_geos.yaml
   testinput/hyb-4dvar_pseudo-geos.yaml
   testinput/hyb-fgat_fv3lm.yaml
   testinput/hyb-fgat_gfs_aero.yaml
@@ -396,6 +398,7 @@ list( APPEND fv3jedi_testoutput
   testoutput/hyb-3dvar_p12.ref
   testoutput/hyb-4dvar_pseudo-geos.ref
   testoutput/hyb-4denvar_geos_sondes_c12.ref
+  testoutput/hyb-4denvar_llens_geos.ref
   testoutput/hyb-fgat_fv3lm.ref
   testoutput/letkf.ref
   testoutput/letkf_perturbed.ref
@@ -470,27 +473,6 @@ Data/femps/fv3grid_c0096.nc4
 
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/femps)
 LINK_FILES( "${fv3jedi_femps_grid}" ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
-
-# Field sets
-# ----------
-list( APPEND fv3jedi_field_metadata
-Data/fieldmetadata/gchp.yaml
-Data/fieldmetadata/geos.yaml
-Data/fieldmetadata/geos_cf.yaml
-Data/fieldmetadata/geoscf_jedi.yaml
-Data/fieldmetadata/gfs-aerosol.yaml
-Data/fieldmetadata/ufs-aerosol.yaml
-Data/fieldmetadata/gfs-history.yaml
-Data/fieldmetadata/gfs_v17-land.yaml
-Data/fieldmetadata/gfs-restart.yaml
-Data/fieldmetadata/gfs-restart-DELP.yaml
-Data/fieldmetadata/gfs-restart-surface-masks.yaml
-Data/fieldmetadata/lam_cmaq.yaml
-Data/fieldmetadata/ufs.yaml
-)
-
-file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Data/fieldmetadata)
-LINK_FILES( "${fv3jedi_field_metadata}" ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 
 # Resources from other respositores
 # ---------------------------------
@@ -1016,18 +998,16 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier1_convertstate_gfs_history2restart
                   COMMAND  fv3jedi_convertstate.x
                   TEST_DEPENDS fv3jedi_test_tier1_convertstate_gfs_restart2history )
 
-if ( HAS_FMS2_IO )
-  ecbuild_add_test( TARGET   fv3jedi_test_tier1_convertstate_gfs_restart2fms_nonrestart
-                    MPI      6
-                    ARGS     testinput/convertstate_gfs_restart2fms_nonrestart.yaml
-                    COMMAND  fv3jedi_convertstate.x )
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_convertstate_gfs_restart2fms_nonrestart
+                  MPI      6
+                  ARGS     testinput/convertstate_gfs_restart2fms_nonrestart.yaml
+                  COMMAND  fv3jedi_convertstate.x )
 
-  ecbuild_add_test( TARGET   fv3jedi_test_tier1_convertstate_gfs_fms_nonrestart2restart
-                    MPI      6
-                    ARGS     testinput/convertstate_gfs_fms_nonrestart2restart.yaml
-                    COMMAND  fv3jedi_convertstate.x
-                    TEST_DEPENDS fv3jedi_test_tier1_convertstate_gfs_restart2fms_nonrestart )
-endif()
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_convertstate_gfs_fms_nonrestart2restart
+                  MPI      6
+                  ARGS     testinput/convertstate_gfs_fms_nonrestart2restart.yaml
+                  COMMAND  fv3jedi_convertstate.x
+                  TEST_DEPENDS fv3jedi_test_tier1_convertstate_gfs_restart2fms_nonrestart )
 
 ecbuild_add_test( TARGET   fv3jedi_test_tier1_convertstate_gfs_model2geovals
                   MPI      6
@@ -1228,7 +1208,7 @@ ecbuild_add_test( TARGET  fv3jedi_setup_letkf_ufs_rundir
                       ARGS    ${FV3_FORECAST_MODEL_RUNDIR_WARMSTART} ${FV3_FORECAST_MODEL_TESTDIR_WARMSTART}
                       TEST_DEPENDS fv3jedi_test_tier1_EnsGETKF_ufs_warmstart )
 
-ecbuild_add_test( TARGET   fv3jedi_test_tier1_letkf_inline_ufs 
+ecbuild_add_test( TARGET   fv3jedi_test_tier1_letkf_inline_ufs
                   MPI      12
                   ARGS     testinput/letkf_inline_c48.yaml
                   COMMAND  fv3jedi_letkf.x
@@ -1410,6 +1390,12 @@ ecbuild_add_test( TARGET   fv3jedi_test_tier2_hyb-4denvar_geos_sondes
                   MPI      6
                   ARGS     testinput/hyb-4denvar_geos_sondes_c12.yaml
                   COMMAND  fv3jedi_var.x )
+if( ${sp_FOUND} )
+  ecbuild_add_test( TARGET   fv3jedi_test_tier2_hyb-4denvar_llens_geos
+                    MPI      6
+                    ARGS     testinput/hyb-4denvar_llens_geos.yaml
+                    COMMAND  fv3jedi_var.x )
+endif()
 endif()
 
 if( ${sp_FOUND} )

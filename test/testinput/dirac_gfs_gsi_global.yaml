@@ -12,7 +12,6 @@ geometry:
   npx: 13
   npy: 13
   npz: 127
-  field metadata override: Data/fieldmetadata/gfs-restart.yaml
 background:
   datetime: 2020-12-15T00:00:00Z
   filetype: fms restart
@@ -23,14 +22,24 @@ background:
   filename_sfcw: 20201215.000000.fv_srf_wnd.res.nc
   filename_cplr: 20201215.000000.coupler.res
   state variables: &anavars
-  - ua
-  - va
-  - T
-  - ps
-  - sphum
-  - ice_wat
-  - liq_wat
-  - o3mr
+  - eastward_wind
+  - northward_wind
+  - air_temperature
+  - air_pressure_at_surface
+  - water_vapor_mixing_ratio_wrt_moist_air
+  - cloud_liquid_ice
+  - cloud_liquid_water
+  - ozone_mass_mixing_ratio
+  field io names: &field_io_names
+    eastward_wind: ua
+    northward_wind: va
+    air_temperature: T
+    air_pressure_at_surface: ps
+    water_vapor_mixing_ratio_wrt_moist_air: sphum
+    cloud_liquid_ice: ice_wat
+    cloud_liquid_water: liq_wat
+    ozone_mass_mixing_ratio: o3mr
+    mole_fraction_of_ozone_in_air: o3ppmv
 background error:
   covariance model: SABER
   saber central block:
@@ -43,13 +52,20 @@ background error:
       processor layout y direction: 2
       debugging mode: false
   saber outer blocks:
-  - saber block name: gsi interpolation to model grid
-    gsi akbk: Data/fv3files/akbk127.nc4
-    gsi error covariance file: Data/inputs/nmcbalance/gsi-coeffs-gfs-global-l127x192y96.nc4
-    gsi berror namelist file: Data/gsibec/gfs_gsi_global_192x96x127.nml
-    processor layout x direction: 3
-    processor layout y direction: 2
-    debugging mode: false
+  - saber block name: interpolation
+    inner geometry:
+      function space: StructuredColumns
+      custom grid matching gsi:
+        type: gaussian
+        lats: 96
+        lons: 192
+      custom partitioner matching gsi:
+        bands: 2
+      halo: 1
+    forward interpolator:
+      local interpolator type: oops unstructured grid interpolator
+    inverse interpolator:
+      local interpolator type: oops unstructured grid interpolator
     state variables to inverse:
     - eastward_wind
     - northward_wind
@@ -88,6 +104,7 @@ output dirac:
   provider: geos
   datapath: Data/
   filename: gsi_dirac_%id%_.%yyyy%mm%dd_%hh%MM%ssz.nc4
+  field io names: *field_io_names
 test:
   reference filename: testoutput/dirac_gfs_gsi_global.ref
   test output filename: testoutput/dirac_gfs_gsi_global.test.out

@@ -9,13 +9,12 @@ geometry:
   npx: 13
   npy: 13
   npz: 127
-  field metadata override: Data/fieldmetadata/gfs-restart.yaml
 analysis variables: &anavars
-- psi
-- chi
-- t
-- ps
-- sphum
+- air_horizontal_streamfunction
+- air_horizontal_velocity_potential
+- air_temperature
+- air_pressure_at_surface
+- water_vapor_mixing_ratio_wrt_moist_air
 background:
   filetype: fms restart
   datetime: 2020-12-15T00:00:00Z
@@ -27,6 +26,15 @@ background:
   filename_cplr: bvars.coupler.res
   psinfile: true
   state variables: *anavars
+  field io names: &field_io_names
+    air_horizontal_streamfunction: psi
+    air_horizontal_velocity_potential: chi
+    air_temperature: T
+    air_pressure_at_surface: ps
+    water_vapor_mixing_ratio_wrt_moist_air: sphum
+    cloud_liquid_ice: ice_wat
+    cloud_liquid_water: liq_wat
+    ozone_mass_mixing_ratio: o3mr
 background error:
   covariance model: SABER
   saber central block:
@@ -40,14 +48,20 @@ background error:
       debugging deep bypass gsi B error: true
       debugging mode: false
   saber outer blocks:
-  - saber block name: gsi interpolation to model grid
-    gsi akbk: Data/fv3files/akbk127.nc4
-    gsi error covariance file: Data/inputs/nmcbalance/gsi-coeffs-gfs-global-l127x192y96.nc4
-    gsi berror namelist file: Data/gsibec/gfs_gsicv_global_192x96x127.nml
-    processor layout x direction: 3
-    processor layout y direction: 2
-    debugging deep bypass gsi B error: true
-    debugging mode: false
+  - saber block name: interpolation
+    inner geometry:
+      function space: StructuredColumns
+      custom grid matching gsi:
+        type: gaussian
+        lats: 96
+        lons: 192
+      custom partitioner matching gsi:
+        bands: 2
+      halo: 1
+    forward interpolator:
+      local interpolator type: oops unstructured grid interpolator
+    inverse interpolator:
+      local interpolator type: oops unstructured grid interpolator
     state variables to inverse: &bvars
     - air_horizontal_streamfunction
     - air_horizontal_velocity_potential
