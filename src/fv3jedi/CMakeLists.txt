@@ -205,7 +205,7 @@ target_include_directories( fv3jedi PUBLIC "$<BUILD_INTERFACE:${FV3JEDI_INCLUDE_
 if( FV3_FORECAST_MODEL MATCHES "UFS" )
 
   # Link all the libraries
-  target_link_libraries( fv3jedi PUBLIC fv3atm)
+  target_link_libraries( fv3jedi PUBLIC ufsatm_fv3)
   target_link_libraries( fv3jedi PUBLIC fv3)
   target_link_libraries( fv3jedi PUBLIC ccpp_physics)
   target_link_libraries( fv3jedi PUBLIC fv3ccpp)
