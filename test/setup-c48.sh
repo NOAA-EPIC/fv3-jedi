@@ -129,7 +129,18 @@ ${SED} -i '/&fms_nml/i \
 &fms_io_nml\
   checksum_required = .false.\
 /' input.nml
-
+cat << EOF >> fd_ufs.yaml
+    #----------------------------------
+    # section: fixes for jedi
+    # --------------------------------
+    - standard_name: soilMoistureVolumetric
+      canonical_units: m3 m-3
+      description: soil moisture content
+    #
+    - standard_name: totalSnowDepth
+      canonical_units: mm
+      description: snow depth in mm
+EOF
 # Use C48 instead of C96 everywhere
 ${SED} -i 's/C96/C48/g' input.nml
 rm -rf RESTART

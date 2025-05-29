@@ -41,7 +41,7 @@ initial condition:
   - geopotential_height_times_gravity_at_surface
   - slmsk
   - sheleg
-  - sea_surface_temperature
+  - skin_temperature_at_surface
   - vtype
   - stype
   - vfrac
@@ -61,7 +61,7 @@ initial condition:
     cloud_liquid_water: liq_wat
     ozone_mass_mixing_ratio: o3mr
     geopotential_height_times_gravity_at_surface: phis
-    sea_surface_temperature: tsea
+    skin_temperature_at_surface: tsea
     soilMoistureVolumetric: smc
     totalSnowDepth: snwdph
     eastward_wind_at_surface: u_srf
