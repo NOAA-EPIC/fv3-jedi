@@ -174,6 +174,7 @@ if( FV3_FORECAST_MODEL MATCHES UFS )
   #
   if( UFS_APP MATCHES "^(ATM)$" )
     set( FV3JEDI_LIBRARIES fv3jedi
+                           ufsatm_fv3
                            ccpp_framework
                            ccpp_physics )
   elseif( UFS_APP MATCHES "^(ATMAERO)$" )
