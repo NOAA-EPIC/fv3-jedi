@@ -16,7 +16,7 @@ cost function:
     fms initialization:
       namelist filename: Data/fv3files/fmsmpp.nml
       field table filename: Data/fv3files/field_table_gfdl
-    akbk: Data/fv3files/akbk127.nc4
+    akbk: Data/inputs/fv3files/akbk127.nc4
     layout:
     - 1
     - 1
@@ -125,10 +125,10 @@ cost function:
           - name: windNorthward
           - name: airTemperature
           - name: specificHumidity
-        - name: SfcPCorrected
+        - name: SfcCorrected
           variables:
           - name: stationPressure
-          da_psfc_scheme: GSI
+          correction scheme to use: GSL
       linear obs operator:
         name: Composite
         components:
@@ -388,8 +388,8 @@ cost function:
         simulated variables:
         - stationPressure
       obs operator:
-        name: SfcPCorrected
-        da_psfc_scheme: UKMO
+        name: SfcCorrected
+        correction scheme to use: UKMO
       linear obs operator:
         name: Identity
       obs error:
@@ -415,7 +415,7 @@ variational:
     gradient norm reduction: 1e-10
     test: on
     geometry:
-      akbk: Data/fv3files/akbk127.nc4
+      akbk: Data/inputs/fv3files/akbk127.nc4
       layout:
       - 1
       - 1

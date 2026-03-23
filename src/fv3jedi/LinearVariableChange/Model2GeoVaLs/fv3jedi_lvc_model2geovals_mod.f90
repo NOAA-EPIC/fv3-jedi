@@ -258,6 +258,11 @@ logical :: have_ps
 real(kind=kind_real), pointer     :: ps  (:,:,:)         !Surface pressure
 real(kind=kind_real), pointer     :: delp(:,:,:)         !Pressure thickness
 
+!Air pressure
+logical :: have_prs,have_pe
+real(kind=kind_real), allocatable :: prs (:,:,:)         !Air pressure (midlevs)
+real(kind=kind_real), allocatable :: pe  (:,:,:)         !Air pressure (edges)
+
 !Skin temperature
 logical :: have_tskin
 real(kind=kind_real), pointer     :: tskin(:,:,:)        !Skin temperature
@@ -410,6 +415,20 @@ elseif (dxm%has_field('air_pressure_thickness')) then
   have_ps = .true.
 endif
 
+have_prs=.false.
+if (have_ps.and.dxg%has_field('air_pressure')) then
+  allocate(prs(self%isc:self%iec,self%jsc:self%jec,self%npz))
+  call ps_to_p_tl(geom,ps,prs)
+  have_prs=.true.
+endif
+
+have_pe=.false.
+if (have_ps.and.dxg%has_field('air_pressure_levels')) then
+  allocate(pe(self%isc:self%iec,self%jsc:self%jec,self%npz+1))
+  call ps_to_pe_tl(geom,ps,pe)
+  have_pe=.true.
+endif
+
 ! Skin temperature
 ! ----------------
 have_tskin = .false.
@@ -476,6 +495,14 @@ do f = 1, size(fields_to_do)
 
     if (have_qg) field_ptr = cgwpath
 
+  case ('air_pressure')
+
+     if (have_prs) field_ptr = prs
+
+  case ('air_pressure_levels')
+
+    if (have_pe) field_ptr = pe
+
   ! Simulated but not assimilated
   case ("skin_temperature_at_surface_where_sea")
   case ("skin_temperature_at_surface_where_land")
@@ -486,8 +513,6 @@ do f = 1, size(fields_to_do)
   case ("mass_content_of_rain_in_atmosphere_column")
   case ("mass_content_of_snow_in_atmosphere_column")
   case ("mass_content_of_graupel_in_atmosphere_column")
-  case ('air_pressure_levels')
-  case ('air_pressure')
 
   case default
 
@@ -507,6 +532,8 @@ if(allocated(ciwpath)) deallocate(ciwpath)
 if(allocated(crwpath)) deallocate(crwpath)
 if(allocated(cswpath)) deallocate(cswpath)
 if(allocated(cgwpath)) deallocate(cgwpath)
+if(allocated(prs)) deallocate(prs)
+if(allocated(pe)) deallocate(pe)
 
 end subroutine multiply
 
@@ -569,14 +596,21 @@ real(kind=kind_real), allocatable :: o3mr  (:,:,:)        !Ozone mixing ratio
 real(kind=kind_real), allocatable :: o3ppmv(:,:,:)        !Ozone ppmv
 
 !Surface pressure
-logical :: have_ps
-integer :: ps_index
+logical :: have_ps,have_dp
+integer :: ps_index,dp_index
 real(kind=kind_real), pointer     :: ps   (:,:,:)         !Surface pressure
-real(kind=kind_real), allocatable :: delp (:,:,:)         !Pressure thickness
+real(kind=kind_real), pointer     :: delp (:,:,:)         !Pressure thickness
+
+!Air pressure
+logical :: have_prs,have_pe
+integer :: prs_index,pe_index
+real(kind=kind_real), allocatable :: prs (:,:,:)         !Air pressure (midlevs)
+real(kind=kind_real), allocatable :: pe  (:,:,:)         !Air pressure (edges)
 
 !Skin temperature
 logical :: have_tsea,have,have_tland,have_tice,have_tsnow
 integer :: tskin_index
+integer :: tskin_sea_index, tskin_land_index, tskin_ice_index, tskin_snow_index
 real(kind=kind_real), pointer     :: dtsea   (:,:,:)       !Sea surface temperature
 real(kind=kind_real), pointer     :: dtland  (:,:,:)       !Land surface temperature
 real(kind=kind_real), pointer     :: dtice   (:,:,:)       !Ice surface temperature
@@ -657,8 +691,9 @@ endif
 
 ! Pressure
 ! --------
-have_ps = .false.
-if (dxg%has_field( 'air_pressure_at_surface', ps_index)) then
+have_ps = .false.; have_dp=.false.
+if (dxg%has_field( 'air_pressure_at_surface', ps_index).and.&
+    dxm%has_field( 'air_pressure_thickness', dp_index)) then
   call dxg%get_field('air_pressure_at_surface', ps)
   allocate(delp(self%isc:self%iec,self%jsc:self%jec,self%npz))
   delp = 0.0_kind_real
@@ -667,6 +702,28 @@ if (dxg%has_field( 'air_pressure_at_surface', ps_index)) then
     delp(:,:,k) = delp(:,:,k) + ps(:,:,1)
   enddo
   have_ps = .true.
+  have_dp = .true.
+elseif (dxg%has_field( 'air_pressure_thickness', dp_index)) then
+  call dxg%get_field('air_pressure_thickness', delp)
+  have_dp = .true.
+endif
+
+have_pe=.false.; have_prs=.false.
+if (dxg%has_field( "air_pressure_levels", pe_index) ) then
+  call dxg%get_field("air_pressure_levels", pe)
+  if (.not.have_ps) then
+     allocate(ps(self%isc:self%iec,self%jsc:self%jec,1))
+  endif
+  call ps_to_pe_ad(geom,ps,pe)
+  have_pe=.true.
+elseif (dxg%has_field( "air_pressure", prs_index) ) then
+  call dxg%get_field("air_pressure", prs)
+  if(.not. have_ps) then
+    allocate(ps(self%isc:self%iec,self%jsc:self%jec,1))
+  endif
+  ps=0.0_kind_real
+  call ps_to_p_ad(geom,ps,prs)
+  have_prs=.true.
 endif
 
 ! Cloud liquid water
@@ -736,19 +793,19 @@ have_tsea  = .false.
 have_tice  = .false.
 have_tsnow = .false.
 if (dxm%has_field('skin_temperature_at_surface',tskin_index)) then
-   if ( allocated(self%frland).and.dxg%has_field('skin_temperature_at_surface_where_land') ) then
+   if ( allocated(self%frland).and.dxg%has_field('skin_temperature_at_surface_where_land',tskin_land_index) ) then
      call dxg%get_field('skin_temperature_at_surface_where_land',dtland)
      have_tland = .true.
    endif
-   if ( allocated(self%frocean).and.dxg%has_field('skin_temperature_at_surface_where_sea') ) then
+   if ( allocated(self%frocean).and.dxg%has_field('skin_temperature_at_surface_where_sea',tskin_sea_index) ) then
      call dxg%get_field('skin_temperature_at_surface_where_sea',dtsea)
      have_tsea = .true.
    endif
-   if ( allocated(self%frseaice).and.dxg%has_field('skin_temperature_at_surface_where_ice') ) then
+   if ( allocated(self%frseaice).and.dxg%has_field('skin_temperature_at_surface_where_ice',tskin_ice_index) ) then
      call dxg%get_field('skin_temperature_at_surface_where_ice',dtice)
      have_tice = .true.
    endif
-   if ( allocated(self%frsnow).and.dxg%has_field('skin_temperature_at_surface_where_snow') ) then
+   if ( allocated(self%frsnow).and.dxg%has_field('skin_temperature_at_surface_where_snow',tskin_snow_index) ) then
      call dxg%get_field('skin_temperature_at_surface_where_snow',dtsnow)
      have_tsnow = .true.
    endif
@@ -841,6 +898,7 @@ do fm = 1, size(fields_to_do)
   case ('eastward_wind')
 
     if (have_awinds) then
+!     call check_index ("ua_index",ua_index)
       field_passed(ua_index) = .true.
       field_ptr = field_ptr + ua
     endif
@@ -848,20 +906,39 @@ do fm = 1, size(fields_to_do)
   case ('northward_wind')
 
     if (have_awinds) then
+!     call check_index ("va_index",va_index)
       field_passed(va_index) = .true.
       field_ptr = field_ptr + va
     endif
 
   case ('air_pressure_thickness')
 
-    if (have_ps) then
-      field_passed(ps_index) = .true.
+    if (have_dp) then
+!     call check_index ("dp_index",dp_index)
+      field_passed(dp_index) = .true.
       field_ptr = field_ptr + delp
+    endif
+
+  case ('air_pressure_levels')
+
+    if (have_pe) then
+!     call check_index ("pe_index",pe_index)
+      field_passed(pe_index) = .true.
+      field_ptr = field_ptr + pe
+    endif
+
+  case ('air_pressure_at_surface')
+
+    if (have_ps) then
+!     call check_index ("ps_index",ps_index)
+      field_passed(ps_index) = .true.
+      field_ptr = field_ptr + ps
     endif
 
   case ('ozone_mass_mixing_ratio')
 
     if (have_o3mr) then
+!     call check_index ("o3_index",o3_index)
       field_passed(o3_index) = .true.
       field_ptr = field_ptr + o3mr
     endif
@@ -869,6 +946,7 @@ do fm = 1, size(fields_to_do)
   case ('mole_fraction_of_ozone_in_air')
 
     if (have_o3ppmv) then
+!     call check_index ("o3_index",o3_index)
       field_passed(o3_index) = .true.
       field_ptr = field_ptr + o3ppmv
     endif
@@ -876,6 +954,7 @@ do fm = 1, size(fields_to_do)
   case ('cloud_liquid_water')
 
     if (have_ql) then
+!     call check_index ("ql_index",ql_index)
       field_passed(ql_index) = .true.
       field_ptr = field_ptr + dql
     endif
@@ -883,6 +962,7 @@ do fm = 1, size(fields_to_do)
   case ('cloud_liquid_ice')
 
     if (have_qi) then
+!     call check_index ("qi_index",qi_index)
       field_passed(qi_index) = .true.
       field_ptr = field_ptr + dqi
     endif
@@ -890,6 +970,7 @@ do fm = 1, size(fields_to_do)
   case ('rainwat')
 
     if (have_qr) then
+!     call check_index ("qr_index",qr_index)
       field_passed(qr_index) = .true.
       field_ptr = field_ptr + dqr
     endif
@@ -897,6 +978,7 @@ do fm = 1, size(fields_to_do)
   case ('snowwat')
 
     if (have_qs) then
+!     call check_index ("qs_index",qs_index)
       field_passed(qs_index) = .true.
       field_ptr = field_ptr + dqs
     endif
@@ -904,6 +986,7 @@ do fm = 1, size(fields_to_do)
   case ('graupel')
 
     if (have_qg) then
+!     call check_index ("qg_index",qg_index)
       field_passed(qg_index) = .true.
       field_ptr = field_ptr + dqg
     endif
@@ -911,28 +994,32 @@ do fm = 1, size(fields_to_do)
   case ('skin_temperature_at_surface')
 
     if (have_tsea) then
-      field_passed(tskin_index) = .true.
+!     call check_index ("tskin_sea_index",tskin_sea_index)
+      field_passed(tskin_sea_index) = .true.
       where (self%frocean>0.0_kind_real)
         field_ptr = field_ptr + dtsea
       endwhere
     endif
 
     if (have_tland) then
-      field_passed(tskin_index) = .true.
+!     call check_index ("tskin_land_index",tskin_land_index)
+      field_passed(tskin_land_index) = .true.
       where (self%frland>0.0_kind_real)
         field_ptr = field_ptr + dtland
       endwhere
     endif
 
     if (have_tice) then
-      field_passed(tskin_index) = .true.
+!     call check_index ("tskin_ice_index",tskin_ice_index)
+      field_passed(tskin_ice_index) = .true.
       where (self%frseaice>0.0_kind_real)
         field_ptr = field_ptr + dtice
       endwhere
     endif
 
     if (have_tsnow) then
-      field_passed(tskin_index) = .true.
+!     call check_index ("tskin_snow_index",tskin_snow_index)
+      field_passed(tskin_snow_index) = .true.
       where (self%frsnow>0.0_kind_real)
         field_ptr = field_ptr + dtsnow
       endwhere
@@ -965,6 +1052,10 @@ do fg = 1, size(dxg%fields)
       call dxm%get_field('water_vapor_mixing_ratio_wrt_moist_air', qptr)
       qptr = qptr + q_qmr
 
+    case ('air_pressure_at_surface')
+
+      field_passed(ps_index) = .true.
+
     case default
 
       call abor1_ftn('GeoVaLs field '//trim(dxg%fields(fg)%long_name)//' has no known link '// &
@@ -995,7 +1086,6 @@ enddo
 !   enddo
 ! endif
 
-if(allocated(delp)) deallocate(delp)
 if(allocated(o3mr)) deallocate(o3mr)
 if(allocated(dql)) deallocate(dql)
 if(allocated(dqi)) deallocate(dqi)
@@ -1003,9 +1093,18 @@ if(allocated(dqr)) deallocate(dqr)
 if(allocated(dqs)) deallocate(dqs)
 if(allocated(dqg)) deallocate(dqg)
 if(allocated(q_qmr)) deallocate(q_qmr)
+if(allocated(pe)) deallocate(pe)
+if(allocated(prs)) deallocate(prs)
 
 end subroutine multiplyadjoint
 
 ! --------------------------------------------------------------------------------------------------
 
+subroutine check_index (this,idx)
+  character(len=*), intent(in) :: this
+  integer, intent (in) :: idx
+  if (idx==0) then
+      call abor1_ftn('GeoVaLs index: '//trim(this)//' unacceptable ...')
+  endif
+end subroutine check_index
 end module fv3jedi_lvc_model2geovals_mod

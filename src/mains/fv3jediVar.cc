@@ -6,10 +6,8 @@
  */
 
 #include "fv3jedi/Utilities/Traits.h"
-#include "oops/generic/instantiateModelFactory.h"
 #include "oops/runs/Run.h"
 #include "saber/oops/instantiateCovarFactory.h"
-#include "ufo/instantiateObsErrorFactory.h"
 #include "ufo/instantiateObsFilterFactory.h"
 #include "ufo/ObsTraits.h"
 
@@ -18,9 +16,7 @@
 int main(int argc,  char ** argv) {
   oops::Run run(argc, argv);
   saber::instantiateCovarFactory<fv3jedi::Traits>();
-  ufo::instantiateObsErrorFactory();
   ufo::instantiateObsFilterFactory();
-  oops::instantiateModelFactory<fv3jedi::Traits>();
   oops::Variational<fv3jedi::Traits, ufo::ObsTraits> var;
   return run.execute(var);
 }

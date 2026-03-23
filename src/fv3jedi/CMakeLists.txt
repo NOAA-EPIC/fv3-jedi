@@ -44,11 +44,8 @@ list( APPEND fv3jedi_src_files
   IO/CubeSphereHistory/IOCubeSphereHistory.h
   IO/CubeSphereHistory/IOCubeSphereHistory.interface.F90
   IO/CubeSphereHistory/IOCubeSphereHistory.interface.h
-  IO/AuxGrid/fv3jedi_io_auxgrid_mod.f90
-  IO/AuxGrid/IOAuxGrid.cc
-  IO/AuxGrid/IOAuxGrid.h
-  IO/AuxGrid/IOAuxGrid.interface.F90
-  IO/AuxGrid/IOAuxGrid.interface.h
+  IO/StructuredGrid/IOStructuredGrid.cc
+  IO/StructuredGrid/IOStructuredGrid.h
   IO/Utils/fv3jedi_io_utils_mod.f90
   IO/Utils/IOBase.cc
   IO/Utils/IOBase.h
@@ -66,6 +63,10 @@ list( APPEND fv3jedi_src_files
   LinearVariableChange/Model2GeoVaLs/LinVarChaModel2GeoVaLs.cc
   LinearVariableChange/Model2GeoVaLs/LinVarChaModel2GeoVaLs.h
   LinearVariableChange/Model2GeoVaLs/LinVarChaModel2GeoVaLs.interface.h
+  Model/ModelBase.cc
+  Model/ModelBase.h
+  Model/ModelWrapper.cc
+  Model/ModelWrapper.h
   Model/fv3lm/fv3jedi_fv3lm_interface_mod.F90
   Model/fv3lm/fv3jedi_fv3lm_mod.f90
   Model/fv3lm/ModelFV3LM.cc
@@ -106,6 +107,14 @@ list( APPEND fv3jedi_src_files
   VariableChange/Control2Analysis/VarChaC2A.cc
   VariableChange/Control2Analysis/VarChaC2A.h
   VariableChange/Control2Analysis/VarChaC2A.interface.h
+  VariableChange/femps/femps_const_mod.f90
+  VariableChange/femps/femps_fv3_mod.f90
+  VariableChange/femps/femps_grid_mod.f90
+  VariableChange/femps/femps_kinds_mod.f90
+  VariableChange/femps/femps_operators_mod.f90
+  VariableChange/femps/femps_solve_mod.f90
+  VariableChange/femps/femps_testgrid_mod.f90
+  VariableChange/femps/femps_utils_mod.f90
   VariableChange/Model2GeoVaLs/fv3jedi_vc_model2geovals.interface.F90
   VariableChange/Model2GeoVaLs/fv3jedi_vc_model2geovals_mod.f90
   VariableChange/Model2GeoVaLs/VarChaModel2GeoVaLs.cc
@@ -129,72 +138,109 @@ list( APPEND fv3jedi_src_files
   Tlm/Traj.interface.h
 )
 
-# Precision of fv3
-IF(FV3_PRECISION MATCHES "DOUBLE" OR NOT FV3_PRECISION)
-  list( APPEND fv3jedi_src_files Geometry/fv_prec_r8_mod.f90 )
-ELSE()
-  list( APPEND fv3jedi_src_files Geometry/fv_prec_r4_mod.f90 )
-ENDIF()
-
-# Source files when building with stand alone fv3 (GFDL_atmos_cubed_sphere)
+# Ported cubed sphere grid gen files
 list( APPEND fv3jedi_fv3_src_files
-  Geometry/fv_init_control_mod.F90
+  Geometry/fv3/fv3jedi_fv3_arrays.F90
+  Geometry/fv3/fv3jedi_fv3_control.F90
+  Geometry/fv3/fv3jedi_fv3_eta.F90
+  Geometry/fv3/fv3jedi_fv3_grid_tools.F90
+  Geometry/fv3/fv3jedi_fv3_grid_utils.F90
+  Geometry/fv3/fv3jedi_fv3_mp_mod.F90
+  Geometry/fv3/fv3jedi_fv3_sorted_index.F90
 )
 
-# Source files when building with GEOS
-list( APPEND fv3jedi_geos_src_files
-  Geometry/fv_init_geos_mod.f90
-  Model/geos/fv3jedi_geos_interface_mod.F90
-  Model/geos/fv3jedi_geos_mod.F90
-  Model/geos/ModelGEOS.cc
-  Model/geos/ModelGEOS.h
-  Model/geos/ModelGEOS.interface.h
+# Combine
+list( APPEND fv3jedi_src_files ${fv3jedi_fv3_src_files} )
+
+# fv3 ported files have specific required properties
+list(APPEND fv3_defs SPMD)
+list(APPEND fv3_defs MOIST_CAPPA)
+list(APPEND fv3_defs USE_COND)
+list(APPEND fv3_defs OVERLOAD_R4)
+list(APPEND fv3_defs OVERLOAD_R8)
+list(APPEND fv3_defs INTERNAL_FILE_NML)
+list(APPEND fv3_defs ENABLE_QUAD_PRECISION)
+set_source_files_properties(${fv3jedi_fv3_src_files} PROPERTIES COMPILE_DEFINITIONS "${fv3_defs}")
+
+# Add all the compiler flags to the fv3 files
+# -------------------------------------------
+
+# Fortran‐preprocessor flag
+set_fortran_preprocessing_flag(FORTRAN_PREPROCESSOR_FLAG)
+
+# Compiler specific flags.
+if(CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
+  set(FV3_FLAGS "-r8")
+elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+  set(FV3_FLAGS "-fdefault-real-8 -fdefault-double-8 -ffree-line-length-none")
+else()
+  message(WARNING
+    "Unknown Fortran compiler '${CMAKE_Fortran_COMPILER_ID}',\n"
+    "  fv3 files not using special flags.")
+  set(FV3_FLAGS "")
+endif()
+
+# Combine
+string(JOIN " " FV3_FLAGS_STR
+  ${CMAKE_Fortran_FLAGS}
+  ${FORTRAN_PREPROCESSOR_FLAG}
+  ${FV3_FLAGS}
 )
 
-# Source files when building with UFS
-list( APPEND fv3jedi_ufs_src_files
-  Geometry/fv_init_control_mod.F90
-  Model/ufs/fv3jedi_ufs_interface_mod.F90
-  Model/ufs/fv3jedi_ufs_mod.F90
-  Model/ufs/ModelUFS.cc
-  Model/ufs/ModelUFS.h
-  Model/ufs/ModelUFS.interface.h
+# Asign
+set_source_files_properties(
+  ${fv3jedi_fv3_src_files}
+  PROPERTIES
+    COMPILE_FLAGS "${FV3_FLAGS_STR}"
 )
+
+# -------------------------------------------
 
 #Requirement libraries
-set(FV3JEDI_LIB_DEP oops saber ufo vader femps atlas atlas_f fv3jedilm fms ${LAPACK_LIBRARIES} ${NETCDF_LIBRARIES})
+set(FV3JEDI_LIB_DEP oops saber ufo vader atlas atlas_f fv3jedilm fms ${LAPACK_LIBRARIES} ${NETCDF_LIBRARIES})
 
-# If explicitly requested
+# Fortran OpenMP library
 if(OPENMP)
   list( APPEND FV3JEDI_LIB_DEP OpenMP::OpenMP_Fortran)
 endif()
 
-#Requirement sources
-set(FV3JEDI_SRC_DEP ${fv3jedi_src_files} )
-
-# Optional model - fv3
-if( FV3_FORECAST_MODEL MATCHES "FV3CORE" )
-  list( APPEND FV3JEDI_SRC_DEP ${fv3jedi_fv3_src_files} )
-  list( APPEND FV3JEDI_LIB_DEP fv3 )
-endif()
-
-# Optional model - geos
+# Optional forecast models
+# ------------------------
 if( FV3_FORECAST_MODEL MATCHES "GEOS" )
-  list( APPEND FV3JEDI_SRC_DEP ${fv3jedi_geos_src_files} )
-  list( APPEND FV3JEDI_LIB_DEP MPI::MPI_Fortran )
-endif()
 
-# Optional model - ufs
-if( FV3_FORECAST_MODEL MATCHES "UFS" )
-  list( APPEND FV3JEDI_SRC_DEP ${fv3jedi_ufs_src_files} )
+  # GEOS source files
+  list( APPEND fv3jedi_src_files
+    Model/geos/fv3jedi_geos_interface_mod.F90
+    Model/geos/fv3jedi_geos_mod.F90
+    Model/geos/ModelGEOS.cc
+    Model/geos/ModelGEOS.h
+    Model/geos/ModelGEOS.interface.h
+  )
+
+  # GEOS libraries
+  list( APPEND FV3JEDI_LIB_DEP MPI::MPI_Fortran )
+
+elseif( FV3_FORECAST_MODEL MATCHES "UFS" )
+
+  # Source files when building with UFS
+  list( APPEND fv3jedi_src_files
+    Model/ufs/fv3jedi_ufs_interface_mod.F90
+    Model/ufs/fv3jedi_ufs_mod.F90
+    Model/ufs/ModelUFS.cc
+    Model/ufs/ModelUFS.h
+    Model/ufs/ModelUFS.interface.h
+  )
+
   if(CMAKE_Fortran_COMPILER_ID MATCHES GNU)
     set_source_files_properties(${fv3jedi_ufs_src_files} PROPERTIES COMPILE_FLAGS "${CMAKE_Fortran_FLAGS} -ffree-line-length-none -fno-range-check ")
   endif()
+
 endif()
+
 
 #Add the library
 ecbuild_add_library( TARGET          fv3jedi
-                     SOURCES         ${FV3JEDI_SRC_DEP}
+                     SOURCES         ${fv3jedi_src_files}
                      PUBLIC_LIBS     ${FV3JEDI_LIB_DEP}
                      INSTALL_HEADERS LISTED
                      LINKER_LANGUAGE ${FV3JEDI_LINKER_LANGUAGE}
@@ -202,6 +248,8 @@ ecbuild_add_library( TARGET          fv3jedi
 
 target_include_directories( fv3jedi PUBLIC "$<BUILD_INTERFACE:${FV3JEDI_INCLUDE_DIRS}>" "$<BUILD_INTERFACE:${FV3JEDI_EXTRA_INCLUDE_DIRS}>" )
 
+
+# Compiler definitions for full UFS model
 if( FV3_FORECAST_MODEL MATCHES "UFS" )
 
   # Link all the libraries
@@ -241,7 +289,7 @@ if( FV3_FORECAST_MODEL MATCHES "UFS" )
   target_link_libraries( fv3jedi PUBLIC NetCDF::NetCDF_C NetCDF::NetCDF_Fortran)
   target_link_libraries( fv3jedi PUBLIC nemsio::nemsio)
   target_link_libraries( fv3jedi PUBLIC w3emc::w3emc_d)
-  target_link_libraries( fv3jedi PUBLIC sp::sp_d)
+  target_link_libraries( fv3jedi PUBLIC ip::ip_d)
   target_link_libraries( fv3jedi PUBLIC bacio::bacio_4)
   target_link_libraries( fv3jedi PUBLIC FMS::fms_r8)
   target_link_libraries( fv3jedi PUBLIC ESMF)

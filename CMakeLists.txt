@@ -56,14 +56,6 @@ include( fv3jedi_extra_macros )
 option( ENABLE_FV3JEDI_DOC "Build FV3-JEDI documentation" OFF )
 
 ################################################################################
-# Set default model to GFDL_atmos_cubed_sphere
-################################################################################
-
-if (NOT FV3_FORECAST_MODEL MATCHES GEOS AND NOT FV3_FORECAST_MODEL MATCHES UFS)
-  set(FV3_FORECAST_MODEL "FV3CORE")
-endif()
-
-################################################################################
 # Dependencies
 ################################################################################
 
@@ -89,20 +81,17 @@ find_package( crtm 2.2.3 REQUIRED )
 find_package( ropp-ufo QUIET )
 
 # gsibec
-find_package( gsibec 1.2.1 QUIET )
+find_package( gsibec 1.4.2 QUIET )
 if( gsibec_FOUND )
     message( STATUS "FV3-SABER block GSI is enabled" )
     add_definitions(-DENABLE_GSIBEC=1)
 endif()
 
-# ncep-sp
-find_package( sp QUIET )
+# ncep-ip
+find_package( ip QUIET )
 
 # ufo
 find_package( ufo 1.10.0 REQUIRED )
-
-# femps
-find_package( femps 1.3.0 REQUIRED )
 
 # vader
 find_package( vader 1.7.0 REQUIRED )
@@ -115,12 +104,6 @@ endif()
 # MPI
 ecbuild_find_mpi( COMPONENTS CXX Fortran REQUIRED )
 
-# Set default forecast model
-# --------------------------
-if (NOT FV3_FORECAST_MODEL MATCHES GEOS AND NOT FV3_FORECAST_MODEL MATCHES UFS)
-  set(FV3_FORECAST_MODEL "FV3CORE")
-endif()
-
 # fms
 find_package(FMS 2023.04 REQUIRED COMPONENTS R4 R8)
 if (FV3_PRECISION MATCHES DOUBLE OR NOT FV3_PRECISION)
@@ -128,8 +111,6 @@ if (FV3_PRECISION MATCHES DOUBLE OR NOT FV3_PRECISION)
 else()
   add_library(fms ALIAS FMS::fms_r4)
 endif()
-
-# fv3
 
 # geos
 if (FV3_FORECAST_MODEL MATCHES "GEOS")
@@ -227,25 +208,6 @@ foreach( _tpl ${FV3JEDI_TPLS} )
 endforeach()
 
 ################################################################################
-# Test data
-################################################################################
-
-# DH 2023/10/06 - this is unfortunately still true ...
-### The fv3-jedi-data package is problematic in bundles because it has some special CMake logic
-### at the root bundle location. So, we cannot find the fv3-jedi-data while in fv3-jedi!
-### Basically, with the current logic we hack fv3-jedi-data_FOUND to match ENABLE_FV3_JEDI_DATA
-#find_package( fv3-jedi-data QUIET )
-if (ENABLE_FV3_JEDI_DATA)
-  set (fv3-jedi-data_FOUND TRUE)
-else()
-  # Set values for downloading fv3-jedi test data from tarball
-  set (fv3-jedi_data_download_url "https://bin.ssec.wisc.edu/pub/s4/CRTM/file")
-  set (fv3-jedi_data_tag "1.9.0")
-  set (fv3-jedi_data_tarball_name "fv3-jedi_testinput_tier_1_${fv3-jedi_data_tag}.tar.gz")
-  set (fv3-jedi_data_tarball_hash "8ea0904eda4e4b3840536b8c744b3d9e")
-endif()
-
-################################################################################
 # Sources
 ################################################################################
 
@@ -263,10 +225,36 @@ if (FV3_FORECAST_MODEL MATCHES UFS)
 endif()
 
 add_subdirectory( src )
-add_subdirectory( test )
+
+################################################################################
+# Docs
+################################################################################
 
 if( ENABLE_FV3JEDI_DOC )
     add_subdirectory( Documents )
+endif()
+
+################################################################################
+# Tests
+################################################################################
+
+if( BUILD_TESTING )
+  find_package( fv3-jedi-data QUIET )
+  if( NOT fv3-jedi-data_FOUND )
+    # Set values for downloading fv3-jedi test data from tarball
+    set( fv3-jedi_data_download_url "https://bin.ssec.wisc.edu/pub/s4/CRTM/file" )
+    set( fv3-jedi_data_tag "1.9.0" )
+    set( fv3-jedi_data_tarball_name "fv3-jedi_testinput_tier_1_${fv3-jedi_data_tag}.tar.gz" )
+    set( fv3-jedi_data_tarball_hash "8ea0904eda4e4b3840536b8c744b3d9e" )
+  endif()
+
+  add_subdirectory( test )
+
+  ecbuild_add_test( TARGET fv3jedi_test_tier1_coding_norms
+                    TYPE SCRIPT
+                    COMMAND ${CMAKE_BINARY_DIR}/bin/cpplint.py
+                    ARGS --quiet --recursive ${CMAKE_CURRENT_SOURCE_DIR}/src
+                    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin )
 endif()
 
 ################################################################################

@@ -25,7 +25,7 @@ cost function:
     fms initialization:
       namelist filename: Data/fv3files/input_geos_c12.nml
       field table filename: Data/fv3files/field_table_gmao
-    akbk: Data/fv3files/akbk72.nc4
+    akbk: Data/inputs/fv3files/akbk72.nc4
 #   layout: [1,1]
     npx: 13
     npy: 13
@@ -98,10 +98,11 @@ cost function:
 #----------------------------------------------------------
   background error:
     covariance model: SABER
+    covariance type: gsi hybrid covariance
     saber central block:
       saber block name: gsi hybrid covariance
       read:
-        gsi akbk: Data/fv3files/akbk72.nc4
+        gsi akbk: Data/inputs/fv3files/akbk72.nc4
         gsi error covariance file: Data/inputs/nmcbalance/gsi-coeffs-geos-global-l72x72y46.nc4
         gsi berror namelist file: Data/gsibec/geos_hyb4dgsi_global_72x46x72.nml
         processor layout x direction: 3
@@ -171,10 +172,10 @@ cost function:
           - name: windNorthward
           - name: airTemperature
           - name: specificHumidity
-        - name: SfcPCorrected
+        - name: SfcCorrected
           variables:
           - name: stationPressure
-          da_psfc_scheme: GSI
+          correction scheme to use: GSL
       linear obs operator:
         name: Composite
         components:
@@ -228,7 +229,7 @@ variational:
     gradient norm reduction: 1e-10
 ##  test: on
     geometry:
-      akbk: Data/fv3files/akbk72.nc4
+      akbk: Data/inputs/fv3files/akbk72.nc4
 #     layout: [1,1]
       npx: 13
       npy: 13

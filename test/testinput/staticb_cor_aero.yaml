@@ -2,7 +2,7 @@ geometry:
   fms initialization:
     namelist filename: Data/fv3files/fmsmpp.nml
     field table filename: Data/fv3files/field_table_gfdl
-  akbk: Data/fv3files/akbk64.nc4
+  akbk: Data/inputs/fv3files/akbk64.nc4
   layout:
   - 1
   - 2
@@ -60,9 +60,9 @@ background error:
         files prefix: cor_aero
         overriding sampling file: var-mom_2018041421_aero_sampling
         overriding moments file:
-        - var-mom_2018041421_aero_mom_000001_1
-        - var-mom_2018041500_aero_mom_000001_1
-        - var-mom_2018041503_aero_mom_000001_1
+        - var-mom_2018041421_aero_mom_000001
+        - var-mom_2018041500_aero_mom_000001
+        - var-mom_2018041503_aero_mom_000001
       drivers:
         compute covariance: true
         compute correlation: true

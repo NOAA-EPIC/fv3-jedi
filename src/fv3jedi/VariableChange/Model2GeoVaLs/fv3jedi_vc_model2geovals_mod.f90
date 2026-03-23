@@ -567,7 +567,7 @@ endif
 ! CO2
 ! ---
 allocate(co2(self%isc:self%iec,self%jsc:self%jec,self%npz))
-co2 = 407.0_kind_real
+co2 = 4.07e-4_kind_real !mol mol-1
 if (xm%has_field('co2')) then
   call xm%get_field('co2', co2)
 endif
@@ -786,6 +786,11 @@ elseif (xm%has_field( 'stc' )) then
   allocate(soilt(self%isc:self%iec,self%jsc:self%jec,1))
   soilt(:,:,1) = soil_tmp(:,:,1) ! Which of the 4 levels should we use?
   have_soilt = .true.
+elseif (xm%has_field( 'tslb' )) then
+  call xm%get_field('tslb' , soil_tmp )
+  allocate(soilt(self%isc:self%iec,self%jsc:self%jec,1))
+  soilt(:,:,1) = soil_tmp(:,:,1) ! Which of the 9 levels should we use?
+  have_soilt = .true.
 endif
 
 ! Soil moisture
@@ -797,6 +802,11 @@ elseif (xm%has_field( 'soilMoistureVolumetric' )) then
   call xm%get_field('soilMoistureVolumetric' , soil_tmp )
   allocate(soilm(self%isc:self%iec,self%jsc:self%jec,1))
   soilm(:,:,1) = soil_tmp(:,:,1) ! Which of the 4 levels should we use?
+  have_soilm = .true.
+elseif (xm%has_field( 'smois' )) then
+  call xm%get_field('smois' , soil_tmp )
+  allocate(soilm(self%isc:self%iec,self%jsc:self%jec,1))
+  soilm(:,:,1) = soil_tmp(:,:,1) ! Which of the 9 levels should we use?
   have_soilm = .true.
 endif
 

@@ -29,14 +29,14 @@ use ensemble_manager_mod,       only: get_ensemble_id,get_ensemble_size
 use field_manager_mod,          only: fm_string_len, field_manager_init
 
 ! fv3 uses
-use fv_arrays_mod,              only: fv_atmos_type, deallocate_fv_atmos_type
+use fv3jedi_fv3_arrays_mod,     only: fv_atmos_type, deallocate_fv_atmos_type
+use fv3jedi_fv3_control_mod,    only: fv_control_init
 
 ! fv3jedi uses
 use fields_metadata_mod,        only: fields_metadata
 use fv3jedi_constants_mod,      only: constant
 use fv3jedi_kinds_mod,          only: kind_int, kind_real
 use fv3jedi_netcdf_utils_mod,   only: nccheck
-use fv_init_mod,                only: fv_init
 use fv3jedi_fmsnamelist_mod,    only: fv3jedi_fmsnamelist
 
 implicit none
@@ -94,11 +94,6 @@ type :: fv3jedi_geom
   logical :: dord4 = .true.
   type(atlas_functionspace) :: afunctionspace
 
-  ! As a temporary hack to enable using the BUMP interpolator from fv3-jedi, make an additional
-  ! FunctionSpace without halos. This should be removed as soon as the interpolations can be made
-  ! more generic
-  type(atlas_functionspace) :: afunctionspace_for_bump
-
   ! Configuration that holds the masks to be applied to each field
   type(fckit_configuration) :: field_masks
   type(fckit_configuration) :: field_interp_methods
@@ -108,7 +103,6 @@ type :: fv3jedi_geom
     procedure, public :: clone
     procedure, public :: delete
     procedure, public :: is_equal
-    procedure, public :: fill_bump_lonlat
     procedure, public :: set_and_fill_geometry_fields
     procedure, public :: get_data
     procedure, public :: get_num_nodes_and_elements
@@ -167,19 +161,21 @@ end subroutine initialize
 
 ! --------------------------------------------------------------------------------------------------
 
-subroutine create(self, conf, comm, nlevs)
+subroutine create(self, conf, comm, npx, npy, npz)
 
 !Arguments
 class(fv3jedi_geom), target, intent(inout) :: self
 type(fckit_configuration),   intent(in)    :: conf
 type(fckit_mpi_comm),        intent(in)    :: comm
-integer,                     intent(out)   :: nlevs
+integer,                     intent(out)   :: npx
+integer,                     intent(out)   :: npy
+integer,                     intent(out)   :: npz
 
 !Locals
 character(len=256)                    :: file_akbk
 type(fv_atmos_type), allocatable      :: Atm(:)
 logical, allocatable                  :: grids_on_this_pe(:)
-integer                               :: i, j, jj, gtile
+integer                               :: i, j, jj, this_grid
 integer                               :: p_split = 1
 integer                               :: ncstat, ncid, akvarid, bkvarid, readdim, dcount
 integer, dimension(nf90_max_var_dims) :: dimids, dimlens
@@ -228,7 +224,11 @@ call fmsnamelist%replace_namelist(conf)
 
 !Intialize using the model setup routine
 ! --------------------------------------
-call fv_init(Atm, 300.0_kind_real, grids_on_this_pe, p_split, gtile, .true.)
+call fv_control_init(Atm, 300.0_kind_real, this_grid, grids_on_this_pe, p_split, &
+                     skip_nml_read_in=.true.)
+
+! Sanity check
+if (this_grid .ne. 1) call abor1_ftn("Geometry not ready for ngrid > 1")
 
 ! Copy relevant contents of Atm
 ! -----------------------------
@@ -243,14 +243,16 @@ self%jsc = Atm(1)%bd%jsc
 self%jec = Atm(1)%bd%jec
 self%kec = Atm(1)%npz
 
-self%ntile  = gtile
+self%ntile  = Atm(1)%global_tile
 self%ntiles = Atm(1)%flagstruct%ntiles
 
 self%npx = Atm(1)%npx
 self%npy = Atm(1)%npy
 self%npz = Atm(1)%npz
 
-nlevs = self%npz
+npx = self%npx
+npy = self%npy
+npz = self%npz
 
 self%layout(1) = Atm(1)%layout(1)
 self%layout(2) = Atm(1)%layout(2)
@@ -345,7 +347,6 @@ endif
 
 ! Arrays from the Atm Structure
 ! -----------------------------
-
 self%grid_lon  = real(Atm(1)%gridstruct%agrid_64(:,:,1),kind_real)
 self%grid_lat  = real(Atm(1)%gridstruct%agrid_64(:,:,2),kind_real)
 self%egrid_lon = real(Atm(1)%gridstruct%grid_64(:,:,1),kind_real)
@@ -560,7 +561,6 @@ self%nw_corner = other%nw_corner
 self%domain => other%domain
 
 self%afunctionspace = atlas_functionspace(other%afunctionspace%c_ptr())
-self%afunctionspace_for_bump = atlas_functionspace(other%afunctionspace_for_bump%c_ptr())
 
 self%geometry_fields = atlas_fieldset(other%geometry_fields%c_ptr())
 
@@ -630,7 +630,7 @@ deallocate(self%lon_us)
 !call mpp_deallocate_domain(self%domain_fix)
 
 call self%afunctionspace%final()
-call self%afunctionspace_for_bump%final()
+call self%geometry_fields%final()
 
 end subroutine delete
 
@@ -663,30 +663,6 @@ end subroutine is_equal
 
 ! --------------------------------------------------------------------------------------------------
 
-subroutine fill_bump_lonlat(self, afieldset)
-
-!Arguments
-class(fv3jedi_geom),  intent(inout) :: self
-type(atlas_fieldset), intent(inout) :: afieldset
-
-!Locals
-real(kind_real), pointer :: real_ptr(:,:)
-type(atlas_field) :: afield
-integer :: ngrid
-
-ngrid = self%ngrid
-
-! Create lonlat field, without halo, for bump
-afield = atlas_field(name="bump_lonlat", kind=atlas_real(kind_real), shape=(/2,ngrid/))
-call afield%data(real_ptr)
-real_ptr(1,:) = constant('rad2deg')*reshape(self%grid_lon(self%isc:self%iec, self%jsc:self%jec),(/ngrid/))
-real_ptr(2,:) = constant('rad2deg')*reshape(self%grid_lat(self%isc:self%iec, self%jsc:self%jec),(/ngrid/))
-call afieldset%add(afield)
-
-end subroutine fill_bump_lonlat
-
-! --------------------------------------------------------------------------------------------------
-
 subroutine set_and_fill_geometry_fields(self, afieldset, field_masks)
 
 !Arguments
@@ -714,7 +690,6 @@ call afield%data(int_ptr)
 int_ptr(1, :) = 0
 int_ptr(1, 1:self%ngrid) = 1
 call afieldset%add(afield)
-call afield%final()
 
 ! Add area
 afield = self%afunctionspace%create_field(name='area', kind=atlas_real(kind_real), levels=1)
@@ -722,7 +697,6 @@ call afield%data(real_ptr)
 real_ptr(1, :) = -1.0_kind_real
 real_ptr(1, 1:self%ngrid) = reshape(self%area(self%isc:self%iec, self%jsc:self%jec), (/self%ngrid/))
 call afieldset%add(afield)
-call afield%final()
 
 ! Add vertical unit
 ps = constant('ps')
@@ -754,6 +728,7 @@ else
 endif
 call afieldset%add(afield)
 call afield%final()
+call afield2%final()
 
 end subroutine set_and_fill_geometry_fields
 

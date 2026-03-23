@@ -2,7 +2,7 @@ geometry:
   fms initialization:
     namelist filename: Data/fv3files/fmsmpp.nml
     field table filename: Data/fv3files/field_table
-  akbk: Data/fv3files/akbk127.nc4
+  akbk: Data/inputs/fv3files/akbk127.nc4
   npx: 13
   npy: 13
   npz: 127
@@ -184,7 +184,7 @@ driver:
   save posterior ensemble: false
   save posterior mean increment: true
 local ensemble DA:
-  solver: Perturbed LETKF
+  solver: Stochastic LETKF
   inflation:
     rtps: 0.5
     rtpp: 0.6

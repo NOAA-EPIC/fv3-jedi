@@ -198,14 +198,14 @@ endif
 ! Temperature
 ! -----------
 have_t = .false.
-have_q = dxc%has_field('sphum')
+have_q = dxc%has_field('water_vapor_mixing_ratio_wrt_moist_air')
 if (dxc%has_field('air_temperature')) then
   allocate(t(geom%isc:geom%iec,geom%jsc:geom%jec,geom%npz))
   call dxc%get_field('air_temperature', t)
   have_t = .true.
 elseif (dxc%has_field('virtual_temperature') .and. have_q) then
   allocate(t(geom%isc:geom%iec,geom%jsc:geom%jec,geom%npz))
-  call dxc%get_field('sphum', q)
+  call dxc%get_field('water_vapor_mixing_ratio_wrt_moist_air', q)
   call dxc%get_field('virtual_temperature'  , tv)
   call Tv_to_T_tl(geom, self%tvtraj, tv, self%qtraj, q, t)
   have_t = .true.
@@ -326,7 +326,7 @@ real(kind=kind_real), allocatable, dimension(:,:,:) :: chi
 real(kind=kind_real), pointer,     dimension(:,:,:) :: q
 
 ! Virtual temperature
-logical :: have_tv
+logical :: have_tv, have_q
 real(kind=kind_real), pointer,     dimension(:,:,:) :: t
 real(kind=kind_real), allocatable, dimension(:,:,:) :: tv
 
@@ -356,13 +356,18 @@ if (.not.allocated(fields_to_do)) return
 ! Virtual temperature
 ! -------------------
 have_tv = .false.
-if (dxa%has_field('air_temperature') .and. dxa%has_field('sphum')) then
+have_q = .false.
+if (dxa%has_field('air_temperature') .and. dxa%has_field('water_vapor_mixing_ratio_wrt_moist_air')) then
   call dxa%get_field('air_temperature', t)
-  call dxa%get_field('sphum', q)
+  call dxa%get_field('water_vapor_mixing_ratio_wrt_moist_air', q)
   allocate(tv(geom%isc:geom%iec,geom%jsc:geom%jec,geom%npz))
   tv = 0.0_kind_real
   call Tv_to_T_ad(geom, self%tvtraj, tv, self%qtraj, q, t)
   have_tv = .true.
+  if (dxc%has_field('virtual_temperature') .and. dxc%has_field('water_vapor_mixing_ratio_wrt_moist_air')) then
+    fields_to_do = [fields_to_do, 'water_vapor_mixing_ratio_wrt_moist_air']
+    have_q = .true.
+  endif
 endif
 
 ! A-Grid winds
@@ -452,6 +457,11 @@ do f = 1, size(fields_to_do)
 
     if (.not. have_tv) call field_fail('ad_'//fields_to_do(f))
     field_ptr = tv
+
+  case ('water_vapor_mixing_ratio_wrt_moist_air')
+
+    if (.not. have_q) call field_fail('ad_'//fields_to_do(f))
+    field_ptr = q
 
   case ('ozone_mass_mixing_ratio')
 

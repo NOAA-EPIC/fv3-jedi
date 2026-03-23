@@ -479,13 +479,17 @@ do jvar = 1, vars%nvars()
     call meta%set('mask', trim(conf_str))
   endif
 
+  ! Set the nearest 3d level for 2d variables
+  call meta%set('nearest 3d level', 'bottom')
+
   ! Release pointer
   call afield%final()
-
 enddo
 
 ! Clean up
 if (allocated(tmp)) deallocate(tmp)
+call afield%final()
+call meta%final()
 
 end subroutine to_fieldset
 
@@ -527,11 +531,8 @@ do jvar = 1,vars%nvars()
     field%array(geom%isc:geom%iec, geom%jsc:geom%jec, jl) = &
       reshape(real_ptr(jl, 1:geom%ngrid), (/geom%iec-geom%isc+1, geom%jec-geom%jsc+1/))
   enddo
-
-  ! Release pointer
-  call afield%final()
-
 enddo
+call afield%final()
 
 end subroutine from_fieldset
 

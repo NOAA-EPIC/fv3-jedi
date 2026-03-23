@@ -2,7 +2,7 @@ geometry:
   fms initialization:
     namelist filename: Data/ModelRunDirs/c48_001/input.nml
     field table filename: Data/ModelRunDirs/UFS_warmstart_1/field_table
-  akbk: Data/fv3files/akbk127.nc4
+  akbk: Data/inputs/fv3files/akbk127.nc4
   npx: 49
   npy: 49
   npz: 127
@@ -93,9 +93,9 @@ observations:
         engine:
           type: H5File
           obsfile: Data/hofx/scatwind_letkf-member%ensmem%-gfs_2021032312.nc4
+        write multiple files: false
       io pool:
         max pool size: 1
-        write multiple files: false
       simulated variables:
       - windEastward
       - windNorthward
@@ -126,9 +126,9 @@ observations:
         engine:
           type: H5File
           obsfile: Data/hofx/amsua_n19_letkf-member%ensmem%-gfs_2021032312.nc4
+        write multiple files: false
       io pool:
         max pool size: 1
-        write multiple files: false
       simulated variables:
       - brightnessTemperature
       channels: 4-6,9-14
@@ -174,14 +174,14 @@ observations:
         engine:
           type: H5File
           obsfile: Data/hofx/sfc_letkf-member%ensmem%-gfs_2021032312.nc4
+        write multiple files: false
       simulated variables:
       - stationPressure
       io pool:
         max pool size: 1
-        write multiple files: false
     obs operator:
-      name: SfcPCorrected
-      da_psfc_scheme: UKMO
+      name: SfcCorrected
+      correction scheme to use: UKMO
     linear obs operator:
       name: Identity
     obs error:
@@ -205,7 +205,7 @@ driver:
   do posterior observer: true
   run as observer only: false
 local ensemble DA:
-  solver: LETKF
+  solver: Deterministic LETKF
   inflation:
     rtps: 0.5
     rtpp: 0.6
